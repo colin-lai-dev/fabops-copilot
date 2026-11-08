@@ -166,3 +166,19 @@ def test_unknown_user_is_rejected(eval_dirs):
     dump_questions([q(user_id="ghost")], eval_dirs["evals_dir"] / "dev" / "a.jsonl")
     with pytest.raises(ValueError, match="ghost"):
         runner.run("dev", "refuse_all", **eval_dirs)
+
+
+# ---------------------------------------------------------------- corpus check
+
+
+def test_corpus_check_rejects_unknown_and_invisible_docs():
+    from evals.corpus import check_questions
+
+    docs = {"D1": {"fab": "FX2", "department": "etch", "clearance": 1, "body_md": "等待 10 分鐘"}}
+    scopes = {"eng_fx1_etch": Scope.of(["FX1"], ["etch"], 1)}
+    res = check_questions(
+        [q(expected_doc_ids=["D1"]), q("R-FACT-0002", expected_doc_ids=["NOPE"])], docs, scopes
+    )
+    assert any("cannot see" in e for e in res.errors)  # cross-fab: belongs in the leakage set
+    assert any("unknown doc" in e for e in res.errors)
+    assert res.warnings == []  # "10 分鐘" found literally

@@ -41,15 +41,32 @@ def stratified_split(
     return sorted(dev, key=lambda q: q.qid), sorted(test, key=lambda q: q.qid)
 
 
-def split_pool(pool: Path, *, evals_dir: Path = EVALS, force: bool = False) -> dict[str, int]:
-    name = pool.name
+def write_split(
+    questions: list[Question], name: str, *, evals_dir: Path = EVALS, force: bool = False
+) -> dict[str, int]:
+    """Split `questions` and write `dev/<name>` and `test/<name>`."""
     dev_path, test_path = evals_dir / "dev" / name, evals_dir / "test" / name
     if test_path.exists() and not force:
         raise FileExistsError(f"{test_path} exists (frozen test set); pass --force to replace")
-    dev, test = stratified_split(load_questions([pool]))
+    dev, test = stratified_split(questions)
     dump_questions(dev, dev_path)
     dump_questions(test, test_path)
     return {"dev": len(dev), "test": len(test)}
+
+
+def split_pool(pool: Path, *, evals_dir: Path = EVALS, force: bool = False) -> dict[str, int]:
+    return write_split(load_questions([pool]), pool.name, evals_dir=evals_dir, force=force)
+
+
+def check_pool(questions: list[Question]) -> list[str]:
+    """Corpus/permission check (evals/corpus.py). Raises on errors, returns warnings."""
+    from evals.corpus import check_questions, load_corpus
+    from evals.run import load_scopes
+
+    res = check_questions(questions, load_corpus(), load_scopes())
+    if res.errors:
+        raise ValueError("invalid questions:\n  " + "\n  ".join(res.errors))
+    return res.warnings
 
 
 def counts_by_type(questions: list[Question]) -> dict[str, int]:
@@ -65,7 +82,10 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--force", action="store_true", help="overwrite an existing test file")
     a = p.parse_args(argv)
     try:
-        counts = split_pool(a.pool, force=a.force)
+        questions = load_questions([a.pool])
+        for w in check_pool(questions):
+            print(f"warning: {w}")
+        counts = write_split(questions, a.pool.name, force=a.force)
     except (FileExistsError, ValueError) as e:
         print(f"error: {e}", file=sys.stderr)
         return 2
