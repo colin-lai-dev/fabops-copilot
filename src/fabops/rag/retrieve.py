@@ -44,6 +44,8 @@ class Hit:
     chunk_id: str
     doc_id: str
     text: str
+    fab: str
+    department: str
     clearance: int
     score: float
     ranks: dict[str, int] = field(default_factory=dict)  # per-ranker rank, 1-based
@@ -103,34 +105,51 @@ class Retriever:
             t0 = time.perf_counter()
             if cfg.dense:
                 cur.execute(
-                    "SELECT c.chunk_id, c.doc_id, c.text, c.clearance FROM chunks c "
+                    "SELECT c.chunk_id, c.doc_id, c.text, c.fab, c.department, c.clearance "
+                    "FROM chunks c "
                     f"JOIN documents d USING (doc_id) WHERE {cond} "
                     "ORDER BY c.embedding <=> %(q)s::vector LIMIT %(n)s",
                     {**params, "q": vector_literal(enc.dense[0]), "n": cfg.candidates},
                 )
-                for cid, did, text, cl in cur:
-                    rows[cid] = {"doc_id": did, "text": text, "clearance": cl}
+                for cid, did, text, fab, dept, cl in cur:
+                    rows[cid] = {
+                        "doc_id": did,
+                        "text": text,
+                        "fab": fab,
+                        "department": dept,
+                        "clearance": cl,
+                    }
                     rankings.setdefault("dense", []).append(cid)
             t["dense"] = time.perf_counter() - t0
             t0 = time.perf_counter()
             if cfg.lexical != "none":
                 col = "c.tokens" if cfg.lexical == "bm25" else "c.sparse"
                 cur.execute(
-                    f"SELECT c.chunk_id, c.doc_id, c.text, c.clearance, {col} FROM chunks c "
+                    f"SELECT c.chunk_id, c.doc_id, c.text, c.fab, c.department, c.clearance, {col} "
+                    "FROM chunks c "
                     f"JOIN documents d USING (doc_id) WHERE {cond}",
                     params,
                 )
                 cand = cur.fetchall()
                 if cfg.lexical == "bm25":
-                    scores = bm25_scores(tokenize(query), [r[4] for r in cand])
+                    scores = bm25_scores(tokenize(query), [r[6] for r in cand])
                 else:
-                    docs = [r[4] if isinstance(r[4], dict) else json.loads(r[4]) for r in cand]
+                    docs = [r[6] if isinstance(r[6], dict) else json.loads(r[6]) for r in cand]
                     scores = sparse_scores(enc.sparse[0], docs)
                 ranked = sorted(zip(scores, cand, strict=True), key=lambda x: -x[0])
-                for s, (cid, did, text, cl, _) in ranked[: cfg.candidates]:
+                for s, (cid, did, text, fab, dept, cl, _) in ranked[: cfg.candidates]:
                     if s <= 0:
                         break
-                    rows.setdefault(cid, {"doc_id": did, "text": text, "clearance": cl})
+                    rows.setdefault(
+                        cid,
+                        {
+                            "doc_id": did,
+                            "text": text,
+                            "fab": fab,
+                            "department": dept,
+                            "clearance": cl,
+                        },
+                    )
                     rankings.setdefault("lexical", []).append(cid)
             t["lexical"] = time.perf_counter() - t0
 
@@ -141,6 +160,8 @@ class Retriever:
                 c,
                 rows[c]["doc_id"],
                 rows[c]["text"],
+                rows[c]["fab"],
+                rows[c]["department"],
                 rows[c]["clearance"],
                 fused[c],
                 {name: r.index(c) + 1 for name, r in rankings.items() if c in r},

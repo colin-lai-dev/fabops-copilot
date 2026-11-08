@@ -131,7 +131,12 @@ class LLMClient:
         model: str,
         cache_dir: str | Path = ".cache/llm",
         usage_log: str | Path = ".cache/usage.jsonl",
+        *,
+        unsafe_share_cache_across_scopes: bool = False,
     ):
+        # True only for the "no exit checks" leak-test baseline (PLAN Phase 1): it shows
+        # what leaks through the cache when the scope is left out of the key.
+        self.unsafe_share_cache = unsafe_share_cache_across_scopes
         self.provider = provider
         self.model = model
         self.cache_dir = Path(cache_dir)
@@ -165,7 +170,8 @@ class LLMClient:
             "temperature": temperature,
             "max_tokens": max_tokens,
             "reasoning_effort": getattr(self.provider, "reasoning_effort", None),
-            "scope": scope.key(),  # never share cached answers across permission scopes
+            # never share cached answers across permission scopes
+            "scope": "shared" if self.unsafe_share_cache else scope.key(),
         }
         raw = json.dumps(payload, ensure_ascii=False, sort_keys=True)
         return hashlib.sha256(raw.encode()).hexdigest()
@@ -186,7 +192,11 @@ class LLMClient:
         # Exit check on the cache: an entry is only served to the scope that produced it.
         # The key already includes the scope; this guards against key collisions, a copied
         # cache directory, or a future change that drops the scope from the key.
-        if cached is not None and cached.get("scope") != scope.key():
+        if (
+            cached is not None
+            and not self.unsafe_share_cache
+            and cached.get("scope") != scope.key()
+        ):
             cached = None
         if cached is not None:
             c = cached
