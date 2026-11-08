@@ -20,6 +20,7 @@
   Phase 1 baseline 若顯示模板文字讓分數失真再重做（`docs/experiments.md`）。
 - **協作設定**：新增 Claude Code 權限規則（`.claude/settings.json`）與交接機制
   （使用者說「接手」即執行 `private/handoff/` 中的下一份指示）。
+- 企劃 v3 定稿版存於本機 `private/planning/`（不進 git）。
 - **Phase 0 gate 通過**（`docs/gates/phase-0.md`）。下一步：Phase 1，先做 eval 框架。
 
 ## 2026-11-07
