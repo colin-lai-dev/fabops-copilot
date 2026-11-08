@@ -182,3 +182,25 @@ def test_corpus_check_rejects_unknown_and_invisible_docs():
     assert any("cannot see" in e for e in res.errors)  # cross-fab: belongs in the leakage set
     assert any("unknown doc" in e for e in res.errors)
     assert res.warnings == []  # "10 分鐘" found literally
+
+
+# ---------------------------------------------------------------- system specs
+
+
+@pytest.mark.parametrize("spec", ["ret-nope", "rag-nope", "rag-nope-rerank-noexit", "bogus"])
+def test_unknown_system_specs_fail_before_loading_models(spec):
+    from evals.systems import load_system
+
+    with pytest.raises(ValueError):
+        load_system(spec)
+
+
+def test_rag_spec_parsing(monkeypatch):
+    from evals import systems
+
+    seen = {}
+    monkeypatch.setattr(systems, "make_retriever", lambda **kw: seen.setdefault("kw", kw))
+    s = systems.load_system("rag-hybrid-bm25-rerank-noexit")
+    assert seen["kw"] == {"dense": True, "lexical": "bm25", "rerank": True, "k": 20}
+    assert s.answerer.exit_checks is False and s.answerer.client.unsafe_share_cache is True
+    assert systems.load_system("rag-dense").answerer.exit_checks is True

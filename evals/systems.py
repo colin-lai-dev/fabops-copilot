@@ -88,11 +88,64 @@ def retrieval_system(spec: str) -> System:
     return RetrievalOnly(spec, retriever)
 
 
+# ---------------------------------------------------------------- full RAG (LLM)
+
+
+class RagSystem:
+    def __init__(self, name: str, answerer):
+        self.name, self.answerer = name, answerer
+
+    def answer(self, question: str, scope: Scope) -> SystemOutput:
+        a = self.answerer.answer(question, scope)
+        return SystemOutput(
+            answer=a.text,
+            citations=a.citations,
+            retrieved=a.retrieved,
+            refused=a.refused,
+            latency_ms=a.latency_ms,
+            input_tokens=a.input_tokens,
+            output_tokens=a.output_tokens,
+            cost_usd=a.cost_usd,
+            error=a.error,
+        )
+
+
+def rag_system(spec: str) -> System:
+    """`rag-<preset>[-rerank][-noexit]`, e.g. `rag-dense` (PLAN baseline: vector only, no
+    rerank) or `rag-hybrid-bm25-rerank`. `-noexit` is the no-exit-checks leak baseline."""
+    from fabops.authz.trace import Tracer
+    from fabops.config import get_settings
+    from fabops.llm.client import LLMClient
+    from fabops.rag.answer import Answerer
+
+    body = spec.removeprefix("rag-")
+    exit_checks = not body.endswith("-noexit")
+    body = body.removesuffix("-noexit")
+    rerank = body.endswith("-rerank")
+    preset = body.removesuffix("-rerank")
+    if preset not in RETRIEVAL_PRESETS:
+        raise ValueError(f"unknown retrieval preset {preset!r}; one of {sorted(RETRIEVAL_PRESETS)}")
+    retriever = make_retriever(**RETRIEVAL_PRESETS[preset], rerank=rerank, k=20)
+    client = LLMClient.from_env()
+    if not exit_checks:
+        client.unsafe_share_cache = True
+    tracer = (
+        Tracer.from_env()
+        if exit_checks
+        else Tracer(
+            f"{get_settings().fabops_cache_dir}/../traces-unmasked.jsonl", unsafe_unmasked=True
+        )
+    )
+    return RagSystem(spec, Answerer(retriever, client, tracer, exit_checks=exit_checks))
+
+
 def load_system(spec: str) -> System:
     if spec in REGISTRY:
         return REGISTRY[spec]()
     if spec.startswith("ret-"):
         return retrieval_system(spec)
+    if spec.startswith("rag-"):
+        return rag_system(spec)
     module, sep, attr = spec.partition(":")
     if not sep:
         raise ValueError(f"unknown system {spec!r}; registered: {sorted(REGISTRY)}")
