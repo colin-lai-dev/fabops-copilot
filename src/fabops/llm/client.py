@@ -55,16 +55,26 @@ class Provider(Protocol):
 
 
 class OpenAICompatibleProvider:
-    def __init__(self, name: str, base_url: str | None = None, api_key: str | None = None):
+    def __init__(
+        self,
+        name: str,
+        base_url: str | None = None,
+        api_key: str | None = None,
+        reasoning_effort: str | None = None,
+    ):
         from openai import OpenAI
 
         self.name = name
+        # "none" turns off qwen3 thinking on Ollama; `/no_think` in the prompt is ignored
+        # there (docs/experiments.md, 2026-11-08).
+        self.reasoning_effort = reasoning_effort
         key = api_key or os.environ.get(API_KEY_ENV.get(name, ""), "") or "not-needed"
         self._client = OpenAI(base_url=base_url or DEFAULT_BASE_URLS[name], api_key=key)
 
     def complete(self, messages, model, temperature, max_tokens) -> Completion:
+        extra = {"reasoning_effort": self.reasoning_effort} if self.reasoning_effort else {}
         r = self._client.chat.completions.create(
-            model=model, messages=messages, temperature=temperature, max_tokens=max_tokens
+            model=model, messages=messages, temperature=temperature, max_tokens=max_tokens, **extra
         )
         u = r.usage
         return Completion(
@@ -93,10 +103,15 @@ class AnthropicProvider:
         return Completion(text, r.usage.input_tokens, r.usage.output_tokens)
 
 
-def make_provider(name: str, base_url: str | None = None, api_key: str | None = None) -> Provider:
+def make_provider(
+    name: str,
+    base_url: str | None = None,
+    api_key: str | None = None,
+    reasoning_effort: str | None = None,
+) -> Provider:
     if name == "anthropic":
         return AnthropicProvider(api_key)
-    return OpenAICompatibleProvider(name, base_url, api_key)
+    return OpenAICompatibleProvider(name, base_url, api_key, reasoning_effort)
 
 
 @dataclass
@@ -127,7 +142,12 @@ class LLMClient:
         """Build a client from `.env` / environment variables (see fabops.config)."""
         cfg = get_settings()
         return cls(
-            make_provider(cfg.llm_provider, cfg.llm_base_url, cfg.api_key(cfg.llm_provider)),
+            make_provider(
+                cfg.llm_provider,
+                cfg.llm_base_url,
+                cfg.api_key(cfg.llm_provider),
+                cfg.llm_reasoning_effort,
+            ),
             cfg.llm_model,
             cfg.fabops_cache_dir,
             cfg.fabops_usage_log,
@@ -144,6 +164,7 @@ class LLMClient:
             "messages": messages,
             "temperature": temperature,
             "max_tokens": max_tokens,
+            "reasoning_effort": getattr(self.provider, "reasoning_effort", None),
             "scope": scope.key(),  # never share cached answers across permission scopes
         }
         raw = json.dumps(payload, ensure_ascii=False, sort_keys=True)
@@ -161,8 +182,14 @@ class LLMClient:
         key = self.cache_key(messages, scope, temperature, max_tokens)
         path = self.cache_dir / f"{key}.json"
         start = time.perf_counter()
-        if path.exists():
-            c = json.loads(path.read_text(encoding="utf-8"))
+        cached = json.loads(path.read_text(encoding="utf-8")) if path.exists() else None
+        # Exit check on the cache: an entry is only served to the scope that produced it.
+        # The key already includes the scope; this guards against key collisions, a copied
+        # cache directory, or a future change that drops the scope from the key.
+        if cached is not None and cached.get("scope") != scope.key():
+            cached = None
+        if cached is not None:
+            c = cached
             result = LLMResult(c["text"], c["input_tokens"], c["output_tokens"], 0.0, 0, True)
         else:
             comp = self.provider.complete(messages, self.model, temperature, max_tokens)
@@ -175,6 +202,7 @@ class LLMClient:
             path.write_text(
                 json.dumps(
                     {
+                        "scope": scope.key(),
                         "text": comp.text,
                         "input_tokens": comp.input_tokens,
                         "output_tokens": comp.output_tokens,

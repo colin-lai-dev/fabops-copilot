@@ -97,3 +97,25 @@ def test_structured_output_gives_up_after_retry(make_client):
     p = FakeProvider(replies=["nope", "still nope"])
     with pytest.raises(ValueError):
         parse_alarm(make_client(p), "x")
+
+
+def test_cache_entry_is_only_served_to_its_own_scope(make_client, tmp_path):
+    """Exit check: even a planted/copied entry under the LOW key is refused if it says HIGH."""
+    p = FakeProvider(replies=["secret", "fresh"])
+    c = make_client(p)
+    c.chat(MSG, HIGH)
+    high_file = next((tmp_path / "cache").glob("*.json"))
+    low_key = c.cache_key(MSG, LOW, 0.0, 1024)
+    (tmp_path / "cache" / f"{low_key}.json").write_text(
+        high_file.read_text(encoding="utf-8"), encoding="utf-8"
+    )
+    r = c.chat(MSG, LOW)
+    assert (r.text, r.cached, p.calls) == ("fresh", False, 2)
+
+
+def test_reasoning_effort_is_part_of_the_cache_key(make_client):
+    p = FakeProvider(name="ollama")
+    c = make_client(p, model="qwen3:8b")
+    before = c.cache_key(MSG, LOW, 0.0, 10)
+    p.reasoning_effort = "none"
+    assert c.cache_key(MSG, LOW, 0.0, 10) != before
