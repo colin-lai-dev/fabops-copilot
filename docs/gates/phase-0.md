@@ -61,7 +61,7 @@ polish.py（選用）──> LLMClient ──> Ollama / Claude / OpenAI / Gemini
 
 ## 6. 你的任務
 
-- [ ] 在自己電腦跑「驗證步驟」
+- [x] 在自己電腦跑「驗證步驟」（結果見下方）
 - [ ] 履歷 bullet 定稿（Phase 1 版與完整版）
 
 ## 驗證步驟（Windows）
@@ -79,3 +79,34 @@ uv run python -m fabops.llm.examples
 ```
 
 （Windows 若沒有 `make`，可直接執行上面的指令。）
+
+> 更新：`seed` 與 `pytest -m db` 要加 `--env-file .env`（`uv run --env-file .env …`），
+> 否則 `.env` 裡的 `DATABASE_URL` 不會生效。若 5432 已被其他 Postgres 佔用，在 `.env`
+> 把 `FABOPS_DB_PORT` 和 `DATABASE_URL` 的埠一起改掉。
+
+### 實際結果（2026-11-08，Windows 11 Home）
+
+- 環境：Docker 27.3.1（Docker Desktop）、uv 0.13.7（winget 安裝）、CPython 3.12.16（uv 管理）
+- `docker compose up -d --wait`：`pgvector/pgvector:pg16` healthy。5432 被另一個專案的
+  Postgres 佔用，本機 `.env` 設 `FABOPS_DB_PORT=5433`
+- `uv run --env-file .env python -m fabops.data.seed`：
+
+  | 資料表 | 筆數 |
+  | --- | --- |
+  | users | 6 |
+  | equipment | 30 |
+  | chambers | 91 |
+  | lots | 150 |
+  | dispatch_log | 9,135 |
+  | alarms | 400 |
+  | maintenance | 136 |
+  | documents | 192（SOP 42 + 異常報告 150） |
+
+- `uv run pytest -q`：20 passed, 1 deselected
+- `uv run --env-file .env pytest -q -m db`：1 passed, 20 deselected
+- `ruff check` / `ruff format --check`：通過
+- 為了讓驗證通過而做的修正：
+  - `d8b0305` fix(infra)：Compose 的主機埠可設定（`FABOPS_DB_PORT`）
+  - `6065f6f` chore：加 `.python-version` 固定用 3.12（原本 uv 會用主機上的 3.13）
+  - `5bb6b60` fix(make)：`seed`、`test-db` 載入 `.env`
+- 未執行：`make polish`、`fabops.llm.examples`（Ollama）

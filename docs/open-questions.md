@@ -10,3 +10,4 @@ Claude Code 遇到 ADR 沒涵蓋的問題時記錄於此，並採用暫定做法
 | 2026-11-08 | Claude 的接法（ADR-0008 留待確認） | 用 Anthropic 官方 SDK 的原生轉接層，其餘供應商走 OpenAI 相容介面。 | 走 Anthropic 的 OpenAI 相容端點，功能可能有差異。 | 暫定 |
 | 2026-11-08 | 結構化輸出的做法 | 用 prompt 要求 JSON，再以 Pydantic 驗證，失敗時修正重試一次；各供應商通用。 | 改用各家原生的 JSON 模式或 tool calling，較穩定但要分別實作。 | 暫定 |
 | 2026-11-08 | 機密等級分布 | restricted 等級目前只有 1 份 SOP 和 14 份異常報告。 | Phase 1 設計洩漏測試集時，若覺得不夠可調整 `generate.py` 的權重。 | 暫定 |
+| 2026-11-08 | **程式不會自動載入 `.env`**：`seed.py`、測試與 LLM client 只讀 `os.environ`，`.env` 的設定（DB 埠、`LLM_*`）實際上被忽略。 | Makefile 的 `seed`、`test-db` 改用 `uv run --env-file .env`（不需新依賴）。`polish` 與 `fabops.llm.examples` 仍未載入。 | 在程式內用 `pydantic-settings` 或 `python-dotenv` 統一載入設定（要新增依賴，需 Cody 同意）。 | **待決** |
