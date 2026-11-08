@@ -119,6 +119,13 @@ web/          # React 前端
 - Windows 沒有 make 時，直接執行 Makefile 裡的 `uv run …` 指令
 - Phase 1 再加入 `make eval-dev`、`make eval-test`
 
+## 開發日誌
+
+- `docs/log.md` 是依時間排序的進度與決策紀錄，最新的在最上面。
+- 每次 session 結束、完成一份交接指示、或到達 gate 時，在當天日期下追加 1–5 行：
+  完成了什麼、做了什麼決定、細節在哪個文件。不要重複文件內容，只寫索引。
+- Colin 與規劃者（另一個對話中的 Claude）做的決定，也由規劃者寫進這份日誌。
+
 ## 進度
 
 以 `docs/PLAN.md` 為準。每次開新 session 先讀 PLAN.md 與 open-questions.md，
