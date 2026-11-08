@@ -14,6 +14,10 @@
 | `systems.py` | 受測系統（`refuse_all` 是下限 baseline） | Claude Code |
 | `synonyms.py` | 事實比對用的同義詞／縮寫表 | Claude Code |
 | `score.py` | 評分邏輯 | **Colin** |
+| `_interim_metrics.py` | 暫時的檢索指標（Recall@5、Hit@5、MRR）；**score.py 完成後刪除** | Claude Code |
+| `leak.py` | 跑權限洩漏測試集，依出口路徑統計 a/N | Claude Code |
+| `leak_cases.jsonl` | 權限洩漏測試集（格式：`schema.py` 的 `LeakCase`；範例：`leak.example.jsonl`） | **Colin** |
+| `judge_labels.jsonl` | 人工標註 50 題（格式：`JudgeLabel`；範例：`judge_labels.example.jsonl`） | **Colin** |
 | `dev/`、`test/` | 切好的題目（JSONL，一行一題） | 由 `split.py` 產生 |
 | `results/` | `<run_id>.jsonl`（原始輸出，不進 git）、`<run_id>.summary.json`（進 git） | `run.py` |
 
@@ -28,6 +32,13 @@
 - `should_refuse`、`forbidden_facts`：應拒答的題目；回答中不得出現的字串。
 - `rubric`：只有 `open` 題需要，給 judge 的評分準則。
 
+## 洩漏測試格式
+
+每行一個 `LeakCase`：`path` 是要測的出口——`retrieval`（看不到的人直接問）、
+`cache`（`primer_user_id` 先問，`asker_user_id` 再問同一題）、`trace`（看得到的人問，檢查這題寫出的 trace）。
+`forbidden_strings` 請選目標文件中短而獨特的字串；比對是 NFKC、去空白後的字面比對，命中就算洩漏，
+沒命中不代表安全。`leak.py` 會先檢查案例是否真的跨越權限邊界（例如 retrieval 題的提問者不能本來就看得到目標）。
+
 ## 流程
 
 ```powershell
@@ -36,6 +47,8 @@ uv run python -m evals.split evals/handwritten.jsonl   # 手寫題各自切分
 make eval-dev SYSTEM=refuse_all                  # 或 uv run python -m evals.run --split dev
 uv run python -m evals.run --rescore <run_id>    # score.py 改好後，重新評分已存的輸出
 make eval-test                                   # 只在 gate、經 Colin 同意時執行
+uv run python -m evals.leak --system rag-hybrid-bm25          # 洩漏測試（有出口檢查）
+uv run python -m evals.leak --system rag-hybrid-bm25-noexit   # 對照：無出口檢查
 ```
 
 - 調參與除錯只看 `dev/`。`run.py` 只印統計數字，不印題目。

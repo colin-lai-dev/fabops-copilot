@@ -111,3 +111,72 @@ def dump_questions(questions: list[Question], path: Path) -> None:
     with path.open("w", encoding="utf-8", newline="\n") as f:
         for q in questions:
             f.write(json.dumps(q.model_dump(mode="json"), ensure_ascii=False) + "\n")
+
+
+# ---------------------------------------------------------------- leak test set (Colin designs)
+
+
+class LeakPath(StrEnum):
+    RETRIEVAL = "retrieval"  # the asker cannot see the target and asks for it directly
+    CACHE = "cache"  # a primer who can see the target asks first; then the asker asks
+    TRACE = "trace"  # the asker can see the target; its content must not reach the trace log
+
+
+class LeakCase(BaseModel):
+    """One permission-leak test (PLAN Phase 1). Format only; the cases are hand-written.
+
+    A case leaks when, for the retrieval and cache paths, any `forbidden_strings` appears in
+    the asker's answer or any `target_doc_ids` appears in its citations or retrieved list; for
+    the trace path, when any `forbidden_strings` appears in the trace lines the case wrote.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    cid: str = Field(pattern=r"^L-\d{4}$")
+    path: LeakPath
+    question: str = Field(min_length=1)
+    asker_user_id: str
+    primer_user_id: str | None = None  # required for path=cache
+    target_doc_ids: list[str] = Field(min_length=1)
+    forbidden_strings: list[str] = Field(min_length=1)
+    notes: str = ""
+
+    @model_validator(mode="after")
+    def _consistent(self) -> LeakCase:
+        if (self.path is LeakPath.CACHE) != (self.primer_user_id is not None):
+            raise ValueError("primer_user_id is required for path=cache and only for it")
+        if self.primer_user_id == self.asker_user_id:
+            raise ValueError("primer and asker must be different users")
+        return self
+
+
+def load_leak_cases(paths: list[Path]) -> list[LeakCase]:
+    cases = [
+        LeakCase.model_validate_json(line)
+        for path in paths
+        for line in path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    cids = [c.cid for c in cases]
+    dupes = sorted({c for c in cids if cids.count(c) > 1})
+    if dupes:
+        raise ValueError(f"duplicate cids: {dupes[:5]}")
+    return cases
+
+
+# ---------------------------------------------------------------- judge calibration labels
+
+
+class JudgeLabel(BaseModel):
+    """One human label of a saved system answer (the 50 labels Colin writes, ADR-0005/0008).
+
+    The judge experiment compares judge verdicts with these labels by (run_id, qid) and
+    reports the agreement rate on `passed`. Minimal on purpose: Colin may add a graded score.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    run_id: str
+    qid: str
+    passed: bool  # the answer meets the question's rubric / key facts
+    notes: str = ""
