@@ -2,7 +2,7 @@
 
 - 日期：2026-11-08
 - Branch：`phase-0-foundation`
-- 狀態：程式與測試完成；**等 Cody 在自己電腦跑 `docker compose up` 與 `make seed` 驗證**
+- 狀態：程式與測試完成；**等 Colin 在自己電腦跑 `docker compose up` 與 `make seed` 驗證**
 
 ## 1. 完成的任務
 
@@ -14,7 +14,7 @@
 | LLM client（供應商切換、權限範圍快取、用量紀錄）、結構化輸出範例 | `feat(llm): add provider-switching…` |
 | 文件潤飾與事實檢查（選用） | `feat(data): add optional LLM polish…` |
 
-未完成：**[Cody]** 履歷 bullet 定稿。
+未完成：**[Colin]** 履歷 bullet 定稿。
 
 ## 2. 架構摘要
 

@@ -3,7 +3,7 @@
 依企劃 v3：每週 8–10 小時，約 11 週。gate 沒過就不進下一階段。
 Phase 1 的 gate 是硬目標；之後的階段都是加分。
 
-標記：**[Cody]** 由 Cody 親手寫或設計，其餘由 Claude Code 實作。
+標記：**[Colin]** 由 Colin 親手寫或設計，其餘由 Claude Code 實作。
 
 ## Phase 0：基礎建置（第 1 週）
 
@@ -20,7 +20,7 @@ Phase 1 的 gate 是硬目標；之後的階段都是加分。
   - 錯字與口語化的異常報告
 - [x] `src/fabops/llm/client.py`：OpenAI 相容介面、快取（key 含角色與權限範圍）、
       token／延遲／成本紀錄
-- [x] **[Cody]** 履歷 bullet 定稿（Phase 1 投遞版與完整版，數字留空；存於本機 `private/`，不進 git）
+- [x] **[Colin]** 履歷 bullet 定稿（Phase 1 投遞版與完整版，數字留空；存於本機 `private/`，不進 git）
 
 **Gate：** 從零執行 `docker compose up` 與 `make seed` 可完整跑起來；README 有快速開始。
 
@@ -31,10 +31,10 @@ Eval 基礎先做，凍結後才開始調參。
 - [ ] Eval 框架：題目格式、`evals/run.py`、dev/test 分割，`score.py` 介面 stub
 - [ ] RAG 問答集：test 目標 100 題以上（規則產生 + 手寫），題型含換句話說、跨文件、
       錯字與縮寫、問到舊版 SOP、應拒答
-  - [ ] **[Cody]** 手寫題目
-- [ ] **[Cody]** 權限洩漏測試集：直接越權 + 快取、日誌間接路徑
-- [ ] **[Cody]** `evals/score.py`
-- [ ] **[Cody]** 人工標註 50 題
+  - [ ] **[Colin]** 手寫題目
+- [ ] **[Colin]** 權限洩漏測試集：直接越權 + 快取、日誌間接路徑
+- [ ] **[Colin]** `evals/score.py`
+- [ ] **[Colin]** 人工標註 50 題
 - [ ] Judge 選擇實驗：GPT-5.4 mini vs Gemini 2.5 Flash，以人工標註的一致率決定（ADR-0008）
 - [ ] 凍結 test set（記錄 commit hash 到 experiments.md）
 - [ ] 切塊（依 SOP 章節）與 bge-m3 索引
@@ -51,15 +51,15 @@ Eval 基礎先做，凍結後才開始調參。
 
 ## Phase 2：Agent workflow（第 6–8 週）
 
-- [ ] **[Cody]** Agent loop 練習（`playground/`，不是交付物）
+- [ ] **[Colin]** Agent loop 練習（`playground/`，不是交付物）
 - [ ] FastMCP server：查批號履歷、查機台狀態、查派貨紀錄、搜 SOP、搜類似異常（全部唯讀）
 - [ ] 身分注入與工具出口檢查（依 ADR-0001）
 - [ ] LangGraph agent：最多 8 步、上下文管理（摘要／截斷）、錯誤重試與 fallback
 - [ ] 人工核准：LangGraph interrupt 與 checkpoint、audit log、冪等性
 - [ ] 固定 workflow baseline 與只用 RAG baseline
 - [ ] Agent 情境集 20–30 個（多步推理、資料矛盾、應拒絕給建議）
-- [ ] **[Cody]** Prompt injection 測試集（含誘導冒用高權限角色）
-- [ ] **[Cody]** 洩漏測試集補上 agent 工具路徑
+- [ ] **[Colin]** Prompt injection 測試集（含誘導冒用高權限角色）
+- [ ] **[Colin]** 洩漏測試集補上 agent 工具路徑
 - [ ] Langfuse trace（內文遮罩）
 - [ ] React 前端：問答、角色切換、agent trace、核准按鈕
 - [ ] 三組對照實驗：成功率、工具選擇正確率、捏造 ID 率、步數、成本
@@ -80,6 +80,6 @@ Eval 基礎先做，凍結後才開始調參。
 - [ ] README：一句話、demo GIF、架構圖、eval 結果表、快速開始、已知限制
       （含合成資料侷限、Langfuse 雲端方案前提）
 - [ ] 3 分鐘 demo 影片
-- [ ] **[Cody]** 履歷完整版、面試題自測（`/quiz`）
+- [ ] **[Colin]** 履歷完整版、面試題自測（`/quiz`）
 
 **Gate：** 他人照 README，10 分鐘內跑起來。
