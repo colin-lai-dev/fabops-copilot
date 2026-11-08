@@ -28,9 +28,10 @@ Phase 1 的 gate 是硬目標；之後的階段都是加分。
 
 Eval 基礎先做，凍結後才開始調參。
 
-- [ ] Eval 框架：題目格式、`evals/run.py`、dev/test 分割，`score.py` 介面 stub
+- [x] Eval 框架：題目格式、`evals/run.py`、dev/test 分割，`score.py` 介面 stub
 - [ ] RAG 問答集：test 目標 100 題以上（規則產生 + 手寫），題型含換句話說、跨文件、
       錯字與縮寫、問到舊版 SOP、應拒答
+  - [x] 規則題 151 題（dev 60、test 91）
   - [ ] **[Colin]** 手寫題目
 - [ ] **[Colin]** 權限洩漏測試集：直接越權 + 快取、日誌間接路徑
 - [ ] **[Colin]** `evals/score.py`

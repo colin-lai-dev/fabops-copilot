@@ -6,6 +6,7 @@
 
 ## 2026-11-08
 
+- **Phase 1 開始**（交接指示 001）：`phase-0-foundation` 合併回 `main`，開 `phase-1-rag`。完成 eval 框架與 151 題規則題（dev 60、test 91），停在 Colin 的手寫題目；待辦與評分細節見 `docs/gates/phase-1.md`，待決事項見 `docs/open-questions.md`。
 - **企劃定稿為 v3**：經兩輪外部審查，主軸從「功能廣度」改為「驗證深度」——eval 先凍結再調參、
   權限檢查擴大到每個資料出口（檢索、快取、工具、日誌、輸出）、加入 prompt injection 測試、
   agent 以 RAG／固定 workflow／agent 三組對照證明價值；Phase 1 gate 為硬目標。
