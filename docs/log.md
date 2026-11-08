@@ -6,6 +6,10 @@
 
 ## 2026-11-08
 
+- **Phase 1 開始**：eval 框架、權限 policy 函式、151 題規則題（dev 60／test 91）完成；
+  停在 Colin 的手寫題與 `score.py`（`docs/gates/phase-1.md`）。
+- **規劃者代決**：ADR-0004 補「暫不潤飾」修訂；ADR-0005 補 5 條評分細節預設規則（Colin 可推翻）；
+  open-questions 4 筆暫定做法確認。CC 的回報改為寫進 `private/handoff/`，Colin 不必轉貼。
 - **Phase 1 開始**（交接指示 001）：`phase-0-foundation` 合併回 `main`，開 `phase-1-rag`。完成 eval 框架與 151 題規則題（dev 60、test 91），停在 Colin 的手寫題目；待辦與評分細節見 `docs/gates/phase-1.md`，待決事項見 `docs/open-questions.md`。
 - **企劃定稿為 v3**：經兩輪外部審查，主軸從「功能廣度」改為「驗證深度」——eval 先凍結再調參、
   權限檢查擴大到每個資料出口（檢索、快取、工具、日誌、輸出）、加入 prompt injection 測試、
