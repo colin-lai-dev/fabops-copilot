@@ -1,0 +1,3150 @@
+{
+ "SOP-FX1-ETC-PRS-0412-v1": {
+  "facts": {
+   "limit_low": 8,
+   "limit_high": 45,
+   "wait_min": 10,
+   "consecutive": 3,
+   "notify_role": "設備工程師",
+   "pm_type": "腔體濕式清潔",
+   "escalate_hours": 8,
+   "monitor_wafers": 1,
+   "comp_value": "+9%",
+   "comp_lots": 4,
+   "alarm_code": "ETC-PRS-0412",
+   "parameter": "chamber pressure"
+  },
+  "dirty_tags": [
+   "html_table"
+  ]
+ },
+ "SOP-FX2-ETC-PRS-0412-v1": {
+  "facts": {
+   "limit_low": 8,
+   "limit_high": 45,
+   "wait_min": 30,
+   "consecutive": 2,
+   "notify_role": "製程工程師",
+   "pm_type": "季保養",
+   "escalate_hours": 2,
+   "monitor_wafers": 1,
+   "comp_value": "-4%",
+   "comp_lots": 5,
+   "alarm_code": "ETC-PRS-0412",
+   "parameter": "chamber pressure"
+  },
+  "dirty_tags": []
+ },
+ "SOP-FX1-ETC-RFP-0230-v1": {
+  "facts": {
+   "limit_low": 20,
+   "limit_high": 90,
+   "wait_min": 30,
+   "consecutive": 3,
+   "notify_role": "模組經理",
+   "pm_type": "月保養",
+   "escalate_hours": 8,
+   "monitor_wafers": 1,
+   "comp_value": "+8%",
+   "comp_lots": 5,
+   "alarm_code": "ETC-RFP-0230",
+   "parameter": "reflected power"
+  },
+  "dirty_tags": []
+ },
+ "SOP-FX2-ETC-RFP-0230-v1": {
+  "facts": {
+   "limit_low": 20,
+   "limit_high": 90,
+   "wait_min": 30,
+   "consecutive": 3,
+   "notify_role": "設備工程師",
+   "pm_type": "零件更換",
+   "escalate_hours": 2,
+   "monitor_wafers": 1,
+   "comp_value": "-2%",
+   "comp_lots": 4,
+   "alarm_code": "ETC-RFP-0230",
+   "parameter": "reflected power"
+  },
+  "dirty_tags": [
+   "old_version"
+  ]
+ },
+ "SOP-FX2-ETC-RFP-0230-v2": {
+  "facts": {
+   "limit_low": 20,
+   "limit_high": 90,
+   "wait_min": 15,
+   "consecutive": 3,
+   "notify_role": "設備工程師",
+   "pm_type": "零件更換",
+   "escalate_hours": 2,
+   "monitor_wafers": 1,
+   "comp_value": "-2%",
+   "comp_lots": 4,
+   "alarm_code": "ETC-RFP-0230",
+   "parameter": "reflected power"
+  },
+  "dirty_tags": []
+ },
+ "SOP-FX1-ETC-EPD-0118-v1": {
+  "facts": {
+   "limit_low": 5,
+   "limit_high": 30,
+   "wait_min": 10,
+   "consecutive": 3,
+   "notify_role": "製程工程師",
+   "pm_type": "季保養",
+   "escalate_hours": 2,
+   "monitor_wafers": 2,
+   "comp_value": "-4%",
+   "comp_lots": 2,
+   "alarm_code": "ETC-EPD-0118",
+   "parameter": "endpoint delay"
+  },
+  "dirty_tags": [
+   "old_version"
+  ]
+ },
+ "SOP-FX1-ETC-EPD-0118-v2": {
+  "facts": {
+   "limit_low": 5,
+   "limit_high": 30,
+   "wait_min": 5,
+   "consecutive": 3,
+   "notify_role": "製程工程師",
+   "pm_type": "季保養",
+   "escalate_hours": 2,
+   "monitor_wafers": 2,
+   "comp_value": "-4%",
+   "comp_lots": 2,
+   "alarm_code": "ETC-EPD-0118",
+   "parameter": "endpoint delay"
+  },
+  "dirty_tags": [
+   "html_table"
+  ]
+ },
+ "SOP-FX2-ETC-EPD-0118-v1": {
+  "facts": {
+   "limit_low": 5,
+   "limit_high": 30,
+   "wait_min": 20,
+   "consecutive": 3,
+   "notify_role": "模組經理",
+   "pm_type": "腔體濕式清潔",
+   "escalate_hours": 2,
+   "monitor_wafers": 1,
+   "comp_value": "+6%",
+   "comp_lots": 4,
+   "alarm_code": "ETC-EPD-0118",
+   "parameter": "endpoint delay"
+  },
+  "dirty_tags": []
+ },
+ "SOP-FX1-ETC-HEL-0507-v1": {
+  "facts": {
+   "limit_low": 1,
+   "limit_high": 6,
+   "wait_min": 10,
+   "consecutive": 2,
+   "notify_role": "值班主任",
+   "pm_type": "月保養",
+   "escalate_hours": 8,
+   "monitor_wafers": 3,
+   "comp_value": "-7%",
+   "comp_lots": 5,
+   "alarm_code": "ETC-HEL-0507",
+   "parameter": "He leak rate"
+  },
+  "dirty_tags": []
+ },
+ "SOP-FX2-ETC-HEL-0507-v1": {
+  "facts": {
+   "limit_low": 1,
+   "limit_high": 6,
+   "wait_min": 30,
+   "consecutive": 3,
+   "notify_role": "設備工程師",
+   "pm_type": "週保養",
+   "escalate_hours": 2,
+   "monitor_wafers": 1,
+   "comp_value": "+4%",
+   "comp_lots": 5,
+   "alarm_code": "ETC-HEL-0507",
+   "parameter": "He leak rate"
+  },
+  "dirty_tags": []
+ },
+ "SOP-FX1-LIT-FOC-0301-v1": {
+  "facts": {
+   "limit_low": 15,
+   "limit_high": 60,
+   "wait_min": 15,
+   "consecutive": 2,
+   "notify_role": "製程工程師",
+   "pm_type": "週保養",
+   "escalate_hours": 4,
+   "monitor_wafers": 3,
+   "comp_value": "+5%",
+   "comp_lots": 2,
+   "alarm_code": "LIT-FOC-0301",
+   "parameter": "focus offset"
+  },
+  "dirty_tags": []
+ },
+ "SOP-FX2-LIT-FOC-0301-v1": {
+  "facts": {
+   "limit_low": 15,
+   "limit_high": 60,
+   "wait_min": 30,
+   "consecutive": 2,
+   "notify_role": "製程工程師",
+   "pm_type": "零件更換",
+   "escalate_hours": 8,
+   "monitor_wafers": 2,
+   "comp_value": "+9%",
+   "comp_lots": 3,
+   "alarm_code": "LIT-FOC-0301",
+   "parameter": "focus offset"
+  },
+  "dirty_tags": [
+   "old_version"
+  ]
+ },
+ "SOP-FX2-LIT-FOC-0301-v2": {
+  "facts": {
+   "limit_low": 15,
+   "limit_high": 60,
+   "wait_min": 10,
+   "consecutive": 2,
+   "notify_role": "製程工程師",
+   "pm_type": "零件更換",
+   "escalate_hours": 8,
+   "monitor_wafers": 2,
+   "comp_value": "+9%",
+   "comp_lots": 3,
+   "alarm_code": "LIT-FOC-0301",
+   "parameter": "focus offset"
+  },
+  "dirty_tags": []
+ },
+ "SOP-FX1-LIT-OVL-0322-v1": {
+  "facts": {
+   "limit_low": 3,
+   "limit_high": 12,
+   "wait_min": 15,
+   "consecutive": 3,
+   "notify_role": "設備工程師",
+   "pm_type": "週保養",
+   "escalate_hours": 8,
+   "monitor_wafers": 2,
+   "comp_value": "-8%",
+   "comp_lots": 3,
+   "alarm_code": "LIT-OVL-0322",
+   "parameter": "overlay error"
+  },
+  "dirty_tags": [
+   "html_table"
+  ]
+ },
+ "SOP-FX2-LIT-OVL-0322-v1": {
+  "facts": {
+   "limit_low": 3,
+   "limit_high": 12,
+   "wait_min": 5,
+   "consecutive": 3,
+   "notify_role": "值班主任",
+   "pm_type": "零件更換",
+   "escalate_hours": 8,
+   "monitor_wafers": 3,
+   "comp_value": "+5%",
+   "comp_lots": 3,
+   "alarm_code": "LIT-OVL-0322",
+   "parameter": "overlay error"
+  },
+  "dirty_tags": []
+ },
+ "SOP-FX1-LIT-TMP-0150-v1": {
+  "facts": {
+   "limit_low": 5,
+   "limit_high": 40,
+   "wait_min": 30,
+   "consecutive": 3,
+   "notify_role": "設備工程師",
+   "pm_type": "月保養",
+   "escalate_hours": 4,
+   "monitor_wafers": 1,
+   "comp_value": "+7%",
+   "comp_lots": 5,
+   "alarm_code": "LIT-TMP-0150",
+   "parameter": "lens temperature drift"
+  },
+  "dirty_tags": []
+ },
+ "SOP-FX2-LIT-TMP-0150-v1": {
+  "facts": {
+   "limit_low": 5,
+   "limit_high": 40,
+   "wait_min": 20,
+   "consecutive": 2,
+   "notify_role": "製程工程師",
+   "pm_type": "週保養",
+   "escalate_hours": 2,
+   "monitor_wafers": 3,
+   "comp_value": "+4%",
+   "comp_lots": 3,
+   "alarm_code": "LIT-TMP-0150",
+   "parameter": "lens temperature drift"
+  },
+  "dirty_tags": []
+ },
+ "SOP-FX1-TFM-THK-0611-v1": {
+  "facts": {
+   "limit_low": 2,
+   "limit_high": 9,
+   "wait_min": 30,
+   "consecutive": 3,
+   "notify_role": "值班主任",
+   "pm_type": "季保養",
+   "escalate_hours": 4,
+   "monitor_wafers": 1,
+   "comp_value": "+7%",
+   "comp_lots": 4,
+   "alarm_code": "TFM-THK-0611",
+   "parameter": "film thickness"
+  },
+  "dirty_tags": [
+   "old_version"
+  ]
+ },
+ "SOP-FX1-TFM-THK-0611-v2": {
+  "facts": {
+   "limit_low": 2,
+   "limit_high": 9,
+   "wait_min": 15,
+   "consecutive": 3,
+   "notify_role": "值班主任",
+   "pm_type": "季保養",
+   "escalate_hours": 4,
+   "monitor_wafers": 1,
+   "comp_value": "+7%",
+   "comp_lots": 4,
+   "alarm_code": "TFM-THK-0611",
+   "parameter": "film thickness"
+  },
+  "dirty_tags": []
+ },
+ "SOP-FX2-TFM-THK-0611-v1": {
+  "facts": {
+   "limit_low": 2,
+   "limit_high": 9,
+   "wait_min": 5,
+   "consecutive": 2,
+   "notify_role": "模組經理",
+   "pm_type": "週保養",
+   "escalate_hours": 4,
+   "monitor_wafers": 1,
+   "comp_value": "-5%",
+   "comp_lots": 5,
+   "alarm_code": "TFM-THK-0611",
+   "parameter": "film thickness"
+  },
+  "dirty_tags": []
+ },
+ "SOP-FX1-TFM-GAS-0640-v1": {
+  "facts": {
+   "limit_low": 2,
+   "limit_high": 8,
+   "wait_min": 15,
+   "consecutive": 3,
+   "notify_role": "值班主任",
+   "pm_type": "月保養",
+   "escalate_hours": 2,
+   "monitor_wafers": 1,
+   "comp_value": "+9%",
+   "comp_lots": 4,
+   "alarm_code": "TFM-GAS-0640",
+   "parameter": "gas flow deviation"
+  },
+  "dirty_tags": [
+   "old_version"
+  ]
+ },
+ "SOP-FX1-TFM-GAS-0640-v2": {
+  "facts": {
+   "limit_low": 2,
+   "limit_high": 8,
+   "wait_min": 20,
+   "consecutive": 3,
+   "notify_role": "值班主任",
+   "pm_type": "月保養",
+   "escalate_hours": 2,
+   "monitor_wafers": 1,
+   "comp_value": "+9%",
+   "comp_lots": 4,
+   "alarm_code": "TFM-GAS-0640",
+   "parameter": "gas flow deviation"
+  },
+  "dirty_tags": []
+ },
+ "SOP-FX2-TFM-GAS-0640-v1": {
+  "facts": {
+   "limit_low": 2,
+   "limit_high": 8,
+   "wait_min": 10,
+   "consecutive": 2,
+   "notify_role": "製程工程師",
+   "pm_type": "週保養",
+   "escalate_hours": 2,
+   "monitor_wafers": 1,
+   "comp_value": "-6%",
+   "comp_lots": 3,
+   "alarm_code": "TFM-GAS-0640",
+   "parameter": "gas flow deviation"
+  },
+  "dirty_tags": []
+ },
+ "SOP-FX1-TFM-PRT-0655-v1": {
+  "facts": {
+   "limit_low": 10,
+   "limit_high": 60,
+   "wait_min": 20,
+   "consecutive": 2,
+   "notify_role": "設備工程師",
+   "pm_type": "週保養",
+   "escalate_hours": 2,
+   "monitor_wafers": 2,
+   "comp_value": "-4%",
+   "comp_lots": 2,
+   "alarm_code": "TFM-PRT-0655",
+   "parameter": "particle count"
+  },
+  "dirty_tags": []
+ },
+ "SOP-FX2-TFM-PRT-0655-v1": {
+  "facts": {
+   "limit_low": 10,
+   "limit_high": 60,
+   "wait_min": 5,
+   "consecutive": 3,
+   "notify_role": "設備工程師",
+   "pm_type": "腔體濕式清潔",
+   "escalate_hours": 2,
+   "monitor_wafers": 1,
+   "comp_value": "+3%",
+   "comp_lots": 3,
+   "alarm_code": "TFM-PRT-0655",
+   "parameter": "particle count"
+  },
+  "dirty_tags": [
+   "old_version"
+  ]
+ },
+ "SOP-FX2-TFM-PRT-0655-v2": {
+  "facts": {
+   "limit_low": 10,
+   "limit_high": 60,
+   "wait_min": 10,
+   "consecutive": 3,
+   "notify_role": "設備工程師",
+   "pm_type": "腔體濕式清潔",
+   "escalate_hours": 2,
+   "monitor_wafers": 1,
+   "comp_value": "+3%",
+   "comp_lots": 3,
+   "alarm_code": "TFM-PRT-0655",
+   "parameter": "particle count"
+  },
+  "dirty_tags": []
+ },
+ "SOP-FX1-DIF-TMP-0702-v1": {
+  "facts": {
+   "limit_low": 1,
+   "limit_high": 5,
+   "wait_min": 30,
+   "consecutive": 3,
+   "notify_role": "值班主任",
+   "pm_type": "腔體濕式清潔",
+   "escalate_hours": 2,
+   "monitor_wafers": 1,
+   "comp_value": "-2%",
+   "comp_lots": 5,
+   "alarm_code": "DIF-TMP-0702",
+   "parameter": "zone temperature"
+  },
+  "dirty_tags": []
+ },
+ "SOP-FX2-DIF-TMP-0702-v1": {
+  "facts": {
+   "limit_low": 1,
+   "limit_high": 5,
+   "wait_min": 15,
+   "consecutive": 2,
+   "notify_role": "值班主任",
+   "pm_type": "季保養",
+   "escalate_hours": 8,
+   "monitor_wafers": 2,
+   "comp_value": "+8%",
+   "comp_lots": 4,
+   "alarm_code": "DIF-TMP-0702",
+   "parameter": "zone temperature"
+  },
+  "dirty_tags": []
+ },
+ "SOP-FX1-DIF-O2C-0715-v1": {
+  "facts": {
+   "limit_low": 5,
+   "limit_high": 40,
+   "wait_min": 5,
+   "consecutive": 2,
+   "notify_role": "模組經理",
+   "pm_type": "月保養",
+   "escalate_hours": 4,
+   "monitor_wafers": 3,
+   "comp_value": "+2%",
+   "comp_lots": 5,
+   "alarm_code": "DIF-O2C-0715",
+   "parameter": "O2 concentration"
+  },
+  "dirty_tags": []
+ },
+ "SOP-FX2-DIF-O2C-0715-v1": {
+  "facts": {
+   "limit_low": 5,
+   "limit_high": 40,
+   "wait_min": 10,
+   "consecutive": 3,
+   "notify_role": "值班主任",
+   "pm_type": "季保養",
+   "escalate_hours": 8,
+   "monitor_wafers": 2,
+   "comp_value": "-8%",
+   "comp_lots": 3,
+   "alarm_code": "DIF-O2C-0715",
+   "parameter": "O2 concentration"
+  },
+  "dirty_tags": [
+   "html_table"
+  ]
+ },
+ "SOP-FX1-CMP-RMV-0803-v1": {
+  "facts": {
+   "limit_low": 3,
+   "limit_high": 12,
+   "wait_min": 5,
+   "consecutive": 3,
+   "notify_role": "製程工程師",
+   "pm_type": "月保養",
+   "escalate_hours": 2,
+   "monitor_wafers": 2,
+   "comp_value": "+5%",
+   "comp_lots": 4,
+   "alarm_code": "CMP-RMV-0803",
+   "parameter": "removal rate deviation"
+  },
+  "dirty_tags": []
+ },
+ "SOP-FX2-CMP-RMV-0803-v1": {
+  "facts": {
+   "limit_low": 3,
+   "limit_high": 12,
+   "wait_min": 10,
+   "consecutive": 2,
+   "notify_role": "設備工程師",
+   "pm_type": "週保養",
+   "escalate_hours": 2,
+   "monitor_wafers": 3,
+   "comp_value": "-5%",
+   "comp_lots": 5,
+   "alarm_code": "CMP-RMV-0803",
+   "parameter": "removal rate deviation"
+  },
+  "dirty_tags": [
+   "old_version"
+  ]
+ },
+ "SOP-FX2-CMP-RMV-0803-v2": {
+  "facts": {
+   "limit_low": 3,
+   "limit_high": 12,
+   "wait_min": 5,
+   "consecutive": 2,
+   "notify_role": "設備工程師",
+   "pm_type": "週保養",
+   "escalate_hours": 2,
+   "monitor_wafers": 3,
+   "comp_value": "-5%",
+   "comp_lots": 5,
+   "alarm_code": "CMP-RMV-0803",
+   "parameter": "removal rate deviation"
+  },
+  "dirty_tags": []
+ },
+ "SOP-FX1-CMP-PAD-0810-v1": {
+  "facts": {
+   "limit_low": 500,
+   "limit_high": 3000,
+   "wait_min": 10,
+   "consecutive": 2,
+   "notify_role": "模組經理",
+   "pm_type": "月保養",
+   "escalate_hours": 8,
+   "monitor_wafers": 1,
+   "comp_value": "+5%",
+   "comp_lots": 4,
+   "alarm_code": "CMP-PAD-0810",
+   "parameter": "pad life"
+  },
+  "dirty_tags": []
+ },
+ "SOP-FX2-CMP-PAD-0810-v1": {
+  "facts": {
+   "limit_low": 500,
+   "limit_high": 3000,
+   "wait_min": 15,
+   "consecutive": 2,
+   "notify_role": "值班主任",
+   "pm_type": "零件更換",
+   "escalate_hours": 8,
+   "monitor_wafers": 3,
+   "comp_value": "-8%",
+   "comp_lots": 2,
+   "alarm_code": "CMP-PAD-0810",
+   "parameter": "pad life"
+  },
+  "dirty_tags": [
+   "old_version"
+  ]
+ },
+ "SOP-FX2-CMP-PAD-0810-v2": {
+  "facts": {
+   "limit_low": 500,
+   "limit_high": 3000,
+   "wait_min": 5,
+   "consecutive": 2,
+   "notify_role": "值班主任",
+   "pm_type": "零件更換",
+   "escalate_hours": 8,
+   "monitor_wafers": 3,
+   "comp_value": "-8%",
+   "comp_lots": 2,
+   "alarm_code": "CMP-PAD-0810",
+   "parameter": "pad life"
+  },
+  "dirty_tags": []
+ },
+ "SOP-FX1-CMP-SLR-0822-v1": {
+  "facts": {
+   "limit_low": 80,
+   "limit_high": 250,
+   "wait_min": 20,
+   "consecutive": 2,
+   "notify_role": "模組經理",
+   "pm_type": "週保養",
+   "escalate_hours": 4,
+   "monitor_wafers": 2,
+   "comp_value": "+9%",
+   "comp_lots": 4,
+   "alarm_code": "CMP-SLR-0822",
+   "parameter": "slurry flow"
+  },
+  "dirty_tags": []
+ },
+ "SOP-FX2-CMP-SLR-0822-v1": {
+  "facts": {
+   "limit_low": 80,
+   "limit_high": 250,
+   "wait_min": 30,
+   "consecutive": 2,
+   "notify_role": "設備工程師",
+   "pm_type": "季保養",
+   "escalate_hours": 4,
+   "monitor_wafers": 1,
+   "comp_value": "-2%",
+   "comp_lots": 4,
+   "alarm_code": "CMP-SLR-0822",
+   "parameter": "slurry flow"
+  },
+  "dirty_tags": [
+   "html_table"
+  ]
+ },
+ "GEN-FX1-EMERGENCY-v1": {
+  "facts": {
+   "emergency_ext": "119"
+  },
+  "dirty_tags": []
+ },
+ "GEN-FX1-ESCALATION-v1": {
+  "facts": {
+   "l2_hours": 4
+  },
+  "dirty_tags": []
+ },
+ "GEN-FX2-EMERGENCY-v1": {
+  "facts": {
+   "emergency_ext": "119"
+  },
+  "dirty_tags": []
+ },
+ "GEN-FX2-ESCALATION-v1": {
+  "facts": {
+   "l2_hours": 4
+  },
+  "dirty_tags": []
+ },
+ "INC-2026-0001": {
+  "facts": {
+   "alarm_id": 2,
+   "alarm_code": "DIF-O2C-0715",
+   "equipment_id": "FX1-FURNACE-01",
+   "chamber_id": "FX1-FURNACE-01-CHC",
+   "lot_id": null,
+   "root_cause": "熱電偶接點鬆脫",
+   "downtime_min": 83,
+   "sop_key": "SOP-FX1-DIF-O2C-0715",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "colloquial",
+   "typo"
+  ]
+ },
+ "INC-2026-0002": {
+  "facts": {
+   "alarm_id": 3,
+   "alarm_code": "ETC-HEL-0507",
+   "equipment_id": "FX1-ETCHER-02",
+   "chamber_id": "FX1-ETCHER-02-CHC",
+   "lot_id": null,
+   "root_cause": "靜電吸盤表面污染",
+   "downtime_min": 166,
+   "sop_key": "SOP-FX1-ETC-HEL-0507",
+   "hot_lot": false
+  },
+  "dirty_tags": []
+ },
+ "INC-2026-0003": {
+  "facts": {
+   "alarm_id": 6,
+   "alarm_code": "DIF-O2C-0715",
+   "equipment_id": "FX1-FURNACE-02",
+   "chamber_id": "FX1-FURNACE-02-CHC",
+   "lot_id": "FX1L00059",
+   "root_cause": "排氣壓力不穩",
+   "downtime_min": 326,
+   "sop_key": "SOP-FX1-DIF-O2C-0715",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "typo"
+  ]
+ },
+ "INC-2026-0004": {
+  "facts": {
+   "alarm_id": 13,
+   "alarm_code": "ETC-PRS-0412",
+   "equipment_id": "FX2-ETCHER-02",
+   "chamber_id": "FX2-ETCHER-02-CHB",
+   "lot_id": "FX2L00029",
+   "root_cause": "O-ring 老化導致微漏",
+   "downtime_min": 116,
+   "sop_key": "SOP-FX2-ETC-PRS-0412",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "colloquial",
+   "typo"
+  ]
+ },
+ "INC-2026-0005": {
+  "facts": {
+   "alarm_id": 16,
+   "alarm_code": "TFM-GAS-0640",
+   "equipment_id": "FX1-CVD-01",
+   "chamber_id": "FX1-CVD-01-CHA",
+   "lot_id": "FX1L00014",
+   "root_cause": "噴淋頭局部堵塞",
+   "downtime_min": 156,
+   "sop_key": "SOP-FX1-TFM-GAS-0640",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "colloquial"
+  ]
+ },
+ "INC-2026-0006": {
+  "facts": {
+   "alarm_id": 17,
+   "alarm_code": "ETC-RFP-0230",
+   "equipment_id": "FX2-ETCHER-01",
+   "chamber_id": "FX2-ETCHER-01-CHD",
+   "lot_id": "FX2L00050",
+   "root_cause": "RF 匹配器電容劣化",
+   "downtime_min": 563,
+   "sop_key": "SOP-FX2-ETC-RFP-0230",
+   "hot_lot": false
+  },
+  "dirty_tags": []
+ },
+ "INC-2026-0007": {
+  "facts": {
+   "alarm_id": 19,
+   "alarm_code": "DIF-TMP-0702",
+   "equipment_id": "FX1-FURNACE-02",
+   "chamber_id": "FX1-FURNACE-02-CHB",
+   "lot_id": "FX1L00043",
+   "root_cause": "加熱器區段老化",
+   "downtime_min": 417,
+   "sop_key": "SOP-FX1-DIF-TMP-0702",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "colloquial"
+  ]
+ },
+ "INC-2026-0008": {
+  "facts": {
+   "alarm_id": 21,
+   "alarm_code": "LIT-OVL-0322",
+   "equipment_id": "FX2-SCANNER-03",
+   "chamber_id": "FX2-SCANNER-03-CHC",
+   "lot_id": "FX2L00043",
+   "root_cause": "載台干涉儀讀值漂移",
+   "downtime_min": 589,
+   "sop_key": "SOP-FX2-LIT-OVL-0322",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "colloquial"
+  ]
+ },
+ "INC-2026-0009": {
+  "facts": {
+   "alarm_id": 22,
+   "alarm_code": "ETC-RFP-0230",
+   "equipment_id": "FX1-ETCHER-01",
+   "chamber_id": "FX1-ETCHER-01-CHA",
+   "lot_id": "FX1L00045",
+   "root_cause": "O-ring 老化導致微漏",
+   "downtime_min": 259,
+   "sop_key": "SOP-FX1-ETC-RFP-0230",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "colloquial"
+  ]
+ },
+ "INC-2026-0010": {
+  "facts": {
+   "alarm_id": 23,
+   "alarm_code": "ETC-PRS-0412",
+   "equipment_id": "FX1-ETCHER-01",
+   "chamber_id": "FX1-ETCHER-01-CHB",
+   "lot_id": "FX1L00015",
+   "root_cause": "O-ring 老化導致微漏",
+   "downtime_min": 447,
+   "sop_key": "SOP-FX1-ETC-PRS-0412",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation"
+  ]
+ },
+ "INC-2026-0011": {
+  "facts": {
+   "alarm_id": 24,
+   "alarm_code": "LIT-FOC-0301",
+   "equipment_id": "FX1-SCANNER-03",
+   "chamber_id": "FX1-SCANNER-03-CHC",
+   "lot_id": "FX1L00015",
+   "root_cause": "載台干涉儀讀值漂移",
+   "downtime_min": 331,
+   "sop_key": "SOP-FX1-LIT-FOC-0301",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "colloquial"
+  ]
+ },
+ "INC-2026-0012": {
+  "facts": {
+   "alarm_id": 35,
+   "alarm_code": "ETC-RFP-0230",
+   "equipment_id": "FX1-ETCHER-01",
+   "chamber_id": "FX1-ETCHER-01-CHA",
+   "lot_id": "FX1L00001",
+   "root_cause": "O-ring 老化導致微漏",
+   "downtime_min": 88,
+   "sop_key": "SOP-FX1-ETC-RFP-0230",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "colloquial",
+   "typo"
+  ]
+ },
+ "INC-2026-0013": {
+  "facts": {
+   "alarm_id": 36,
+   "alarm_code": "TFM-GAS-0640",
+   "equipment_id": "FX2-CVD-02",
+   "chamber_id": "FX2-CVD-02-CHA",
+   "lot_id": "FX2L00042",
+   "root_cause": "MFC 流量漂移",
+   "downtime_min": 266,
+   "sop_key": "SOP-FX2-TFM-GAS-0640",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "colloquial"
+  ]
+ },
+ "INC-2026-0014": {
+  "facts": {
+   "alarm_id": 38,
+   "alarm_code": "CMP-SLR-0822",
+   "equipment_id": "FX1-POLISHER-02",
+   "chamber_id": "FX1-POLISHER-02-CHB",
+   "lot_id": "FX1L00059",
+   "root_cause": "研磨墊磨耗不均",
+   "downtime_min": 433,
+   "sop_key": "SOP-FX1-CMP-SLR-0822",
+   "hot_lot": false
+  },
+  "dirty_tags": []
+ },
+ "INC-2026-0015": {
+  "facts": {
+   "alarm_id": 39,
+   "alarm_code": "ETC-EPD-0118",
+   "equipment_id": "FX2-ETCHER-03",
+   "chamber_id": "FX2-ETCHER-03-CHD",
+   "lot_id": "FX2L00005",
+   "root_cause": "靜電吸盤表面污染",
+   "downtime_min": 107,
+   "sop_key": "SOP-FX2-ETC-EPD-0118",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "colloquial"
+  ]
+ },
+ "INC-2026-0016": {
+  "facts": {
+   "alarm_id": 42,
+   "alarm_code": "LIT-TMP-0150",
+   "equipment_id": "FX1-SCANNER-03",
+   "chamber_id": "FX1-SCANNER-03-CHD",
+   "lot_id": "FX1L00025",
+   "root_cause": "對準標記辨識失敗",
+   "downtime_min": 286,
+   "sop_key": "SOP-FX1-LIT-TMP-0150",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "colloquial"
+  ]
+ },
+ "INC-2026-0017": {
+  "facts": {
+   "alarm_id": 43,
+   "alarm_code": "LIT-FOC-0301",
+   "equipment_id": "FX1-SCANNER-02",
+   "chamber_id": "FX1-SCANNER-02-CHA",
+   "lot_id": "FX1L00028",
+   "root_cause": "載台干涉儀讀值漂移",
+   "downtime_min": 574,
+   "sop_key": "SOP-FX1-LIT-FOC-0301",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "colloquial"
+  ]
+ },
+ "INC-2026-0018": {
+  "facts": {
+   "alarm_id": 46,
+   "alarm_code": "LIT-TMP-0150",
+   "equipment_id": "FX2-SCANNER-01",
+   "chamber_id": "FX2-SCANNER-01-CHA",
+   "lot_id": "FX2L00071",
+   "root_cause": "對準標記辨識失敗",
+   "downtime_min": 109,
+   "sop_key": "SOP-FX2-LIT-TMP-0150",
+   "hot_lot": true
+  },
+  "dirty_tags": []
+ },
+ "INC-2026-0019": {
+  "facts": {
+   "alarm_id": 47,
+   "alarm_code": "ETC-RFP-0230",
+   "equipment_id": "FX2-ETCHER-03",
+   "chamber_id": "FX2-ETCHER-03-CHD",
+   "lot_id": "FX2L00006",
+   "root_cause": "O-ring 老化導致微漏",
+   "downtime_min": 135,
+   "sop_key": "SOP-FX2-ETC-RFP-0230",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "colloquial",
+   "typo"
+  ]
+ },
+ "INC-2026-0020": {
+  "facts": {
+   "alarm_id": 48,
+   "alarm_code": "TFM-GAS-0640",
+   "equipment_id": "FX1-CVD-02",
+   "chamber_id": "FX1-CVD-02-CHC",
+   "lot_id": "FX1L00045",
+   "root_cause": "噴淋頭局部堵塞",
+   "downtime_min": 233,
+   "sop_key": "SOP-FX1-TFM-GAS-0640",
+   "hot_lot": false
+  },
+  "dirty_tags": []
+ },
+ "INC-2026-0021": {
+  "facts": {
+   "alarm_id": 55,
+   "alarm_code": "DIF-TMP-0702",
+   "equipment_id": "FX1-FURNACE-01",
+   "chamber_id": "FX1-FURNACE-01-CHA",
+   "lot_id": "FX1L00034",
+   "root_cause": "熱電偶接點鬆脫",
+   "downtime_min": 553,
+   "sop_key": "SOP-FX1-DIF-TMP-0702",
+   "hot_lot": false
+  },
+  "dirty_tags": []
+ },
+ "INC-2026-0022": {
+  "facts": {
+   "alarm_id": 56,
+   "alarm_code": "CMP-RMV-0803",
+   "equipment_id": "FX2-POLISHER-02",
+   "chamber_id": "FX2-POLISHER-02-CHA",
+   "lot_id": "FX2L00022",
+   "root_cause": "研磨液管路結晶",
+   "downtime_min": 261,
+   "sop_key": "SOP-FX2-CMP-RMV-0803",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation"
+  ]
+ },
+ "INC-2026-0023": {
+  "facts": {
+   "alarm_id": 64,
+   "alarm_code": "TFM-THK-0611",
+   "equipment_id": "FX2-CVD-02",
+   "chamber_id": "FX2-CVD-02-CHC",
+   "lot_id": "FX2L00032",
+   "root_cause": "腔壁沉積物剝落",
+   "downtime_min": 497,
+   "sop_key": "SOP-FX2-TFM-THK-0611",
+   "hot_lot": true
+  },
+  "dirty_tags": [
+   "abbreviation"
+  ]
+ },
+ "INC-2026-0024": {
+  "facts": {
+   "alarm_id": 67,
+   "alarm_code": "CMP-SLR-0822",
+   "equipment_id": "FX1-POLISHER-03",
+   "chamber_id": "FX1-POLISHER-03-CHC",
+   "lot_id": "FX1L00061",
+   "root_cause": "修整器鑽石盤磨損",
+   "downtime_min": 364,
+   "sop_key": "SOP-FX1-CMP-SLR-0822",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "typo"
+  ]
+ },
+ "INC-2026-0025": {
+  "facts": {
+   "alarm_id": 68,
+   "alarm_code": "ETC-EPD-0118",
+   "equipment_id": "FX1-ETCHER-03",
+   "chamber_id": "FX1-ETCHER-03-CHD",
+   "lot_id": "FX1L00039",
+   "root_cause": "O-ring 老化導致微漏",
+   "downtime_min": 99,
+   "sop_key": "SOP-FX1-ETC-EPD-0118",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "colloquial"
+  ]
+ },
+ "INC-2026-0026": {
+  "facts": {
+   "alarm_id": 69,
+   "alarm_code": "ETC-EPD-0118",
+   "equipment_id": "FX2-ETCHER-03",
+   "chamber_id": "FX2-ETCHER-03-CHA",
+   "lot_id": "FX2L00021",
+   "root_cause": "O-ring 老化導致微漏",
+   "downtime_min": 383,
+   "sop_key": "SOP-FX2-ETC-EPD-0118",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "colloquial"
+  ]
+ },
+ "INC-2026-0027": {
+  "facts": {
+   "alarm_id": 71,
+   "alarm_code": "TFM-GAS-0640",
+   "equipment_id": "FX2-CVD-01",
+   "chamber_id": "FX2-CVD-01-CHA",
+   "lot_id": "FX2L00052",
+   "root_cause": "MFC 流量漂移",
+   "downtime_min": 131,
+   "sop_key": "SOP-FX2-TFM-GAS-0640",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "colloquial"
+  ]
+ },
+ "INC-2026-0028": {
+  "facts": {
+   "alarm_id": 73,
+   "alarm_code": "DIF-O2C-0715",
+   "equipment_id": "FX1-FURNACE-02",
+   "chamber_id": "FX1-FURNACE-02-CHD",
+   "lot_id": "FX1L00051",
+   "root_cause": "排氣壓力不穩",
+   "downtime_min": 373,
+   "sop_key": "SOP-FX1-DIF-O2C-0715",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "colloquial",
+   "typo"
+  ]
+ },
+ "INC-2026-0029": {
+  "facts": {
+   "alarm_id": 79,
+   "alarm_code": "LIT-FOC-0301",
+   "equipment_id": "FX1-SCANNER-03",
+   "chamber_id": "FX1-SCANNER-03-CHC",
+   "lot_id": "FX1L00047",
+   "root_cause": "鏡組冷卻水溫控不穩",
+   "downtime_min": 223,
+   "sop_key": "SOP-FX1-LIT-FOC-0301",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "colloquial"
+  ]
+ },
+ "INC-2026-0030": {
+  "facts": {
+   "alarm_id": 81,
+   "alarm_code": "CMP-SLR-0822",
+   "equipment_id": "FX1-POLISHER-01",
+   "chamber_id": "FX1-POLISHER-01-CHA",
+   "lot_id": "FX1L00001",
+   "root_cause": "研磨墊磨耗不均",
+   "downtime_min": 407,
+   "sop_key": "SOP-FX1-CMP-SLR-0822",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "colloquial"
+  ]
+ },
+ "INC-2026-0031": {
+  "facts": {
+   "alarm_id": 82,
+   "alarm_code": "LIT-FOC-0301",
+   "equipment_id": "FX1-SCANNER-02",
+   "chamber_id": "FX1-SCANNER-02-CHA",
+   "lot_id": "FX1L00033",
+   "root_cause": "載台干涉儀讀值漂移",
+   "downtime_min": 38,
+   "sop_key": "SOP-FX1-LIT-FOC-0301",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "typo"
+  ]
+ },
+ "INC-2026-0032": {
+  "facts": {
+   "alarm_id": 84,
+   "alarm_code": "TFM-PRT-0655",
+   "equipment_id": "FX2-CVD-03",
+   "chamber_id": "FX2-CVD-03-CHB",
+   "lot_id": "FX2L00064",
+   "root_cause": "噴淋頭局部堵塞",
+   "downtime_min": 154,
+   "sop_key": "SOP-FX2-TFM-PRT-0655",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation"
+  ]
+ },
+ "INC-2026-0033": {
+  "facts": {
+   "alarm_id": 88,
+   "alarm_code": "CMP-SLR-0822",
+   "equipment_id": "FX2-POLISHER-01",
+   "chamber_id": "FX2-POLISHER-01-CHB",
+   "lot_id": "FX2L00003",
+   "root_cause": "修整器鑽石盤磨損",
+   "downtime_min": 164,
+   "sop_key": "SOP-FX2-CMP-SLR-0822",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "colloquial"
+  ]
+ },
+ "INC-2026-0034": {
+  "facts": {
+   "alarm_id": 92,
+   "alarm_code": "TFM-GAS-0640",
+   "equipment_id": "FX1-CVD-02",
+   "chamber_id": "FX1-CVD-02-CHA",
+   "lot_id": "FX1L00003",
+   "root_cause": "MFC 流量漂移",
+   "downtime_min": 142,
+   "sop_key": "SOP-FX1-TFM-GAS-0640",
+   "hot_lot": true
+  },
+  "dirty_tags": [
+   "typo"
+  ]
+ },
+ "INC-2026-0035": {
+  "facts": {
+   "alarm_id": 98,
+   "alarm_code": "DIF-TMP-0702",
+   "equipment_id": "FX2-FURNACE-03",
+   "chamber_id": "FX2-FURNACE-03-CHA",
+   "lot_id": "FX2L00009",
+   "root_cause": "加熱器區段老化",
+   "downtime_min": 452,
+   "sop_key": "SOP-FX2-DIF-TMP-0702",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "typo"
+  ]
+ },
+ "INC-2026-0036": {
+  "facts": {
+   "alarm_id": 100,
+   "alarm_code": "ETC-RFP-0230",
+   "equipment_id": "FX1-ETCHER-03",
+   "chamber_id": "FX1-ETCHER-03-CHA",
+   "lot_id": "FX1L00024",
+   "root_cause": "壓力計校正偏移",
+   "downtime_min": 34,
+   "sop_key": "SOP-FX1-ETC-RFP-0230",
+   "hot_lot": true
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "colloquial",
+   "typo"
+  ]
+ },
+ "INC-2026-0037": {
+  "facts": {
+   "alarm_id": 101,
+   "alarm_code": "CMP-SLR-0822",
+   "equipment_id": "FX1-POLISHER-02",
+   "chamber_id": "FX1-POLISHER-02-CHA",
+   "lot_id": "FX1L00011",
+   "root_cause": "研磨液管路結晶",
+   "downtime_min": 146,
+   "sop_key": "SOP-FX1-CMP-SLR-0822",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "colloquial"
+  ]
+ },
+ "INC-2026-0038": {
+  "facts": {
+   "alarm_id": 105,
+   "alarm_code": "CMP-SLR-0822",
+   "equipment_id": "FX2-POLISHER-02",
+   "chamber_id": "FX2-POLISHER-02-CHA",
+   "lot_id": "FX2L00021",
+   "root_cause": "研磨液管路結晶",
+   "downtime_min": 126,
+   "sop_key": "SOP-FX2-CMP-SLR-0822",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "colloquial",
+   "typo"
+  ]
+ },
+ "INC-2026-0039": {
+  "facts": {
+   "alarm_id": 106,
+   "alarm_code": "TFM-PRT-0655",
+   "equipment_id": "FX1-CVD-03",
+   "chamber_id": "FX1-CVD-03-CHA",
+   "lot_id": "FX1L00050",
+   "root_cause": "噴淋頭局部堵塞",
+   "downtime_min": 505,
+   "sop_key": "SOP-FX1-TFM-PRT-0655",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "colloquial",
+   "typo"
+  ]
+ },
+ "INC-2026-0040": {
+  "facts": {
+   "alarm_id": 111,
+   "alarm_code": "LIT-OVL-0322",
+   "equipment_id": "FX2-SCANNER-02",
+   "chamber_id": "FX2-SCANNER-02-CHC",
+   "lot_id": "FX2L00026",
+   "root_cause": "載台干涉儀讀值漂移",
+   "downtime_min": 144,
+   "sop_key": "SOP-FX2-LIT-OVL-0322",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation"
+  ]
+ },
+ "INC-2026-0041": {
+  "facts": {
+   "alarm_id": 112,
+   "alarm_code": "ETC-RFP-0230",
+   "equipment_id": "FX2-ETCHER-01",
+   "chamber_id": "FX2-ETCHER-01-CHB",
+   "lot_id": "FX2L00075",
+   "root_cause": "RF 匹配器電容劣化",
+   "downtime_min": 92,
+   "sop_key": "SOP-FX2-ETC-RFP-0230",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "colloquial",
+   "typo"
+  ]
+ },
+ "INC-2026-0042": {
+  "facts": {
+   "alarm_id": 113,
+   "alarm_code": "CMP-SLR-0822",
+   "equipment_id": "FX1-POLISHER-01",
+   "chamber_id": "FX1-POLISHER-01-CHB",
+   "lot_id": "FX1L00006",
+   "root_cause": "研磨墊磨耗不均",
+   "downtime_min": 175,
+   "sop_key": "SOP-FX1-CMP-SLR-0822",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation"
+  ]
+ },
+ "INC-2026-0043": {
+  "facts": {
+   "alarm_id": 125,
+   "alarm_code": "LIT-TMP-0150",
+   "equipment_id": "FX2-SCANNER-02",
+   "chamber_id": "FX2-SCANNER-02-CHC",
+   "lot_id": "FX2L00004",
+   "root_cause": "載台干涉儀讀值漂移",
+   "downtime_min": 546,
+   "sop_key": "SOP-FX2-LIT-TMP-0150",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "colloquial"
+  ]
+ },
+ "INC-2026-0044": {
+  "facts": {
+   "alarm_id": 126,
+   "alarm_code": "LIT-OVL-0322",
+   "equipment_id": "FX2-SCANNER-01",
+   "chamber_id": "FX2-SCANNER-01-CHB",
+   "lot_id": "FX2L00002",
+   "root_cause": "對準標記辨識失敗",
+   "downtime_min": 81,
+   "sop_key": "SOP-FX2-LIT-OVL-0322",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation"
+  ]
+ },
+ "INC-2026-0045": {
+  "facts": {
+   "alarm_id": 131,
+   "alarm_code": "CMP-SLR-0822",
+   "equipment_id": "FX2-POLISHER-01",
+   "chamber_id": "FX2-POLISHER-01-CHB",
+   "lot_id": "FX2L00024",
+   "root_cause": "研磨液管路結晶",
+   "downtime_min": 548,
+   "sop_key": "SOP-FX2-CMP-SLR-0822",
+   "hot_lot": true
+  },
+  "dirty_tags": [
+   "abbreviation"
+  ]
+ },
+ "INC-2026-0046": {
+  "facts": {
+   "alarm_id": 136,
+   "alarm_code": "DIF-O2C-0715",
+   "equipment_id": "FX1-FURNACE-02",
+   "chamber_id": "FX1-FURNACE-02-CHD",
+   "lot_id": "FX1L00046",
+   "root_cause": "加熱器區段老化",
+   "downtime_min": 399,
+   "sop_key": "SOP-FX1-DIF-O2C-0715",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "colloquial",
+   "typo"
+  ]
+ },
+ "INC-2026-0047": {
+  "facts": {
+   "alarm_id": 138,
+   "alarm_code": "CMP-RMV-0803",
+   "equipment_id": "FX2-POLISHER-01",
+   "chamber_id": "FX2-POLISHER-01-CHA",
+   "lot_id": "FX2L00002",
+   "root_cause": "修整器鑽石盤磨損",
+   "downtime_min": 37,
+   "sop_key": "SOP-FX2-CMP-RMV-0803",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "typo"
+  ]
+ },
+ "INC-2026-0048": {
+  "facts": {
+   "alarm_id": 141,
+   "alarm_code": "TFM-THK-0611",
+   "equipment_id": "FX2-CVD-01",
+   "chamber_id": "FX2-CVD-01-CHA",
+   "lot_id": "FX2L00002",
+   "root_cause": "MFC 流量漂移",
+   "downtime_min": 202,
+   "sop_key": "SOP-FX2-TFM-THK-0611",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "colloquial",
+   "typo"
+  ]
+ },
+ "INC-2026-0049": {
+  "facts": {
+   "alarm_id": 144,
+   "alarm_code": "ETC-RFP-0230",
+   "equipment_id": "FX1-ETCHER-02",
+   "chamber_id": "FX1-ETCHER-02-CHC",
+   "lot_id": "FX1L00017",
+   "root_cause": "壓力計校正偏移",
+   "downtime_min": 200,
+   "sop_key": "SOP-FX1-ETC-RFP-0230",
+   "hot_lot": false
+  },
+  "dirty_tags": []
+ },
+ "INC-2026-0050": {
+  "facts": {
+   "alarm_id": 146,
+   "alarm_code": "CMP-RMV-0803",
+   "equipment_id": "FX2-POLISHER-03",
+   "chamber_id": "FX2-POLISHER-03-CHA",
+   "lot_id": "FX2L00063",
+   "root_cause": "研磨墊磨耗不均",
+   "downtime_min": 287,
+   "sop_key": "SOP-FX2-CMP-RMV-0803",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "colloquial"
+  ]
+ },
+ "INC-2026-0051": {
+  "facts": {
+   "alarm_id": 153,
+   "alarm_code": "ETC-HEL-0507",
+   "equipment_id": "FX1-ETCHER-02",
+   "chamber_id": "FX1-ETCHER-02-CHC",
+   "lot_id": "FX1L00065",
+   "root_cause": "O-ring 老化導致微漏",
+   "downtime_min": 215,
+   "sop_key": "SOP-FX1-ETC-HEL-0507",
+   "hot_lot": false
+  },
+  "dirty_tags": []
+ },
+ "INC-2026-0052": {
+  "facts": {
+   "alarm_id": 156,
+   "alarm_code": "ETC-RFP-0230",
+   "equipment_id": "FX2-ETCHER-01",
+   "chamber_id": "FX2-ETCHER-01-CHA",
+   "lot_id": "FX2L00034",
+   "root_cause": "壓力計校正偏移",
+   "downtime_min": 43,
+   "sop_key": "SOP-FX2-ETC-RFP-0230",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation"
+  ]
+ },
+ "INC-2026-0053": {
+  "facts": {
+   "alarm_id": 157,
+   "alarm_code": "ETC-EPD-0118",
+   "equipment_id": "FX1-ETCHER-03",
+   "chamber_id": "FX1-ETCHER-03-CHD",
+   "lot_id": "FX1L00006",
+   "root_cause": "壓力計校正偏移",
+   "downtime_min": 451,
+   "sop_key": "SOP-FX1-ETC-EPD-0118",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "colloquial",
+   "typo"
+  ]
+ },
+ "INC-2026-0054": {
+  "facts": {
+   "alarm_id": 160,
+   "alarm_code": "ETC-RFP-0230",
+   "equipment_id": "FX2-ETCHER-01",
+   "chamber_id": "FX2-ETCHER-01-CHA",
+   "lot_id": "FX2L00019",
+   "root_cause": "壓力計校正偏移",
+   "downtime_min": 67,
+   "sop_key": "SOP-FX2-ETC-RFP-0230",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "colloquial"
+  ]
+ },
+ "INC-2026-0055": {
+  "facts": {
+   "alarm_id": 163,
+   "alarm_code": "CMP-RMV-0803",
+   "equipment_id": "FX2-POLISHER-02",
+   "chamber_id": "FX2-POLISHER-02-CHA",
+   "lot_id": "FX2L00006",
+   "root_cause": "修整器鑽石盤磨損",
+   "downtime_min": 181,
+   "sop_key": "SOP-FX2-CMP-RMV-0803",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "colloquial"
+  ]
+ },
+ "INC-2026-0056": {
+  "facts": {
+   "alarm_id": 166,
+   "alarm_code": "TFM-PRT-0655",
+   "equipment_id": "FX1-CVD-02",
+   "chamber_id": "FX1-CVD-02-CHB",
+   "lot_id": "FX1L00040",
+   "root_cause": "噴淋頭局部堵塞",
+   "downtime_min": 40,
+   "sop_key": "SOP-FX1-TFM-PRT-0655",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation"
+  ]
+ },
+ "INC-2026-0057": {
+  "facts": {
+   "alarm_id": 170,
+   "alarm_code": "CMP-SLR-0822",
+   "equipment_id": "FX1-POLISHER-01",
+   "chamber_id": "FX1-POLISHER-01-CHA",
+   "lot_id": "FX1L00066",
+   "root_cause": "修整器鑽石盤磨損",
+   "downtime_min": 555,
+   "sop_key": "SOP-FX1-CMP-SLR-0822",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "colloquial"
+  ]
+ },
+ "INC-2026-0058": {
+  "facts": {
+   "alarm_id": 172,
+   "alarm_code": "ETC-RFP-0230",
+   "equipment_id": "FX2-ETCHER-03",
+   "chamber_id": "FX2-ETCHER-03-CHA",
+   "lot_id": "FX2L00002",
+   "root_cause": "RF 匹配器電容劣化",
+   "downtime_min": 322,
+   "sop_key": "SOP-FX2-ETC-RFP-0230",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "colloquial"
+  ]
+ },
+ "INC-2026-0059": {
+  "facts": {
+   "alarm_id": 173,
+   "alarm_code": "CMP-RMV-0803",
+   "equipment_id": "FX2-POLISHER-03",
+   "chamber_id": "FX2-POLISHER-03-CHC",
+   "lot_id": "FX2L00063",
+   "root_cause": "研磨墊磨耗不均",
+   "downtime_min": 427,
+   "sop_key": "SOP-FX2-CMP-RMV-0803",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "colloquial",
+   "typo"
+  ]
+ },
+ "INC-2026-0060": {
+  "facts": {
+   "alarm_id": 174,
+   "alarm_code": "DIF-TMP-0702",
+   "equipment_id": "FX2-FURNACE-01",
+   "chamber_id": "FX2-FURNACE-01-CHA",
+   "lot_id": "FX2L00021",
+   "root_cause": "排氣壓力不穩",
+   "downtime_min": 528,
+   "sop_key": "SOP-FX2-DIF-TMP-0702",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "typo"
+  ]
+ },
+ "INC-2026-0061": {
+  "facts": {
+   "alarm_id": 175,
+   "alarm_code": "TFM-PRT-0655",
+   "equipment_id": "FX1-CVD-03",
+   "chamber_id": "FX1-CVD-03-CHA",
+   "lot_id": "FX1L00060",
+   "root_cause": "噴淋頭局部堵塞",
+   "downtime_min": 363,
+   "sop_key": "SOP-FX1-TFM-PRT-0655",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "colloquial"
+  ]
+ },
+ "INC-2026-0062": {
+  "facts": {
+   "alarm_id": 182,
+   "alarm_code": "ETC-PRS-0412",
+   "equipment_id": "FX2-ETCHER-03",
+   "chamber_id": "FX2-ETCHER-03-CHA",
+   "lot_id": "FX2L00072",
+   "root_cause": "壓力計校正偏移",
+   "downtime_min": 210,
+   "sop_key": "SOP-FX2-ETC-PRS-0412",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation"
+  ]
+ },
+ "INC-2026-0063": {
+  "facts": {
+   "alarm_id": 183,
+   "alarm_code": "ETC-HEL-0507",
+   "equipment_id": "FX1-ETCHER-03",
+   "chamber_id": "FX1-ETCHER-03-CHC",
+   "lot_id": "FX1L00029",
+   "root_cause": "靜電吸盤表面污染",
+   "downtime_min": 89,
+   "sop_key": "SOP-FX1-ETC-HEL-0507",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "colloquial"
+  ]
+ },
+ "INC-2026-0064": {
+  "facts": {
+   "alarm_id": 185,
+   "alarm_code": "DIF-O2C-0715",
+   "equipment_id": "FX1-FURNACE-01",
+   "chamber_id": "FX1-FURNACE-01-CHB",
+   "lot_id": "FX1L00050",
+   "root_cause": "加熱器區段老化",
+   "downtime_min": 408,
+   "sop_key": "SOP-FX1-DIF-O2C-0715",
+   "hot_lot": false
+  },
+  "dirty_tags": []
+ },
+ "INC-2026-0065": {
+  "facts": {
+   "alarm_id": 187,
+   "alarm_code": "DIF-TMP-0702",
+   "equipment_id": "FX2-FURNACE-02",
+   "chamber_id": "FX2-FURNACE-02-CHB",
+   "lot_id": "FX2L00073",
+   "root_cause": "熱電偶接點鬆脫",
+   "downtime_min": 272,
+   "sop_key": "SOP-FX2-DIF-TMP-0702",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "colloquial"
+  ]
+ },
+ "INC-2026-0066": {
+  "facts": {
+   "alarm_id": 188,
+   "alarm_code": "CMP-RMV-0803",
+   "equipment_id": "FX1-POLISHER-01",
+   "chamber_id": "FX1-POLISHER-01-CHB",
+   "lot_id": "FX1L00011",
+   "root_cause": "修整器鑽石盤磨損",
+   "downtime_min": 163,
+   "sop_key": "SOP-FX1-CMP-RMV-0803",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "colloquial"
+  ]
+ },
+ "INC-2026-0067": {
+  "facts": {
+   "alarm_id": 193,
+   "alarm_code": "ETC-PRS-0412",
+   "equipment_id": "FX1-ETCHER-03",
+   "chamber_id": "FX1-ETCHER-03-CHD",
+   "lot_id": "FX1L00007",
+   "root_cause": "壓力計校正偏移",
+   "downtime_min": 243,
+   "sop_key": "SOP-FX1-ETC-PRS-0412",
+   "hot_lot": false
+  },
+  "dirty_tags": []
+ },
+ "INC-2026-0068": {
+  "facts": {
+   "alarm_id": 194,
+   "alarm_code": "CMP-SLR-0822",
+   "equipment_id": "FX2-POLISHER-03",
+   "chamber_id": "FX2-POLISHER-03-CHB",
+   "lot_id": "FX2L00068",
+   "root_cause": "研磨液管路結晶",
+   "downtime_min": 458,
+   "sop_key": "SOP-FX2-CMP-SLR-0822",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation"
+  ]
+ },
+ "INC-2026-0069": {
+  "facts": {
+   "alarm_id": 201,
+   "alarm_code": "DIF-O2C-0715",
+   "equipment_id": "FX1-FURNACE-01",
+   "chamber_id": "FX1-FURNACE-01-CHB",
+   "lot_id": "FX1L00061",
+   "root_cause": "熱電偶接點鬆脫",
+   "downtime_min": 273,
+   "sop_key": "SOP-FX1-DIF-O2C-0715",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "colloquial"
+  ]
+ },
+ "INC-2026-0070": {
+  "facts": {
+   "alarm_id": 202,
+   "alarm_code": "DIF-TMP-0702",
+   "equipment_id": "FX1-FURNACE-02",
+   "chamber_id": "FX1-FURNACE-02-CHA",
+   "lot_id": "FX1L00014",
+   "root_cause": "熱電偶接點鬆脫",
+   "downtime_min": 211,
+   "sop_key": "SOP-FX1-DIF-TMP-0702",
+   "hot_lot": false
+  },
+  "dirty_tags": []
+ },
+ "INC-2026-0071": {
+  "facts": {
+   "alarm_id": 204,
+   "alarm_code": "TFM-THK-0611",
+   "equipment_id": "FX2-CVD-01",
+   "chamber_id": "FX2-CVD-01-CHB",
+   "lot_id": "FX2L00070",
+   "root_cause": "噴淋頭局部堵塞",
+   "downtime_min": 86,
+   "sop_key": "SOP-FX2-TFM-THK-0611",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "typo"
+  ]
+ },
+ "INC-2026-0072": {
+  "facts": {
+   "alarm_id": 206,
+   "alarm_code": "TFM-THK-0611",
+   "equipment_id": "FX2-CVD-02",
+   "chamber_id": "FX2-CVD-02-CHB",
+   "lot_id": "FX2L00031",
+   "root_cause": "MFC 流量漂移",
+   "downtime_min": 313,
+   "sop_key": "SOP-FX2-TFM-THK-0611",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "typo"
+  ]
+ },
+ "INC-2026-0073": {
+  "facts": {
+   "alarm_id": 210,
+   "alarm_code": "TFM-THK-0611",
+   "equipment_id": "FX1-CVD-01",
+   "chamber_id": "FX1-CVD-01-CHA",
+   "lot_id": "FX1L00011",
+   "root_cause": "噴淋頭局部堵塞",
+   "downtime_min": 37,
+   "sop_key": "SOP-FX1-TFM-THK-0611",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation"
+  ]
+ },
+ "INC-2026-0074": {
+  "facts": {
+   "alarm_id": 219,
+   "alarm_code": "ETC-HEL-0507",
+   "equipment_id": "FX1-ETCHER-02",
+   "chamber_id": "FX1-ETCHER-02-CHA",
+   "lot_id": "FX1L00046",
+   "root_cause": "壓力計校正偏移",
+   "downtime_min": 525,
+   "sop_key": "SOP-FX1-ETC-HEL-0507",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "colloquial"
+  ]
+ },
+ "INC-2026-0075": {
+  "facts": {
+   "alarm_id": 220,
+   "alarm_code": "DIF-TMP-0702",
+   "equipment_id": "FX2-FURNACE-02",
+   "chamber_id": "FX2-FURNACE-02-CHC",
+   "lot_id": "FX2L00026",
+   "root_cause": "熱電偶接點鬆脫",
+   "downtime_min": 114,
+   "sop_key": "SOP-FX2-DIF-TMP-0702",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "typo"
+  ]
+ },
+ "INC-2026-0076": {
+  "facts": {
+   "alarm_id": 221,
+   "alarm_code": "DIF-TMP-0702",
+   "equipment_id": "FX2-FURNACE-01",
+   "chamber_id": "FX2-FURNACE-01-CHB",
+   "lot_id": "FX2L00024",
+   "root_cause": "排氣壓力不穩",
+   "downtime_min": 371,
+   "sop_key": "SOP-FX2-DIF-TMP-0702",
+   "hot_lot": true
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "colloquial",
+   "typo"
+  ]
+ },
+ "INC-2026-0077": {
+  "facts": {
+   "alarm_id": 222,
+   "alarm_code": "TFM-PRT-0655",
+   "equipment_id": "FX2-CVD-02",
+   "chamber_id": "FX2-CVD-02-CHD",
+   "lot_id": "FX2L00024",
+   "root_cause": "噴淋頭局部堵塞",
+   "downtime_min": 132,
+   "sop_key": "SOP-FX2-TFM-PRT-0655",
+   "hot_lot": true
+  },
+  "dirty_tags": [
+   "colloquial",
+   "typo"
+  ]
+ },
+ "INC-2026-0078": {
+  "facts": {
+   "alarm_id": 224,
+   "alarm_code": "ETC-RFP-0230",
+   "equipment_id": "FX1-ETCHER-02",
+   "chamber_id": "FX1-ETCHER-02-CHB",
+   "lot_id": "FX1L00058",
+   "root_cause": "靜電吸盤表面污染",
+   "downtime_min": 447,
+   "sop_key": "SOP-FX1-ETC-RFP-0230",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "colloquial",
+   "typo"
+  ]
+ },
+ "INC-2026-0079": {
+  "facts": {
+   "alarm_id": 226,
+   "alarm_code": "TFM-THK-0611",
+   "equipment_id": "FX2-CVD-02",
+   "chamber_id": "FX2-CVD-02-CHA",
+   "lot_id": "FX2L00041",
+   "root_cause": "MFC 流量漂移",
+   "downtime_min": 446,
+   "sop_key": "SOP-FX2-TFM-THK-0611",
+   "hot_lot": false
+  },
+  "dirty_tags": []
+ },
+ "INC-2026-0080": {
+  "facts": {
+   "alarm_id": 227,
+   "alarm_code": "ETC-RFP-0230",
+   "equipment_id": "FX1-ETCHER-03",
+   "chamber_id": "FX1-ETCHER-03-CHA",
+   "lot_id": "FX1L00025",
+   "root_cause": "O-ring 老化導致微漏",
+   "downtime_min": 446,
+   "sop_key": "SOP-FX1-ETC-RFP-0230",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "typo"
+  ]
+ },
+ "INC-2026-0081": {
+  "facts": {
+   "alarm_id": 228,
+   "alarm_code": "TFM-THK-0611",
+   "equipment_id": "FX1-CVD-02",
+   "chamber_id": "FX1-CVD-02-CHC",
+   "lot_id": "FX1L00066",
+   "root_cause": "腔壁沉積物剝落",
+   "downtime_min": 246,
+   "sop_key": "SOP-FX1-TFM-THK-0611",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "typo"
+  ]
+ },
+ "INC-2026-0082": {
+  "facts": {
+   "alarm_id": 231,
+   "alarm_code": "DIF-O2C-0715",
+   "equipment_id": "FX2-FURNACE-01",
+   "chamber_id": "FX2-FURNACE-01-CHA",
+   "lot_id": "FX2L00065",
+   "root_cause": "熱電偶接點鬆脫",
+   "downtime_min": 195,
+   "sop_key": "SOP-FX2-DIF-O2C-0715",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "typo"
+  ]
+ },
+ "INC-2026-0083": {
+  "facts": {
+   "alarm_id": 237,
+   "alarm_code": "LIT-TMP-0150",
+   "equipment_id": "FX2-SCANNER-03",
+   "chamber_id": "FX2-SCANNER-03-CHC",
+   "lot_id": "FX2L00012",
+   "root_cause": "對準標記辨識失敗",
+   "downtime_min": 463,
+   "sop_key": "SOP-FX2-LIT-TMP-0150",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "typo"
+  ]
+ },
+ "INC-2026-0084": {
+  "facts": {
+   "alarm_id": 244,
+   "alarm_code": "LIT-TMP-0150",
+   "equipment_id": "FX2-SCANNER-03",
+   "chamber_id": "FX2-SCANNER-03-CHA",
+   "lot_id": "FX2L00022",
+   "root_cause": "鏡組冷卻水溫控不穩",
+   "downtime_min": 574,
+   "sop_key": "SOP-FX2-LIT-TMP-0150",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "typo"
+  ]
+ },
+ "INC-2026-0085": {
+  "facts": {
+   "alarm_id": 245,
+   "alarm_code": "CMP-SLR-0822",
+   "equipment_id": "FX1-POLISHER-03",
+   "chamber_id": "FX1-POLISHER-03-CHB",
+   "lot_id": "FX1L00067",
+   "root_cause": "研磨液管路結晶",
+   "downtime_min": 536,
+   "sop_key": "SOP-FX1-CMP-SLR-0822",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "colloquial"
+  ]
+ },
+ "INC-2026-0086": {
+  "facts": {
+   "alarm_id": 247,
+   "alarm_code": "LIT-TMP-0150",
+   "equipment_id": "FX2-SCANNER-01",
+   "chamber_id": "FX2-SCANNER-01-CHA",
+   "lot_id": "FX2L00035",
+   "root_cause": "載台干涉儀讀值漂移",
+   "downtime_min": 397,
+   "sop_key": "SOP-FX2-LIT-TMP-0150",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "colloquial"
+  ]
+ },
+ "INC-2026-0087": {
+  "facts": {
+   "alarm_id": 253,
+   "alarm_code": "TFM-GAS-0640",
+   "equipment_id": "FX1-CVD-01",
+   "chamber_id": "FX1-CVD-01-CHB",
+   "lot_id": "FX1L00030",
+   "root_cause": "腔壁沉積物剝落",
+   "downtime_min": 103,
+   "sop_key": "SOP-FX1-TFM-GAS-0640",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "colloquial",
+   "typo"
+  ]
+ },
+ "INC-2026-0088": {
+  "facts": {
+   "alarm_id": 257,
+   "alarm_code": "TFM-THK-0611",
+   "equipment_id": "FX2-CVD-02",
+   "chamber_id": "FX2-CVD-02-CHB",
+   "lot_id": "FX2L00012",
+   "root_cause": "腔壁沉積物剝落",
+   "downtime_min": 508,
+   "sop_key": "SOP-FX2-TFM-THK-0611",
+   "hot_lot": false
+  },
+  "dirty_tags": []
+ },
+ "INC-2026-0089": {
+  "facts": {
+   "alarm_id": 265,
+   "alarm_code": "LIT-TMP-0150",
+   "equipment_id": "FX1-SCANNER-01",
+   "chamber_id": "FX1-SCANNER-01-CHC",
+   "lot_id": "FX1L00060",
+   "root_cause": "對準標記辨識失敗",
+   "downtime_min": 471,
+   "sop_key": "SOP-FX1-LIT-TMP-0150",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation"
+  ]
+ },
+ "INC-2026-0090": {
+  "facts": {
+   "alarm_id": 268,
+   "alarm_code": "LIT-TMP-0150",
+   "equipment_id": "FX1-SCANNER-03",
+   "chamber_id": "FX1-SCANNER-03-CHD",
+   "lot_id": "FX1L00006",
+   "root_cause": "載台干涉儀讀值漂移",
+   "downtime_min": 81,
+   "sop_key": "SOP-FX1-LIT-TMP-0150",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation"
+  ]
+ },
+ "INC-2026-0091": {
+  "facts": {
+   "alarm_id": 269,
+   "alarm_code": "CMP-SLR-0822",
+   "equipment_id": "FX1-POLISHER-03",
+   "chamber_id": "FX1-POLISHER-03-CHC",
+   "lot_id": "FX1L00044",
+   "root_cause": "修整器鑽石盤磨損",
+   "downtime_min": 185,
+   "sop_key": "SOP-FX1-CMP-SLR-0822",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "typo"
+  ]
+ },
+ "INC-2026-0092": {
+  "facts": {
+   "alarm_id": 271,
+   "alarm_code": "ETC-EPD-0118",
+   "equipment_id": "FX1-ETCHER-02",
+   "chamber_id": "FX1-ETCHER-02-CHA",
+   "lot_id": "FX1L00036",
+   "root_cause": "壓力計校正偏移",
+   "downtime_min": 161,
+   "sop_key": "SOP-FX1-ETC-EPD-0118",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation"
+  ]
+ },
+ "INC-2026-0093": {
+  "facts": {
+   "alarm_id": 275,
+   "alarm_code": "ETC-EPD-0118",
+   "equipment_id": "FX1-ETCHER-03",
+   "chamber_id": "FX1-ETCHER-03-CHD",
+   "lot_id": "FX1L00056",
+   "root_cause": "壓力計校正偏移",
+   "downtime_min": 233,
+   "sop_key": "SOP-FX1-ETC-EPD-0118",
+   "hot_lot": false
+  },
+  "dirty_tags": []
+ },
+ "INC-2026-0094": {
+  "facts": {
+   "alarm_id": 278,
+   "alarm_code": "ETC-EPD-0118",
+   "equipment_id": "FX2-ETCHER-02",
+   "chamber_id": "FX2-ETCHER-02-CHB",
+   "lot_id": "FX2L00047",
+   "root_cause": "RF 匹配器電容劣化",
+   "downtime_min": 225,
+   "sop_key": "SOP-FX2-ETC-EPD-0118",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation"
+  ]
+ },
+ "INC-2026-0095": {
+  "facts": {
+   "alarm_id": 280,
+   "alarm_code": "DIF-O2C-0715",
+   "equipment_id": "FX2-FURNACE-03",
+   "chamber_id": "FX2-FURNACE-03-CHB",
+   "lot_id": "FX2L00021",
+   "root_cause": "加熱器區段老化",
+   "downtime_min": 495,
+   "sop_key": "SOP-FX2-DIF-O2C-0715",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "typo"
+  ]
+ },
+ "INC-2026-0096": {
+  "facts": {
+   "alarm_id": 281,
+   "alarm_code": "ETC-EPD-0118",
+   "equipment_id": "FX2-ETCHER-03",
+   "chamber_id": "FX2-ETCHER-03-CHA",
+   "lot_id": "FX2L00058",
+   "root_cause": "O-ring 老化導致微漏",
+   "downtime_min": 420,
+   "sop_key": "SOP-FX2-ETC-EPD-0118",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation"
+  ]
+ },
+ "INC-2026-0097": {
+  "facts": {
+   "alarm_id": 282,
+   "alarm_code": "ETC-EPD-0118",
+   "equipment_id": "FX1-ETCHER-02",
+   "chamber_id": "FX1-ETCHER-02-CHC",
+   "lot_id": "FX1L00042",
+   "root_cause": "壓力計校正偏移",
+   "downtime_min": 171,
+   "sop_key": "SOP-FX1-ETC-EPD-0118",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "colloquial"
+  ]
+ },
+ "INC-2026-0098": {
+  "facts": {
+   "alarm_id": 283,
+   "alarm_code": "LIT-FOC-0301",
+   "equipment_id": "FX1-SCANNER-02",
+   "chamber_id": "FX1-SCANNER-02-CHB",
+   "lot_id": "FX1L00070",
+   "root_cause": "對準標記辨識失敗",
+   "downtime_min": 390,
+   "sop_key": "SOP-FX1-LIT-FOC-0301",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation"
+  ]
+ },
+ "INC-2026-0099": {
+  "facts": {
+   "alarm_id": 285,
+   "alarm_code": "LIT-TMP-0150",
+   "equipment_id": "FX1-SCANNER-03",
+   "chamber_id": "FX1-SCANNER-03-CHC",
+   "lot_id": "FX1L00059",
+   "root_cause": "對準標記辨識失敗",
+   "downtime_min": 185,
+   "sop_key": "SOP-FX1-LIT-TMP-0150",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation"
+  ]
+ },
+ "INC-2026-0100": {
+  "facts": {
+   "alarm_id": 286,
+   "alarm_code": "LIT-FOC-0301",
+   "equipment_id": "FX1-SCANNER-02",
+   "chamber_id": "FX1-SCANNER-02-CHB",
+   "lot_id": "FX1L00014",
+   "root_cause": "載台干涉儀讀值漂移",
+   "downtime_min": 146,
+   "sop_key": "SOP-FX1-LIT-FOC-0301",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "colloquial"
+  ]
+ },
+ "INC-2026-0101": {
+  "facts": {
+   "alarm_id": 287,
+   "alarm_code": "ETC-RFP-0230",
+   "equipment_id": "FX1-ETCHER-01",
+   "chamber_id": "FX1-ETCHER-01-CHB",
+   "lot_id": "FX1L00067",
+   "root_cause": "O-ring 老化導致微漏",
+   "downtime_min": 153,
+   "sop_key": "SOP-FX1-ETC-RFP-0230",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "typo"
+  ]
+ },
+ "INC-2026-0102": {
+  "facts": {
+   "alarm_id": 289,
+   "alarm_code": "ETC-PRS-0412",
+   "equipment_id": "FX1-ETCHER-03",
+   "chamber_id": "FX1-ETCHER-03-CHB",
+   "lot_id": "FX1L00020",
+   "root_cause": "靜電吸盤表面污染",
+   "downtime_min": 77,
+   "sop_key": "SOP-FX1-ETC-PRS-0412",
+   "hot_lot": false
+  },
+  "dirty_tags": []
+ },
+ "INC-2026-0103": {
+  "facts": {
+   "alarm_id": 292,
+   "alarm_code": "TFM-GAS-0640",
+   "equipment_id": "FX2-CVD-02",
+   "chamber_id": "FX2-CVD-02-CHA",
+   "lot_id": "FX2L00007",
+   "root_cause": "腔壁沉積物剝落",
+   "downtime_min": 372,
+   "sop_key": "SOP-FX2-TFM-GAS-0640",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "colloquial"
+  ]
+ },
+ "INC-2026-0104": {
+  "facts": {
+   "alarm_id": 293,
+   "alarm_code": "CMP-SLR-0822",
+   "equipment_id": "FX1-POLISHER-03",
+   "chamber_id": "FX1-POLISHER-03-CHA",
+   "lot_id": "FX1L00054",
+   "root_cause": "研磨墊磨耗不均",
+   "downtime_min": 43,
+   "sop_key": "SOP-FX1-CMP-SLR-0822",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "colloquial",
+   "typo"
+  ]
+ },
+ "INC-2026-0105": {
+  "facts": {
+   "alarm_id": 295,
+   "alarm_code": "DIF-O2C-0715",
+   "equipment_id": "FX2-FURNACE-02",
+   "chamber_id": "FX2-FURNACE-02-CHA",
+   "lot_id": "FX2L00065",
+   "root_cause": "排氣壓力不穩",
+   "downtime_min": 178,
+   "sop_key": "SOP-FX2-DIF-O2C-0715",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation"
+  ]
+ },
+ "INC-2026-0106": {
+  "facts": {
+   "alarm_id": 297,
+   "alarm_code": "LIT-TMP-0150",
+   "equipment_id": "FX2-SCANNER-03",
+   "chamber_id": "FX2-SCANNER-03-CHA",
+   "lot_id": "FX2L00018",
+   "root_cause": "載台干涉儀讀值漂移",
+   "downtime_min": 340,
+   "sop_key": "SOP-FX2-LIT-TMP-0150",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "typo"
+  ]
+ },
+ "INC-2026-0107": {
+  "facts": {
+   "alarm_id": 299,
+   "alarm_code": "ETC-HEL-0507",
+   "equipment_id": "FX2-ETCHER-03",
+   "chamber_id": "FX2-ETCHER-03-CHC",
+   "lot_id": "FX2L00002",
+   "root_cause": "壓力計校正偏移",
+   "downtime_min": 555,
+   "sop_key": "SOP-FX2-ETC-HEL-0507",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "typo"
+  ]
+ },
+ "INC-2026-0108": {
+  "facts": {
+   "alarm_id": 300,
+   "alarm_code": "TFM-THK-0611",
+   "equipment_id": "FX1-CVD-03",
+   "chamber_id": "FX1-CVD-03-CHC",
+   "lot_id": "FX1L00075",
+   "root_cause": "MFC 流量漂移",
+   "downtime_min": 132,
+   "sop_key": "SOP-FX1-TFM-THK-0611",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation"
+  ]
+ },
+ "INC-2026-0109": {
+  "facts": {
+   "alarm_id": 304,
+   "alarm_code": "ETC-HEL-0507",
+   "equipment_id": "FX1-ETCHER-02",
+   "chamber_id": "FX1-ETCHER-02-CHA",
+   "lot_id": "FX1L00055",
+   "root_cause": "靜電吸盤表面污染",
+   "downtime_min": 576,
+   "sop_key": "SOP-FX1-ETC-HEL-0507",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "colloquial"
+  ]
+ },
+ "INC-2026-0110": {
+  "facts": {
+   "alarm_id": 306,
+   "alarm_code": "CMP-RMV-0803",
+   "equipment_id": "FX2-POLISHER-03",
+   "chamber_id": "FX2-POLISHER-03-CHA",
+   "lot_id": "FX2L00032",
+   "root_cause": "研磨墊磨耗不均",
+   "downtime_min": 539,
+   "sop_key": "SOP-FX2-CMP-RMV-0803",
+   "hot_lot": true
+  },
+  "dirty_tags": [
+   "abbreviation"
+  ]
+ },
+ "INC-2026-0111": {
+  "facts": {
+   "alarm_id": 311,
+   "alarm_code": "ETC-HEL-0507",
+   "equipment_id": "FX1-ETCHER-01",
+   "chamber_id": "FX1-ETCHER-01-CHA",
+   "lot_id": "FX1L00073",
+   "root_cause": "壓力計校正偏移",
+   "downtime_min": 495,
+   "sop_key": "SOP-FX1-ETC-HEL-0507",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "colloquial",
+   "typo"
+  ]
+ },
+ "INC-2026-0112": {
+  "facts": {
+   "alarm_id": 312,
+   "alarm_code": "TFM-GAS-0640",
+   "equipment_id": "FX1-CVD-02",
+   "chamber_id": "FX1-CVD-02-CHB",
+   "lot_id": "FX1L00068",
+   "root_cause": "腔壁沉積物剝落",
+   "downtime_min": 204,
+   "sop_key": "SOP-FX1-TFM-GAS-0640",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation"
+  ]
+ },
+ "INC-2026-0113": {
+  "facts": {
+   "alarm_id": 313,
+   "alarm_code": "ETC-EPD-0118",
+   "equipment_id": "FX2-ETCHER-01",
+   "chamber_id": "FX2-ETCHER-01-CHB",
+   "lot_id": "FX2L00037",
+   "root_cause": "壓力計校正偏移",
+   "downtime_min": 549,
+   "sop_key": "SOP-FX2-ETC-EPD-0118",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "colloquial"
+  ]
+ },
+ "INC-2026-0114": {
+  "facts": {
+   "alarm_id": 316,
+   "alarm_code": "ETC-PRS-0412",
+   "equipment_id": "FX1-ETCHER-01",
+   "chamber_id": "FX1-ETCHER-01-CHA",
+   "lot_id": "FX1L00049",
+   "root_cause": "RF 匹配器電容劣化",
+   "downtime_min": 549,
+   "sop_key": "SOP-FX1-ETC-PRS-0412",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "colloquial"
+  ]
+ },
+ "INC-2026-0115": {
+  "facts": {
+   "alarm_id": 318,
+   "alarm_code": "TFM-GAS-0640",
+   "equipment_id": "FX1-CVD-02",
+   "chamber_id": "FX1-CVD-02-CHA",
+   "lot_id": "FX1L00024",
+   "root_cause": "噴淋頭局部堵塞",
+   "downtime_min": 106,
+   "sop_key": "SOP-FX1-TFM-GAS-0640",
+   "hot_lot": true
+  },
+  "dirty_tags": []
+ },
+ "INC-2026-0116": {
+  "facts": {
+   "alarm_id": 319,
+   "alarm_code": "LIT-TMP-0150",
+   "equipment_id": "FX1-SCANNER-03",
+   "chamber_id": "FX1-SCANNER-03-CHD",
+   "lot_id": "FX1L00040",
+   "root_cause": "鏡組冷卻水溫控不穩",
+   "downtime_min": 397,
+   "sop_key": "SOP-FX1-LIT-TMP-0150",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "colloquial"
+  ]
+ },
+ "INC-2026-0117": {
+  "facts": {
+   "alarm_id": 320,
+   "alarm_code": "CMP-RMV-0803",
+   "equipment_id": "FX2-POLISHER-01",
+   "chamber_id": "FX2-POLISHER-01-CHA",
+   "lot_id": "FX2L00032",
+   "root_cause": "修整器鑽石盤磨損",
+   "downtime_min": 432,
+   "sop_key": "SOP-FX2-CMP-RMV-0803",
+   "hot_lot": true
+  },
+  "dirty_tags": [
+   "colloquial",
+   "typo"
+  ]
+ },
+ "INC-2026-0118": {
+  "facts": {
+   "alarm_id": 322,
+   "alarm_code": "TFM-GAS-0640",
+   "equipment_id": "FX2-CVD-01",
+   "chamber_id": "FX2-CVD-01-CHB",
+   "lot_id": "FX2L00026",
+   "root_cause": "噴淋頭局部堵塞",
+   "downtime_min": 443,
+   "sop_key": "SOP-FX2-TFM-GAS-0640",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "colloquial"
+  ]
+ },
+ "INC-2026-0119": {
+  "facts": {
+   "alarm_id": 324,
+   "alarm_code": "TFM-PRT-0655",
+   "equipment_id": "FX1-CVD-03",
+   "chamber_id": "FX1-CVD-03-CHB",
+   "lot_id": "FX1L00049",
+   "root_cause": "MFC 流量漂移",
+   "downtime_min": 192,
+   "sop_key": "SOP-FX1-TFM-PRT-0655",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "typo"
+  ]
+ },
+ "INC-2026-0120": {
+  "facts": {
+   "alarm_id": 325,
+   "alarm_code": "DIF-O2C-0715",
+   "equipment_id": "FX1-FURNACE-01",
+   "chamber_id": "FX1-FURNACE-01-CHC",
+   "lot_id": "FX1L00045",
+   "root_cause": "熱電偶接點鬆脫",
+   "downtime_min": 246,
+   "sop_key": "SOP-FX1-DIF-O2C-0715",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "colloquial"
+  ]
+ },
+ "INC-2026-0121": {
+  "facts": {
+   "alarm_id": 328,
+   "alarm_code": "CMP-SLR-0822",
+   "equipment_id": "FX2-POLISHER-01",
+   "chamber_id": "FX2-POLISHER-01-CHA",
+   "lot_id": "FX2L00072",
+   "root_cause": "研磨液管路結晶",
+   "downtime_min": 539,
+   "sop_key": "SOP-FX2-CMP-SLR-0822",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation"
+  ]
+ },
+ "INC-2026-0122": {
+  "facts": {
+   "alarm_id": 329,
+   "alarm_code": "ETC-HEL-0507",
+   "equipment_id": "FX2-ETCHER-01",
+   "chamber_id": "FX2-ETCHER-01-CHA",
+   "lot_id": "FX2L00062",
+   "root_cause": "RF 匹配器電容劣化",
+   "downtime_min": 50,
+   "sop_key": "SOP-FX2-ETC-HEL-0507",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "colloquial",
+   "typo"
+  ]
+ },
+ "INC-2026-0123": {
+  "facts": {
+   "alarm_id": 330,
+   "alarm_code": "TFM-PRT-0655",
+   "equipment_id": "FX1-CVD-03",
+   "chamber_id": "FX1-CVD-03-CHB",
+   "lot_id": "FX1L00032",
+   "root_cause": "噴淋頭局部堵塞",
+   "downtime_min": 521,
+   "sop_key": "SOP-FX1-TFM-PRT-0655",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "typo"
+  ]
+ },
+ "INC-2026-0124": {
+  "facts": {
+   "alarm_id": 337,
+   "alarm_code": "ETC-EPD-0118",
+   "equipment_id": "FX1-ETCHER-01",
+   "chamber_id": "FX1-ETCHER-01-CHA",
+   "lot_id": "FX1L00033",
+   "root_cause": "RF 匹配器電容劣化",
+   "downtime_min": 283,
+   "sop_key": "SOP-FX1-ETC-EPD-0118",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation"
+  ]
+ },
+ "INC-2026-0125": {
+  "facts": {
+   "alarm_id": 339,
+   "alarm_code": "DIF-O2C-0715",
+   "equipment_id": "FX1-FURNACE-01",
+   "chamber_id": "FX1-FURNACE-01-CHB",
+   "lot_id": "FX1L00024",
+   "root_cause": "熱電偶接點鬆脫",
+   "downtime_min": 515,
+   "sop_key": "SOP-FX1-DIF-O2C-0715",
+   "hot_lot": true
+  },
+  "dirty_tags": [
+   "typo"
+  ]
+ },
+ "INC-2026-0126": {
+  "facts": {
+   "alarm_id": 340,
+   "alarm_code": "CMP-RMV-0803",
+   "equipment_id": "FX1-POLISHER-01",
+   "chamber_id": "FX1-POLISHER-01-CHB",
+   "lot_id": "FX1L00020",
+   "root_cause": "研磨墊磨耗不均",
+   "downtime_min": 163,
+   "sop_key": "SOP-FX1-CMP-RMV-0803",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation"
+  ]
+ },
+ "INC-2026-0127": {
+  "facts": {
+   "alarm_id": 342,
+   "alarm_code": "CMP-RMV-0803",
+   "equipment_id": "FX2-POLISHER-03",
+   "chamber_id": "FX2-POLISHER-03-CHB",
+   "lot_id": "FX2L00057",
+   "root_cause": "研磨墊磨耗不均",
+   "downtime_min": 266,
+   "sop_key": "SOP-FX2-CMP-RMV-0803",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "typo"
+  ]
+ },
+ "INC-2026-0128": {
+  "facts": {
+   "alarm_id": 343,
+   "alarm_code": "LIT-FOC-0301",
+   "equipment_id": "FX1-SCANNER-01",
+   "chamber_id": "FX1-SCANNER-01-CHC",
+   "lot_id": "FX1L00068",
+   "root_cause": "對準標記辨識失敗",
+   "downtime_min": 582,
+   "sop_key": "SOP-FX1-LIT-FOC-0301",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "colloquial"
+  ]
+ },
+ "INC-2026-0129": {
+  "facts": {
+   "alarm_id": 344,
+   "alarm_code": "LIT-OVL-0322",
+   "equipment_id": "FX2-SCANNER-01",
+   "chamber_id": "FX2-SCANNER-01-CHC",
+   "lot_id": "FX2L00040",
+   "root_cause": "載台干涉儀讀值漂移",
+   "downtime_min": 463,
+   "sop_key": "SOP-FX2-LIT-OVL-0322",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "colloquial",
+   "typo"
+  ]
+ },
+ "INC-2026-0130": {
+  "facts": {
+   "alarm_id": 345,
+   "alarm_code": "DIF-O2C-0715",
+   "equipment_id": "FX2-FURNACE-03",
+   "chamber_id": "FX2-FURNACE-03-CHB",
+   "lot_id": "FX2L00015",
+   "root_cause": "加熱器區段老化",
+   "downtime_min": 571,
+   "sop_key": "SOP-FX2-DIF-O2C-0715",
+   "hot_lot": false
+  },
+  "dirty_tags": []
+ },
+ "INC-2026-0131": {
+  "facts": {
+   "alarm_id": 350,
+   "alarm_code": "CMP-RMV-0803",
+   "equipment_id": "FX1-POLISHER-03",
+   "chamber_id": "FX1-POLISHER-03-CHA",
+   "lot_id": "FX1L00054",
+   "root_cause": "修整器鑽石盤磨損",
+   "downtime_min": 41,
+   "sop_key": "SOP-FX1-CMP-RMV-0803",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation"
+  ]
+ },
+ "INC-2026-0132": {
+  "facts": {
+   "alarm_id": 351,
+   "alarm_code": "CMP-RMV-0803",
+   "equipment_id": "FX2-POLISHER-03",
+   "chamber_id": "FX2-POLISHER-03-CHC",
+   "lot_id": "FX2L00034",
+   "root_cause": "研磨液管路結晶",
+   "downtime_min": 493,
+   "sop_key": "SOP-FX2-CMP-RMV-0803",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "colloquial"
+  ]
+ },
+ "INC-2026-0133": {
+  "facts": {
+   "alarm_id": 355,
+   "alarm_code": "TFM-PRT-0655",
+   "equipment_id": "FX2-CVD-02",
+   "chamber_id": "FX2-CVD-02-CHD",
+   "lot_id": "FX2L00005",
+   "root_cause": "腔壁沉積物剝落",
+   "downtime_min": 575,
+   "sop_key": "SOP-FX2-TFM-PRT-0655",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation"
+  ]
+ },
+ "INC-2026-0134": {
+  "facts": {
+   "alarm_id": 357,
+   "alarm_code": "LIT-TMP-0150",
+   "equipment_id": "FX1-SCANNER-01",
+   "chamber_id": "FX1-SCANNER-01-CHA",
+   "lot_id": "FX1L00014",
+   "root_cause": "鏡組冷卻水溫控不穩",
+   "downtime_min": 551,
+   "sop_key": "SOP-FX1-LIT-TMP-0150",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "colloquial"
+  ]
+ },
+ "INC-2026-0135": {
+  "facts": {
+   "alarm_id": 360,
+   "alarm_code": "CMP-RMV-0803",
+   "equipment_id": "FX1-POLISHER-03",
+   "chamber_id": "FX1-POLISHER-03-CHB",
+   "lot_id": "FX1L00038",
+   "root_cause": "研磨墊磨耗不均",
+   "downtime_min": 121,
+   "sop_key": "SOP-FX1-CMP-RMV-0803",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "colloquial"
+  ]
+ },
+ "INC-2026-0136": {
+  "facts": {
+   "alarm_id": 361,
+   "alarm_code": "LIT-FOC-0301",
+   "equipment_id": "FX1-SCANNER-03",
+   "chamber_id": "FX1-SCANNER-03-CHD",
+   "lot_id": "FX1L00031",
+   "root_cause": "對準標記辨識失敗",
+   "downtime_min": 90,
+   "sop_key": "SOP-FX1-LIT-FOC-0301",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "typo"
+  ]
+ },
+ "INC-2026-0137": {
+  "facts": {
+   "alarm_id": 362,
+   "alarm_code": "TFM-THK-0611",
+   "equipment_id": "FX1-CVD-02",
+   "chamber_id": "FX1-CVD-02-CHC",
+   "lot_id": "FX1L00004",
+   "root_cause": "噴淋頭局部堵塞",
+   "downtime_min": 58,
+   "sop_key": "SOP-FX1-TFM-THK-0611",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "typo"
+  ]
+ },
+ "INC-2026-0138": {
+  "facts": {
+   "alarm_id": 363,
+   "alarm_code": "ETC-RFP-0230",
+   "equipment_id": "FX2-ETCHER-03",
+   "chamber_id": "FX2-ETCHER-03-CHD",
+   "lot_id": "FX2L00042",
+   "root_cause": "靜電吸盤表面污染",
+   "downtime_min": 491,
+   "sop_key": "SOP-FX2-ETC-RFP-0230",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation"
+  ]
+ },
+ "INC-2026-0139": {
+  "facts": {
+   "alarm_id": 364,
+   "alarm_code": "ETC-PRS-0412",
+   "equipment_id": "FX2-ETCHER-03",
+   "chamber_id": "FX2-ETCHER-03-CHB",
+   "lot_id": "FX2L00022",
+   "root_cause": "O-ring 老化導致微漏",
+   "downtime_min": 33,
+   "sop_key": "SOP-FX2-ETC-PRS-0412",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "colloquial",
+   "typo"
+  ]
+ },
+ "INC-2026-0140": {
+  "facts": {
+   "alarm_id": 366,
+   "alarm_code": "ETC-HEL-0507",
+   "equipment_id": "FX2-ETCHER-02",
+   "chamber_id": "FX2-ETCHER-02-CHA",
+   "lot_id": "FX2L00012",
+   "root_cause": "靜電吸盤表面污染",
+   "downtime_min": 334,
+   "sop_key": "SOP-FX2-ETC-HEL-0507",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "colloquial"
+  ]
+ },
+ "INC-2026-0141": {
+  "facts": {
+   "alarm_id": 373,
+   "alarm_code": "DIF-O2C-0715",
+   "equipment_id": "FX1-FURNACE-01",
+   "chamber_id": "FX1-FURNACE-01-CHC",
+   "lot_id": "FX1L00030",
+   "root_cause": "加熱器區段老化",
+   "downtime_min": 166,
+   "sop_key": "SOP-FX1-DIF-O2C-0715",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation"
+  ]
+ },
+ "INC-2026-0142": {
+  "facts": {
+   "alarm_id": 374,
+   "alarm_code": "LIT-FOC-0301",
+   "equipment_id": "FX2-SCANNER-03",
+   "chamber_id": "FX2-SCANNER-03-CHB",
+   "lot_id": "FX2L00035",
+   "root_cause": "鏡組冷卻水溫控不穩",
+   "downtime_min": 403,
+   "sop_key": "SOP-FX2-LIT-FOC-0301",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "colloquial"
+  ]
+ },
+ "INC-2026-0143": {
+  "facts": {
+   "alarm_id": 378,
+   "alarm_code": "DIF-O2C-0715",
+   "equipment_id": "FX1-FURNACE-02",
+   "chamber_id": "FX1-FURNACE-02-CHD",
+   "lot_id": "FX1L00049",
+   "root_cause": "加熱器區段老化",
+   "downtime_min": 259,
+   "sop_key": "SOP-FX1-DIF-O2C-0715",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "typo"
+  ]
+ },
+ "INC-2026-0144": {
+  "facts": {
+   "alarm_id": 379,
+   "alarm_code": "LIT-TMP-0150",
+   "equipment_id": "FX2-SCANNER-03",
+   "chamber_id": "FX2-SCANNER-03-CHB",
+   "lot_id": "FX2L00046",
+   "root_cause": "載台干涉儀讀值漂移",
+   "downtime_min": 330,
+   "sop_key": "SOP-FX2-LIT-TMP-0150",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "colloquial",
+   "typo"
+  ]
+ },
+ "INC-2026-0145": {
+  "facts": {
+   "alarm_id": 387,
+   "alarm_code": "LIT-TMP-0150",
+   "equipment_id": "FX2-SCANNER-03",
+   "chamber_id": "FX2-SCANNER-03-CHC",
+   "lot_id": "FX2L00055",
+   "root_cause": "載台干涉儀讀值漂移",
+   "downtime_min": 245,
+   "sop_key": "SOP-FX2-LIT-TMP-0150",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "typo"
+  ]
+ },
+ "INC-2026-0146": {
+  "facts": {
+   "alarm_id": 391,
+   "alarm_code": "DIF-TMP-0702",
+   "equipment_id": "FX2-FURNACE-03",
+   "chamber_id": "FX2-FURNACE-03-CHB",
+   "lot_id": "FX2L00033",
+   "root_cause": "熱電偶接點鬆脫",
+   "downtime_min": 422,
+   "sop_key": "SOP-FX2-DIF-TMP-0702",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "colloquial",
+   "typo"
+  ]
+ },
+ "INC-2026-0147": {
+  "facts": {
+   "alarm_id": 393,
+   "alarm_code": "DIF-TMP-0702",
+   "equipment_id": "FX1-FURNACE-01",
+   "chamber_id": "FX1-FURNACE-01-CHB",
+   "lot_id": "FX1L00026",
+   "root_cause": "熱電偶接點鬆脫",
+   "downtime_min": 333,
+   "sop_key": "SOP-FX1-DIF-TMP-0702",
+   "hot_lot": false
+  },
+  "dirty_tags": []
+ },
+ "INC-2026-0148": {
+  "facts": {
+   "alarm_id": 395,
+   "alarm_code": "LIT-TMP-0150",
+   "equipment_id": "FX1-SCANNER-01",
+   "chamber_id": "FX1-SCANNER-01-CHD",
+   "lot_id": "FX1L00005",
+   "root_cause": "鏡組冷卻水溫控不穩",
+   "downtime_min": 287,
+   "sop_key": "SOP-FX1-LIT-TMP-0150",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "colloquial"
+  ]
+ },
+ "INC-2026-0149": {
+  "facts": {
+   "alarm_id": 397,
+   "alarm_code": "TFM-PRT-0655",
+   "equipment_id": "FX2-CVD-03",
+   "chamber_id": "FX2-CVD-03-CHB",
+   "lot_id": "FX2L00044",
+   "root_cause": "噴淋頭局部堵塞",
+   "downtime_min": 449,
+   "sop_key": "SOP-FX2-TFM-PRT-0655",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "typo"
+  ]
+ },
+ "INC-2026-0150": {
+  "facts": {
+   "alarm_id": 400,
+   "alarm_code": "ETC-HEL-0507",
+   "equipment_id": "FX2-ETCHER-01",
+   "chamber_id": "FX2-ETCHER-01-CHC",
+   "lot_id": "FX2L00025",
+   "root_cause": "靜電吸盤表面污染",
+   "downtime_min": 343,
+   "sop_key": "SOP-FX2-ETC-HEL-0507",
+   "hot_lot": false
+  },
+  "dirty_tags": [
+   "abbreviation",
+   "colloquial",
+   "typo"
+  ]
+ }
+}
