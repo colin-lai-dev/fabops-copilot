@@ -20,10 +20,16 @@ class Settings(BaseSettings):
     llm_provider: str = "ollama"
     llm_model: str = "qwen3:8b"
     llm_base_url: str | None = None
+    llm_reasoning_effort: str | None = None  # "none" disables qwen3 thinking on Ollama
 
     anthropic_api_key: SecretStr | None = None
     openai_api_key: SecretStr | None = None
     gemini_api_key: SecretStr | None = None
+
+    # Retrieval models (ADR-0008: CPU is fine on an 8 GB GPU shared with the LLM).
+    embed_model: str = "BAAI/bge-m3"
+    rerank_model: str = "BAAI/bge-reranker-v2-m3"
+    embed_device: str = "cpu"
 
     fabops_cache_dir: str = ".cache/llm"
     fabops_usage_log: str = ".cache/usage.jsonl"
