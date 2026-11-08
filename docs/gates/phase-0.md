@@ -57,7 +57,7 @@ polish.py（選用）──> LLMClient ──> Ollama / Claude / OpenAI / Gemini
 
 ## 5. 待你決定
 
-見 `docs/open-questions.md`。最重要的一項：**Phase 1 出題前要不要先跑 `make polish`**。
+見 `docs/open-questions.md`。潤飾已決定暫不採用（2026-11-08，實驗見 `docs/experiments.md`）。
 
 ## 6. 你的任務
 
