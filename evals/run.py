@@ -24,6 +24,7 @@ from pathlib import Path
 from typing import Any
 
 from evals import score
+from evals.corpus import load_corpus
 from evals.schema import Question, RunRecord, SystemOutput, load_questions
 from evals.synonyms import synonym_table
 from evals.systems import System, load_system
@@ -96,8 +97,10 @@ def score_outputs(questions: list[Question], outputs: list[SystemOutput]) -> dic
     """Metrics from score.py, or a note while score.py is still a stub."""
     try:
         table = synonym_table()
+        superseded = {d for d, doc in load_corpus().items() if doc.get("superseded_by")}
         scores = [
-            score.score_question(q, o, table) for q, o in zip(questions, outputs, strict=True)
+            score.score_question(q, o, table, superseded)
+            for q, o in zip(questions, outputs, strict=True)
         ]
         return {
             "metrics": score.aggregate(scores),
