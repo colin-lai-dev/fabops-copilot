@@ -1,0 +1,6 @@
+{"user_id": "op_fx1_etch", "display_name": "FX1 蝕刻作業員", "fabs": ["FX1"], "departments": ["etch"], "clearance": 0}
+{"user_id": "eng_fx1_etch", "display_name": "FX1 蝕刻工程師", "fabs": ["FX1"], "departments": ["etch"], "clearance": 1}
+{"user_id": "eng_fx2_litho", "display_name": "FX2 黃光工程師", "fabs": ["FX2"], "departments": ["litho"], "clearance": 1}
+{"user_id": "lead_fx1_multi", "display_name": "FX1 製程主任", "fabs": ["FX1"], "departments": ["etch", "thinfilm", "cmp"], "clearance": 2}
+{"user_id": "mgr_fx2_all", "display_name": "FX2 廠務經理", "fabs": ["FX2"], "departments": ["etch", "litho", "thinfilm", "diffusion", "cmp"], "clearance": 2}
+{"user_id": "admin_all", "display_name": "系統管理員", "fabs": ["FX1", "FX2"], "departments": ["etch", "litho", "thinfilm", "diffusion", "cmp"], "clearance": 3}

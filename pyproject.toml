@@ -1,0 +1,39 @@
+[project]
+name = "fabops"
+version = "0.1.0"
+description = "Permission-aware RAG and anomaly triage agent for a fictional fab (synthetic data only)"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "pydantic>=2.7",
+    "pydantic-settings>=2.3",
+    "psycopg[binary]>=3.2",
+    "httpx>=0.27",
+    "openai>=1.40",
+    "anthropic>=0.40",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.2",
+    "ruff>=0.6",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/fabops"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["db: requires a running Postgres (DATABASE_URL)"]
+addopts = "-m 'not db'"

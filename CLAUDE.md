@@ -1,7 +1,7 @@
 # FabOps Copilot
 
 虛構晶圓廠 Fab-X 的異常處理 AI 助理：權限感知 RAG + 異常分診 agent + 人工核准。
-這是學習專案兼求職作品集。**使用者（Cody）負責決策與理解，你負責實作。**
+這是學習專案兼求職作品集。**使用者（Colin）負責決策與理解，你負責實作。**
 
 ## 工作模式：階段內自動執行
 
@@ -13,6 +13,16 @@
 - 以下情況必須停下來問我：新增 PLAN 以外的依賴、改變目錄結構、違反 ADR、
   需要花錢呼叫付費模型、要刪除資料或改寫 git 歷史。
 - 到達階段的 gate 就停下，產出 gate 報告（見下方）後等我 review。
+
+## 交接指示（使用者說「接手」時）
+
+- Claude（另一個對話中的規劃者）會把給你的指示寫在 `private/handoff/`，檔名為
+  `NNN-<主題>.md`，第二行是 `狀態：待執行` 或 `狀態：已完成`。此資料夾不進 git。
+- 使用者說「接手」（或「繼續」）時：讀 `private/handoff/` 中**編號最小、狀態為待執行**
+  的檔案，照它執行。指示與本檔或 ADR 衝突時，以本檔與 ADR 為準，並在回報中指出衝突。
+- 完成後：把該檔第二行改成 `狀態：已完成（YYYY-MM-DD）`，在檔尾加上 `## 回報`
+  （5 行以內：結果、改了什麼、要使用者決定的事），同樣內容也在對話中回報。
+- 沒有待執行的檔案時，改讀 `docs/PLAN.md`，從第一個未完成的任務接續。
 
 ## Git 與提交
 
@@ -101,8 +111,20 @@ web/          # React 前端
 
 ## 常用指令
 
-Phase 0 完成後補上（`make up`、`make seed`、`make test`、`make lint`、`make eval-dev`、
-`make eval-test`）。
+- `make up`／`make down`：啟動／停止 Postgres（Ollama 跑在主機上）
+- `make generate`：依規則重新產生合成資料（不需 LLM）
+- `make polish`：用地端 LLM 潤飾文件文字並檢查事實（選用）
+- `make seed`：建立 schema 並載入資料
+- `make lint`、`make test`、`make test-db`（需要 Postgres）
+- Windows 沒有 make 時，直接執行 Makefile 裡的 `uv run …` 指令
+- Phase 1 再加入 `make eval-dev`、`make eval-test`
+
+## 開發日誌
+
+- `docs/log.md` 是依時間排序的進度與決策紀錄，最新的在最上面。
+- 每次 session 結束、完成一份交接指示、或到達 gate 時，在當天日期下追加 1–5 行：
+  完成了什麼、做了什麼決定、細節在哪個文件。不要重複文件內容，只寫索引。
+- Colin 與規劃者（另一個對話中的 Claude）做的決定，也由規劃者寫進這份日誌。
 
 ## 進度
 
