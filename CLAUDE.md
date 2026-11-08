@@ -101,8 +101,13 @@ web/          # React 前端
 
 ## 常用指令
 
-Phase 0 完成後補上（`make up`、`make seed`、`make test`、`make lint`、`make eval-dev`、
-`make eval-test`）。
+- `make up`／`make down`：啟動／停止 Postgres（Ollama 跑在主機上）
+- `make generate`：依規則重新產生合成資料（不需 LLM）
+- `make polish`：用地端 LLM 潤飾文件文字並檢查事實（選用）
+- `make seed`：建立 schema 並載入資料
+- `make lint`、`make test`、`make test-db`（需要 Postgres）
+- Windows 沒有 make 時，直接執行 Makefile 裡的 `uv run …` 指令
+- Phase 1 再加入 `make eval-dev`、`make eval-test`
 
 ## 進度
 

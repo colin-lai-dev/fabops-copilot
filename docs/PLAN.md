@@ -7,18 +7,18 @@ Phase 1 的 gate 是硬目標；之後的階段都是加分。
 
 ## Phase 0：基礎建置（第 1 週）
 
-- [ ] 初始化 repo：uv、pyproject、ruff、pytest、`.env.example`、Makefile
-- [ ] Docker Compose：PostgreSQL + pgvector、Ollama
-- [ ] DB schema：tools、chambers、lots、dispatch_log、alarms、maintenance、documents、chunks
+- [x] 初始化 repo：uv、pyproject、ruff、pytest、`.env.example`、Makefile
+- [x] Docker Compose：PostgreSQL + pgvector、Ollama
+- [x] DB schema：tools、chambers、lots、dispatch_log、alarms、maintenance、documents、chunks
   - documents 的 metadata：fab、department、clearance、version、effective_date
-- [ ] 合成 MES 資料產生器 `scripts/seed.py`：模擬 2–4 週，固定 random seed 可重現
+- [x] 合成 MES 資料產生器 `scripts/seed.py`：模擬 2–4 週，固定 random seed 可重現
   - 埋入業務規則，例如「保養中的機台不可派貨」
-- [ ] 合成文件：約 40 份 SOP、約 150 筆異常報告，含以下髒資料
+- [x] 合成文件：約 40 份 SOP、約 150 筆異常報告，含以下髒資料
   - 同一份 SOP 的新舊兩版（系統應回答最新版）
   - Markdown/HTML 表格（不做 PDF 解析）
   - 中英混雜的縮寫與同義詞（PM、EQP、OOC 等）
   - 錯字與口語化的異常報告
-- [ ] `src/fabops/llm/client.py`：OpenAI 相容介面、快取（key 含角色與權限範圍）、
+- [x] `src/fabops/llm/client.py`：OpenAI 相容介面、快取（key 含角色與權限範圍）、
       token／延遲／成本紀錄
 - [ ] **[Cody]** 履歷 bullet 定稿（Phase 1 投遞版與完整版，數字留空）
 
