@@ -20,7 +20,7 @@ Phase 1 的 gate 是硬目標；之後的階段都是加分。
   - 錯字與口語化的異常報告
 - [x] `src/fabops/llm/client.py`：OpenAI 相容介面、快取（key 含角色與權限範圍）、
       token／延遲／成本紀錄
-- [ ] **[Cody]** 履歷 bullet 定稿（Phase 1 投遞版與完整版，數字留空）
+- [x] **[Cody]** 履歷 bullet 定稿（Phase 1 投遞版與完整版，數字留空；存於本機 `private/`，不進 git）
 
 **Gate：** 從零執行 `docker compose up` 與 `make seed` 可完整跑起來；README 有快速開始。
 
