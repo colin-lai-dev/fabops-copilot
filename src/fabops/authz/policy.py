@@ -40,6 +40,27 @@ def visible(scope: Scope, resource: Mapping[str, Any]) -> bool:
     )
 
 
+def sql_filter(scope: Scope, alias: str = "") -> tuple[str, dict[str, Any]]:
+    """The same rule as `can_see`, as a SQL condition with named psycopg parameters.
+
+    Use as `WHERE {cond}` with `params`; `alias` prefixes the columns (e.g. "c.").
+    Equivalence with `can_see` is tested on every demo user × document (tests/test_policy_db.py).
+    """
+    if scope.clearance < 0:
+        return "FALSE", {}
+    a = alias
+    cond = (
+        f"{a}clearance <= %(authz_clearance)s AND {a}fab = ANY(%(authz_fabs)s) "
+        f"AND ({a}department = ANY(%(authz_departments)s) OR {a}department = %(authz_shared)s)"
+    )
+    return cond, {
+        "authz_clearance": scope.clearance,
+        "authz_fabs": list(scope.fabs),
+        "authz_departments": list(scope.departments),
+        "authz_shared": SHARED_DEPARTMENT,
+    }
+
+
 def scope_of_user(user: Mapping[str, Any]) -> Scope:
     """Scope for a user row (`users` table / `users.jsonl`). Server-side only (ADR-0001)."""
     return Scope.of(user["fabs"], user["departments"], user["clearance"])
