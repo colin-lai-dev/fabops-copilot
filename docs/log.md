@@ -6,6 +6,8 @@
 
 ## 2026-11-08
 
+- **分工調整（Colin 決定）**：`score.py` 與洩漏測試集改由 Claude Code 實作、Colin review；手寫題由規劃者起草 31 題
+  （`evals/handwritten.draft.jsonl`）、Colin 修改；50 題人工標註仍由 Colin 親自完成。rerank 結論待複查（是否被輸入長度截斷）。
 - **Phase 1 檢索**：dev Recall@5 dense + BM25 0.861、dense baseline 0.657（n=54）；rerank 在 CPU 每題約 25 秒且無提升，預設關閉；
   異常報告依段落切塊不採用；cross_doc 只有 0.31（n=8）。dev 全量 RAG 執行因記憶體不足中止，待重跑。
 - **規劃者代決**：ADR-0009（jieba + BM25）採用；不裝 CUDA torch；Phase 1 不加引用展開（cross_doc 留給 Phase 2 對照）；

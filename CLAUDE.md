@@ -43,17 +43,23 @@
 5. `docs/open-questions.md` 中待我決定的項目。
 6. 我需要完成的手寫或設計任務是否已完成。
 
-## 保留給我的部分
+## 保留給我的部分（2026-11-08 調整）
 
-**親手寫（你不要實作）：**
-- `evals/score.py`：評分邏輯。你可以建立介面 stub（`raise NotImplementedError`）、
-  寫測試、寫 `evals/run.py` 等周邊程式；我寫完後由你 review。
+**由 Claude Code 實作，Colin review：**
+- `evals/score.py`：依 ADR-0005（含修訂段落的 5 條規則）實作，`tests/test_score.py` 必須全部通過。
+  完成後在 gate 報告列出 Colin 該讀的函式，並提醒他跑 `/quiz score`。
+- 權限洩漏測試集：依 `LeakCase` 格式以規則產生（跨廠、跨部門、等級不足 × 檢索、快取、日誌路徑），
+  分類與每類題數寫在 `evals/leak/README.md` 給 Colin 確認。Phase 2 補 agent 工具路徑時同樣做法。
+
+**Claude（規劃者）起草，Colin 修改：**
+- 手寫題：草稿在 `evals/handwritten.draft.jsonl`。Colin 改完後改名為 `evals/handwritten.jsonl` 再執行 split。
+  `docs/experiments.md` 要照實記錄出處（Claude 起草、Colin 修改），不得寫成純手寫。你不要修改這份草稿。
+
+**只能由 Colin 親自完成（不得代做）：**
+- 人工標註 50 題（judge 校準）。你只能準備標註表；標註結果必須是 Colin 的判斷。
 - Agent loop 練習：`playground/agent_loop.py`，Phase 2 開頭的練習，不是交付物。
-
-**親自設計（你可以建立格式與 schema，但不要替我產生內容）：**
-- `evals/` 中標記為手寫的題目、人工標註的 50 題 judge 校準資料
-- 權限洩漏測試集、prompt injection 測試集
-- 髒資料的類型清單（已列在 PLAN；要新增類型請提出）
+- Prompt injection 測試集（Phase 2）：你可以建立格式與 schema，內容由 Colin 設計。
+- 髒資料的類型清單（已列在 PLAN；要新增類型請提出）。
 
 若某任務被這些部分卡住，先做同階段其他任務，並在 gate 報告中標出。
 

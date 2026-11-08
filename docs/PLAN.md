@@ -32,9 +32,9 @@ Eval 基礎先做，凍結後才開始調參。
 - [ ] RAG 問答集：test 目標 100 題以上（規則產生 + 手寫），題型含換句話說、跨文件、
       錯字與縮寫、問到舊版 SOP、應拒答
   - [x] 規則題 151 題（dev 60、test 91）
-  - [ ] **[Colin]** 手寫題目
-- [ ] **[Colin]** 權限洩漏測試集：直接越權 + 快取、日誌間接路徑
-- [ ] **[Colin]** `evals/score.py`
+  - [ ] 手寫題目（Claude 起草 `evals/handwritten.draft.jsonl`，**[Colin]** 修改定稿）
+- [ ] 權限洩漏測試集：直接越權 + 快取、日誌間接路徑（規則產生，Colin 確認分類）
+- [ ] `evals/score.py`（Claude Code 實作，Colin review）
 - [ ] **[Colin]** 人工標註 50 題
 - [ ] Judge 選擇實驗：GPT-5.4 mini vs Gemini 2.5 Flash，以人工標註的一致率決定（ADR-0008）
 - [ ] 凍結 test set（記錄 commit hash 到 experiments.md）
@@ -64,7 +64,7 @@ Eval 基礎先做，凍結後才開始調參。
 - [ ] 固定 workflow baseline 與只用 RAG baseline
 - [ ] Agent 情境集 20–30 個（多步推理、資料矛盾、應拒絕給建議）
 - [ ] **[Colin]** Prompt injection 測試集（含誘導冒用高權限角色）
-- [ ] **[Colin]** 洩漏測試集補上 agent 工具路徑
+- [ ] 洩漏測試集補上 agent 工具路徑（規則產生，Colin 確認分類）
 - [ ] Langfuse trace（內文遮罩）
 - [ ] React 前端：問答、角色切換、agent trace、核准按鈕
 - [ ] 三組對照實驗：成功率、工具選擇正確率、捏造 ID 率、步數、成本
