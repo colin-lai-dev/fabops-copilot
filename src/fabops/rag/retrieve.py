@@ -33,7 +33,9 @@ class RetrievalConfig:
     lexical: Lexical = "bm25"
     candidates: int = 50  # per ranker, before fusion
     rrf_k: int = 60
-    rerank: bool = True
+    # Off by default: on dev it did not improve hybrid Recall@5 and costs ~25 s/query on CPU
+    # (docs/experiments.md, 2026-11-08). Revisit with GPU rerank.
+    rerank: bool = False
     rerank_top: int = 20
     k: int = 8  # chunks returned
     include_superseded: bool = False
