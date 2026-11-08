@@ -1,0 +1,36 @@
+{
+  "run_id": "20261108T100407Z-dev-ret-dense-rerank",
+  "split": "dev",
+  "system": "ret-dense-rerank",
+  "n": 60,
+  "n_by_qtype": {
+    "cross_doc": 8,
+    "dirty": 10,
+    "fact": 18,
+    "old_version": 6,
+    "paraphrase": 12,
+    "refuse": 6
+  },
+  "questions_sha256": "e4a44891de9fcf17",
+  "question_files": [
+    "rule.jsonl"
+  ],
+  "git": {
+    "commit": "53b806b",
+    "dirty": true
+  },
+  "llm": {
+    "provider": "ollama",
+    "model": "qwen3:8b"
+  },
+  "errors": 0,
+  "cost_usd": 0.0,
+  "tokens": {
+    "input": 0,
+    "output": 0
+  },
+  "latency_ms_mean": 25656.2,
+  "metrics": null,
+  "note": "evals/score.py not implemented yet; outputs saved",
+  "limit": null
+}

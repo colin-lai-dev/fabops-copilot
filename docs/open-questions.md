@@ -15,4 +15,12 @@ Claude Code 遇到 ADR 沒涵蓋的問題時記錄於此，並採用暫定做法
 | 2026-11-08 | 規則題的提問者 | 選「看得到所有應引用文件、權限最低」的 demo 使用者；`op_fx1_etch` 因此沒有出現在規則題中。 | 在看得到的使用者中隨機選，分布較平均。 | 確認（規劃者代決，Colin 可推翻） |
 | 2026-11-08 | 規則題的應拒答題只出「資料庫沒有答案」的題目，提問者固定為 `admin_all` | 權限型拒答（看不到文件）留給 Colin 設計的洩漏測試集，避免兩邊重複、也不替 Colin 出洩漏題。 | QA 集也加入權限型拒答題。 | 確認（規劃者代決，Colin 可推翻） |
 | 2026-11-08 | 通用 SOP（`GEN-*`，緊急分機、升級時數）不出規則題 | 兩廠內容相同，題目無法指向單一文件。 | 用手寫題涵蓋，或接受兩份都算正確。 | 確認（規劃者代決，Colin 可推翻） |
-| 2026-11-08 | qwen3 的思考模式（交接指示 001 第 4 點） | 這次沒有呼叫 LLM；做到「回答生成」任務時再決定做法，記錄在 `experiments.md`。 | — | 確認（規劃者代決，Colin 可推翻） |
+| 2026-11-08 | qwen3 的思考模式（交接指示 001 第 4 點） | 用請求參數 `reasoning_effort="none"`（`LLM_REASONING_EFFORT=none`）；`/no_think` 與 `think=false` 實測無效，見 `experiments.md`。 | — | 已解決 |
+| 2026-11-08 | 本機 `.env` 缺 `LLM_REASONING_EFFORT=none` | `.env.example` 已加入；Claude Code 不讀寫 `.env`，執行 dev eval 時以環境變數帶入。**請 Colin 在 `.env` 加上這一行。** | — | 待 Colin |
+| 2026-11-08 | 舊版文件（`superseded_by` 不為空）是否進入檢索 | 預設排除（SQL 加 `superseded_by IS NULL`），所以「問舊版內容」的題目無法回答，只會回答現行版。`RetrievalConfig(include_superseded=True)` 可以打開。 | 預設納入，交給 LLM 依 prompt 規則 5 選新版；引用正確率會受影響（ADR-0005 規則 5）。 | 暫定 |
+| 2026-11-08 | 沒有引用、也沒有拒答的回答 | 保留原樣輸出，不強制改成拒答；由評分（ADR-0005 規則 5）記為引用錯誤。 | 出口檢查時把無引用的回答改成拒答，較保守但會增加誤拒。 | 暫定 |
+| 2026-11-08 | Phase 1 的 trace 去哪裡 | 寫到本機 `.cache/traces.jsonl`，欄位與遮罩規則照 ADR-0007（`authz/trace.py`）；Langfuse 到 Phase 2 才接（不新增依賴）。 | 現在就接 Langfuse 免費雲端。 | 暫定 |
+| 2026-11-08 | rerank 預設關閉 | dev 上 rerank 沒有提升 hybrid 的 Recall@5（0.861 → 0.815，n=54），CPU 上每題約 25 秒。保留 `-rerank` 選項。 | 改用 CUDA 版 torch 在 GPU 上跑 rerank（要改依賴與 `uv.lock`，需 Colin 同意），再重新比較。 | 待 Colin |
+| 2026-11-08 | 跨文件題（異常報告 → SOP）需要兩段式檢索 | Phase 1 維持單次檢索，cross_doc 的 Recall@5 只有 0.31（n=8）；改善留給 Phase 2 agent 的多步查詢。 | 在檢索層加「引用展開」：命中的文件中提到的 SOP 編號，經權限檢查後一併取回。 | 待 Colin |
+| 2026-11-08 | qwen3:8b 會列出沒用到的引用 | 不改 prompt（規則 4 已要求只列實際依據的文件），由引用 precision 反映；Haiku 5.5 上再觀察。 | 加 few-shot 範例或只保留回答中提到的 doc_id。 | 暫定 |
+| 2026-11-08 | commit `39282cc` 混進了回答生成的程式 | `fix(test)` 那個 commit 也包含 `rag/answer.py`、`tests/test_answer.py` 以及 `llm/client.py`、`rag/retrieve.py` 的修改（提交時 PowerShell 參數問題）。沒有改寫歷史。 | 經 Colin 同意後用 rebase 拆開。 | 待 Colin |

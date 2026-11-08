@@ -38,13 +38,17 @@ Eval 基礎先做，凍結後才開始調參。
 - [ ] **[Colin]** 人工標註 50 題
 - [ ] Judge 選擇實驗：GPT-5.4 mini vs Gemini 2.5 Flash，以人工標註的一致率決定（ADR-0008）
 - [ ] 凍結 test set（記錄 commit hash 到 experiments.md）
-- [ ] 切塊（依 SOP 章節）與 bge-m3 索引
-- [ ] 中文 BM25 斷詞比較（jieba vs bge-m3 sparse），結果寫 ADR
-- [ ] 檢索：角色 pre-filter → hybrid search → rerank
-- [ ] 回答生成：附來源引用、優先最新版、無可用資料時拒答
-- [ ] 出口檢查：LLM 回應快取、trace 日誌遮罩
+- [x] 切塊（依 SOP 章節）與 bge-m3 索引
+- [x] 中文 BM25 斷詞比較（jieba vs bge-m3 sparse），結果寫 ADR（ADR-0009，提議中）
+- [x] 檢索：角色 pre-filter → hybrid search → rerank（rerank 預設關閉，見 experiments.md）
+- [x] 回答生成：附來源引用、優先最新版、無可用資料時拒答
+- [x] 出口檢查：LLM 回應快取、trace 日誌遮罩
 - [ ] Baseline 實驗：只用向量、不 rerank；無出口檢查版本
+  - [x] 檢索 baseline（`ret-dense`）與系統實作（`rag-dense`、`-noexit`）
+  - [ ] dev 全量 RAG 執行（2026-11-08 因系統記憶體不足被中止）
 - [ ] 調參實驗（只看 dev）：切塊大小、top-k、rerank
+  - [x] rerank、異常報告切法（見 experiments.md）
+  - [ ] 切塊大小（400／1200 字）、送進 LLM 的 chunk 數
 - [ ] 第一輪 test eval，依實際花費重估預算
 
 **Gate：** 凍結 test set 上的 RAG 數字（附 n 與 baseline）；檢索、快取、日誌三條路徑的

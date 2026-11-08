@@ -6,6 +6,9 @@
 
 ## 2026-11-08
 
+- **交接指示 002（進行中）**：完成 bge-m3 索引、hybrid 檢索（dense + jieba BM25，ADR-0009 提議中）、回答生成與出口檢查、
+  洩漏測試／judge 標註格式；dev Recall@5 0.861 vs baseline 0.657（n=54）。rerank 預設關閉、異常報告不切段（`experiments.md`）。
+  dev 全量 RAG 執行因記憶體不足被系統中止，待 Colin 指示重跑（`private/handoff/reports/2026-11-08-1908-phase1-rag-paused.md`）。
 - **Phase 1 開始**：eval 框架、權限 policy 函式、151 題規則題（dev 60／test 91）完成；
   停在 Colin 的手寫題與 `score.py`（`docs/gates/phase-1.md`）。
 - **規劃者代決**：ADR-0004 補「暫不潤飾」修訂；ADR-0005 補 5 條評分細節預設規則（Colin 可推翻）；
