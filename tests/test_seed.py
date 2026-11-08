@@ -1,13 +1,12 @@
-import os
-
 import pytest
 
+from fabops.config import get_settings
 from fabops.data import seed
 
 
 @pytest.mark.db
 def test_seed_loads_all_tables():
-    url = os.environ.get("DATABASE_URL", "postgresql://fabops:fabops@localhost:5432/fabops")
+    url = get_settings().database_url
     counts = seed.seed(url)
     assert counts["documents"] > 150
     assert counts["dispatch_log"] > 1000

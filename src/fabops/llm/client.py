@@ -21,6 +21,7 @@ from typing import Protocol, TypeVar
 from pydantic import BaseModel, ValidationError
 
 from fabops.authz.scope import Scope
+from fabops.config import get_settings
 from fabops.llm.pricing import cost_usd
 
 T = TypeVar("T", bound=BaseModel)
@@ -92,10 +93,10 @@ class AnthropicProvider:
         return Completion(text, r.usage.input_tokens, r.usage.output_tokens)
 
 
-def make_provider(name: str, base_url: str | None = None) -> Provider:
+def make_provider(name: str, base_url: str | None = None, api_key: str | None = None) -> Provider:
     if name == "anthropic":
-        return AnthropicProvider()
-    return OpenAICompatibleProvider(name, base_url)
+        return AnthropicProvider(api_key)
+    return OpenAICompatibleProvider(name, base_url, api_key)
 
 
 @dataclass
@@ -123,12 +124,13 @@ class LLMClient:
 
     @classmethod
     def from_env(cls) -> LLMClient:
-        name = os.environ.get("LLM_PROVIDER", "ollama")
+        """Build a client from `.env` / environment variables (see fabops.config)."""
+        cfg = get_settings()
         return cls(
-            make_provider(name, os.environ.get("LLM_BASE_URL") or None),
-            os.environ.get("LLM_MODEL", "qwen3:8b"),
-            os.environ.get("FABOPS_CACHE_DIR", ".cache/llm"),
-            os.environ.get("FABOPS_USAGE_LOG", ".cache/usage.jsonl"),
+            make_provider(cfg.llm_provider, cfg.llm_base_url, cfg.api_key(cfg.llm_provider)),
+            cfg.llm_model,
+            cfg.fabops_cache_dir,
+            cfg.fabops_usage_log,
         )
 
     # ------------------------------------------------------------------ core

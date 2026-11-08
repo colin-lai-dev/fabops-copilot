@@ -6,10 +6,11 @@ Run: `python -m fabops.data.seed` (uses DATABASE_URL).
 from __future__ import annotations
 
 import json
-import os
 from pathlib import Path
 
 import psycopg
+
+from fabops.config import get_settings
 
 DATA_DIR = Path("data/generated")
 SCHEMA = Path(__file__).with_name("schema.sql")
@@ -63,8 +64,7 @@ def seed(database_url: str, data_dir: Path = DATA_DIR) -> dict[str, int]:
 
 
 def main() -> None:
-    url = os.environ.get("DATABASE_URL", "postgresql://fabops:fabops@localhost:5432/fabops")
-    for table, n in seed(url).items():
+    for table, n in seed(get_settings().database_url).items():
         print(f"{table:14s} {n:>6d}")
 
 

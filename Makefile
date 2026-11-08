@@ -20,9 +20,8 @@ fmt:
 test:
 	uv run pytest
 
-# DB targets load .env so DATABASE_URL (and a non-default FABOPS_DB_PORT) is honoured.
 test-db:
-	uv run --env-file .env pytest -m db
+	uv run pytest -m db
 
 # Regenerate synthetic data from rules (no LLM). Output is committed under data/generated/.
 generate:
@@ -34,4 +33,4 @@ polish:
 
 # Load schema and generated data into Postgres.
 seed:
-	uv run --env-file .env python -m fabops.data.seed
+	uv run python -m fabops.data.seed
