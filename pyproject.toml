@@ -35,5 +35,6 @@ select = ["E", "F", "I", "B", "UP", "SIM"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["."]  # so tests can import the evals/ package
 markers = ["db: requires a running Postgres (DATABASE_URL)"]
 addopts = "-m 'not db'"

@@ -1,4 +1,4 @@
-.PHONY: up down install lint fmt test test-db generate polish seed
+.PHONY: up down install lint fmt test test-db generate polish seed eval-dev eval-test
 
 up:
 	docker compose up -d
@@ -34,3 +34,13 @@ polish:
 # Load schema and generated data into Postgres.
 seed:
 	uv run python -m fabops.data.seed
+
+# Eval (ADR-0005). SYSTEM selects the system under test (see evals/systems.py).
+SYSTEM ?= refuse_all
+
+eval-dev:
+	uv run python -m evals.run --split dev --system $(SYSTEM)
+
+# Test split: only at a gate, with Colin's approval (CLAUDE.md, "Eval 規則").
+eval-test:
+	uv run python -m evals.run --split test --system $(SYSTEM) --allow-test
