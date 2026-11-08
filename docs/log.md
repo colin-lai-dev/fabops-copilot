@@ -6,6 +6,10 @@
 
 ## 2026-11-08
 
+- **Phase 1 檢索**：dev Recall@5 dense + BM25 0.861、dense baseline 0.657（n=54）；rerank 在 CPU 每題約 25 秒且無提升，預設關閉；
+  異常報告依段落切塊不採用；cross_doc 只有 0.31（n=8）。dev 全量 RAG 執行因記憶體不足中止，待重跑。
+- **規劃者代決**：ADR-0009（jieba + BM25）採用；不裝 CUDA torch；Phase 1 不加引用展開（cross_doc 留給 Phase 2 對照）；
+  不改寫 `39282cc`；`.env` 加入 `LLM_REASONING_EFFORT=none`。
 - **交接指示 002（進行中）**：完成 bge-m3 索引、hybrid 檢索（dense + jieba BM25，ADR-0009 提議中）、回答生成與出口檢查、
   洩漏測試／judge 標註格式；dev Recall@5 0.861 vs baseline 0.657（n=54）。rerank 預設關閉、異常報告不切段（`experiments.md`）。
   dev 全量 RAG 執行因記憶體不足被系統中止，待 Colin 指示重跑（`private/handoff/reports/2026-11-08-1908-phase1-rag-paused.md`）。

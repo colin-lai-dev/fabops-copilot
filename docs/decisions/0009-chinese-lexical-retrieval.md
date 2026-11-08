@@ -1,7 +1,7 @@
 # ADR-0009: 中文關鍵字檢索用 jieba + BM25，不用 bge-m3 sparse
 
 - 日期：2026-11-08
-- 狀態：提議中（Claude Code 依交接指示 002 起草，待 Colin 在 Phase 1 gate 確認）
+- 狀態：已採用（2026-11-08，規劃者依 dev 結果代 Colin 確認；test 結果出來後再複核）
 
 ## 背景
 
