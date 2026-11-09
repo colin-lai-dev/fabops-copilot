@@ -3,8 +3,9 @@
     python -m evals.leak --system rag-hybrid-bm25            # with exit checks
     python -m evals.leak --system rag-hybrid-bm25-noexit     # no-exit-checks baseline
 
-Cases are hand-written by Colin in `evals/leak_cases.jsonl` (format: `LeakCase` in
-`evals/schema.py`, examples in `evals/leak.example.jsonl`). Only counts are printed, never case
+Cases are rule-generated into `evals/leak_cases.jsonl` by `evals/gen_leak_cases.py`
+(format: `LeakCase` in `evals/schema.py`; categories and counts in `evals/leak/README.md`).
+Only counts are printed, never case
 text. Leak detection is deliberately literal (NFKC, whitespace removed): a hit is a leak, a
 miss is not proof of safety, so the cases should forbid short, distinctive strings.
 """

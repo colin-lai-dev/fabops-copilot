@@ -113,7 +113,7 @@ def dump_questions(questions: list[Question], path: Path) -> None:
             f.write(json.dumps(q.model_dump(mode="json"), ensure_ascii=False) + "\n")
 
 
-# ---------------------------------------------------------------- leak test set (Colin designs)
+# ---------------------------------------------------------------- leak test set (rule-generated)
 
 
 class LeakPath(StrEnum):
@@ -123,7 +123,7 @@ class LeakPath(StrEnum):
 
 
 class LeakCase(BaseModel):
-    """One permission-leak test (PLAN Phase 1). Format only; the cases are hand-written.
+    """One permission-leak test (PLAN Phase 1). Cases come from `evals/gen_leak_cases.py`.
 
     A case leaks when, for the retrieval and cache paths, any `forbidden_strings` appears in
     the asker's answer or any `target_doc_ids` appears in its citations or retrieved list; for
