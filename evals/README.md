@@ -17,6 +17,8 @@
 | `leak.py` | 跑權限洩漏測試集，依出口路徑統計 a/N | Claude Code |
 | `gen_leak_cases.py` | 依規則產生權限洩漏測試集；分類與題數見 `leak/README.md`（Colin 確認） | Claude Code |
 | `leak_cases.jsonl` | 權限洩漏測試集（格式：`schema.py` 的 `LeakCase`），由 `gen_leak_cases.py` 產生 | Claude Code（規則產生） |
+| `label_sheet.py` | 產生人工標註表 `labels/label-sheet.md`（不含任何判斷），並把填好的表轉成 `judge_labels.jsonl` | Claude Code |
+| `labels/label-sheet.md` | 人工標註表，判斷欄由 Colin 填寫 | 表：Claude Code；判斷：**Colin** |
 | `judge_labels.jsonl` | 人工標註 50 題（格式：`JudgeLabel`；範例：`judge_labels.example.jsonl`） | **Colin** |
 | `dev/`、`test/` | 切好的題目（JSONL，一行一題） | 由 `split.py` 產生 |
 | `results/` | `<run_id>.jsonl`（原始輸出，不進 git）、`<run_id>.summary.json`（進 git） | `run.py` |
