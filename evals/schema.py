@@ -178,5 +178,12 @@ class JudgeLabel(BaseModel):
 
     run_id: str
     qid: str
-    passed: bool  # the answer meets the question's rubric / key facts
+    passed: bool  # the answer meets the question's rubric / key facts (strict: 部分 = False)
+    partial: bool = False  # Colin marked it 部分; counted as passed only in the lenient rate
     notes: str = ""
+
+    @model_validator(mode="after")
+    def _partial_is_not_passed(self) -> JudgeLabel:
+        if self.partial and self.passed:
+            raise ValueError("a partial label is not passed (ADR-0005 rule 6)")
+        return self

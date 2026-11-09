@@ -27,7 +27,7 @@ SHEET = EVALS / "labels" / "label-sheet.md"
 LABELS = EVALS / "judge_labels.jsonl"
 SEED = 20261109
 N = 50
-VERDICTS = {"對": True, "錯": False, "部分": False}  # 「部分」暫時算不通過（open-questions.md）
+VERDICTS = {"對": True, "錯": False, "部分": False}  # 「部分」嚴格算不通過（ADR-0005 規則 6）
 _VERDICT = re.compile(r"^- 判斷（對／錯／部分）：(.*)$")
 _NOTE = re.compile(r"^- 備註：(.*)$")
 _HEAD = re.compile(r"^### \d+\. (\S+)")
@@ -149,8 +149,29 @@ def parse(sheet: Path = SHEET) -> list[JudgeLabel]:
                 raise ValueError("sheet has no run_id or question heading")
             note = m.group(1).strip()
             notes = f"{verdict}；{note}" if note else verdict
-            labels.append(JudgeLabel(run_id=run_id, qid=qid, passed=VERDICTS[verdict], notes=notes))
+            labels.append(
+                JudgeLabel(
+                    run_id=run_id,
+                    qid=qid,
+                    passed=VERDICTS[verdict],
+                    partial=verdict == "部分",
+                    notes=notes,
+                )
+            )
     return labels
+
+
+def pass_rates(labels: list[JudgeLabel]) -> dict[str, dict[str, float | int | None]]:
+    """ADR-0005 規則 6：嚴格（部分＝不通過）為主，寬鬆（部分＝通過）並列，各自標 n。"""
+    n = len(labels)
+
+    def rate(k: int) -> float | None:
+        return round(k / n, 3) if n else None
+
+    return {
+        "strict": {"value": rate(sum(x.passed for x in labels)), "n": n},
+        "lenient": {"value": rate(sum(x.passed or x.partial for x in labels)), "n": n},
+    }
 
 
 def main(argv: list[str] | None = None) -> int:

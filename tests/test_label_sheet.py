@@ -75,10 +75,12 @@ def test_sheet_has_no_prefilled_verdicts_and_round_trips(tmp_path):
     )
     sheet.write_text(filled, encoding="utf-8")
     labels = label_sheet.parse(sheet)
-    assert [(x.qid, x.passed, x.notes) for x in labels] == [
-        ("R-FACT-0001", True, "對"),
-        ("R-REFUSE-0001", False, "部分；少一步"),
+    assert [(x.qid, x.passed, x.partial, x.notes) for x in labels] == [
+        ("R-FACT-0001", True, False, "對"),
+        ("R-REFUSE-0001", False, True, "部分；少一步"),
     ]
+    rates = label_sheet.pass_rates(labels)
+    assert rates == {"strict": {"value": 0.5, "n": 2}, "lenient": {"value": 1.0, "n": 2}}
     assert {x.run_id for x in labels} == {"r1"}
 
 
@@ -91,3 +93,10 @@ def test_parse_rejects_unknown_verdict(tmp_path):
     sheet.write_text(text.replace("部分）：\n", "部分）：大概對\n"), encoding="utf-8")
     with pytest.raises(ValueError):
         label_sheet.parse(sheet)
+
+
+def test_partial_label_cannot_be_passed():
+    from evals.schema import JudgeLabel
+
+    with pytest.raises(ValueError):
+        JudgeLabel(run_id="r", qid="q", passed=True, partial=True)
