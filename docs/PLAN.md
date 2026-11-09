@@ -29,15 +29,15 @@ Phase 1 的 gate 是硬目標；之後的階段都是加分。
 Eval 基礎先做，凍結後才開始調參。
 
 - [x] Eval 框架：題目格式、`evals/run.py`、dev/test 分割，`score.py` 介面 stub
-- [ ] RAG 問答集：test 目標 100 題以上（規則產生 + 手寫），題型含換句話說、跨文件、
+- [x] RAG 問答集：test 目標 100 題以上（test 110 題）（規則產生 + 手寫），題型含換句話說、跨文件、
       錯字與縮寫、問到舊版 SOP、應拒答
   - [x] 規則題 151 題（dev 60、test 91）
-  - [ ] 手寫題目（Claude 起草 `evals/handwritten.draft.jsonl`，**[Colin]** 修改定稿）
+  - [x] 手寫題目 31 題（Claude 起草，**[Colin]** 審閱後全部保留；dev 12、test 19）
 - [x] 權限洩漏測試集：直接越權 + 快取、日誌間接路徑（規則產生 90 題，**分類待 Colin 確認**，見 `evals/leak/README.md`）
 - [x] `evals/score.py`（Claude Code 實作，**Colin review 中**）
 - [ ] **[Colin]** 人工標註 50 題（標註表已備好：`evals/labels/label-sheet.md`）
 - [ ] Judge 選擇實驗：GPT-5.4 mini vs Gemini 2.5 Flash，以人工標註的一致率決定（ADR-0008）
-- [ ] 凍結 test set（記錄 commit hash 到 experiments.md）
+- [x] 凍結 test set（`6ebbb5d`，見 experiments.md）
 - [x] 切塊（依 SOP 章節）與 bge-m3 索引
 - [x] 中文 BM25 斷詞比較（jieba vs bge-m3 sparse），結果寫 ADR（ADR-0009，已採用）
 - [x] 檢索：角色 pre-filter → hybrid search → rerank（rerank 預設關閉，見 experiments.md）

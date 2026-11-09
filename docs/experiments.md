@@ -23,6 +23,29 @@
 
 ## 紀錄
 
+### 2026-11-09：test set 凍結
+
+- 凍結於 git `6ebbb5d`（`feat(evals): finalize 31 handwritten questions and split them`）。之後 `evals/test/` 不得再修改；
+  `split.py` 不會覆寫已存在的 test 檔（`--force` 才行）。
+- 題目來源：
+  - 規則題 151 題：`evals/gen_rule_questions.py` 依骨架事實產生（2026-11-08，`75e6a8d`）。
+  - 手寫題 31 題：**規劃者（Claude）起草 31 題，Colin 審閱後全部保留，未修改**。`evals/handwritten.jsonl` 是
+    `evals/handwritten.draft.jsonl` 的原樣複製（檔案內各題的 notes 仍是起草時的「待 Colin 修改」字樣）。
+    split 前的語料檢查：0 錯誤、0 警告。
+- 切分：各題庫獨立、依題型分層，dev/test = 40/60，seed `20261108`。
+
+| 檔案 | sha256 | 題數 | 依題型 |
+| --- | --- | --- | --- |
+| `evals/test/rule.jsonl` | `4f85ecd3b6874a6530dfada2342645e2c7487db1b03fc9bb65346927a6beadda` | 91 | fact 27、paraphrase 18、dirty 15、cross_doc 12、old_version 10、refuse 9 |
+| `evals/test/handwritten.jsonl` | `661f78bd2ffb6d0dfcd0dd4ff9615e23c516f06db1af6f51e03e0c9e15bfa876` | 19 | open 5、paraphrase 5、cross_doc 4、dirty 2、refuse 2、old_version 1 |
+| **test 合計** | `run.py` 摘要的 `questions_sha256` = `fd8e1b1ed135fd61` | **110** | fact 27、paraphrase 23、cross_doc 16、dirty 17、old_version 11、refuse 11、open 5 |
+| `evals/dev/rule.jsonl` | `592d87177b9ca80c46efa22ecb92c74a5c04d113fa7225f3a236d4d51b025bbe` | 60 | fact 18、paraphrase 12、dirty 10、cross_doc 8、old_version 6、refuse 6 |
+| `evals/dev/handwritten.jsonl` | `9a962af476b511bb6829c881e42512d15706e7f2ba2430b51f07a5fccc8ba726` | 12 | open 3、paraphrase 3、cross_doc 2、dirty 2、old_version 1、refuse 1 |
+| **dev 合計** | `questions_sha256` = `658c0a21051cb765` | **72** | |
+
+- 注意：dev 加入手寫題後題目檔 hash 改變，2026-11-08／09 已存的 dev 執行結果不能再 `--rescore`（`run.py` 會拒絕），要比較時重跑。
+- test eval 尚未執行（等 Colin 完成 50 題標註、gate 時經同意再跑）。
+
 ### 2026-11-09：權限洩漏測試（dev 系統，有／無出口檢查）
 
 - 目的：PLAN Phase 1 gate 的「檢索、快取、日誌三條路徑的洩漏測試（a/N vs b/N）」。
