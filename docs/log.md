@@ -11,6 +11,14 @@
 - **rerank 複查**：沒有 512 token 截斷，結論不變（rerank 偏好整份異常報告）；chunk 數 8 維持；整份文件 ctx4 略好但暫不改預設，待 Colin 決定。
 - 待 Colin：洩漏分類確認、切塊預設、快取 baseline 做法、標註「部分」的算法（`docs/open-questions.md`）。
 
+## 2026-11-09
+
+- **Phase 1 Claude Code 部分完成**：`score.py`、洩漏集 90 題、標註表 50 題。dev 回答正確率 0.850（dense + BM25）vs 0.700（dense），n=60；
+  洩漏：有出口檢查 0/90、無出口檢查 13/90（全在 trace）。rerank 複查：輸入沒有被截斷，結論不變（不採用）。
+- **規劃者代決**：預設切塊維持依章節（整份文件只多 2 題，屬雜訊）；補「天真快取」與「無 pre-filter」兩個洩漏 baseline，
+  讓每條路徑都有對照；標註「部分」算不通過並另報寬鬆比例。手寫題 31 題 Colin 確認全部保留，交接指示 003 定稿並凍結 test。
+- **協作設定**：Claude Code 改為 auto 權限模式、預設繁體中文；Remote Control 開機腳本 `private/start-remote-control.bat`。
+
 ## 2026-11-08
 
 - **分工調整（Colin 決定）**：`score.py` 與洩漏測試集改由 Claude Code 實作、Colin review；手寫題由規劃者起草 31 題
