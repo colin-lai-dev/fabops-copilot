@@ -37,7 +37,8 @@ ROOT = Path(__file__).resolve().parents[1]
 EVALS = ROOT / "evals"
 RESULTS = EVALS / "results"
 USERS = ROOT / "data" / "generated" / "users.jsonl"
-SPLITS = ("dev", "test")
+# calibration: judge-calibration pool only (evals/gen_calibration.py), never a system metric
+SPLITS = ("dev", "test", "calibration")
 
 
 class TestSplitLocked(RuntimeError):
