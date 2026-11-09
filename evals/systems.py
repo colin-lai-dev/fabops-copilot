@@ -11,6 +11,7 @@ the factory takes no arguments and returns an object with `name` and `answer()`.
 from __future__ import annotations
 
 import importlib
+import re
 from collections.abc import Callable
 from typing import Protocol
 
@@ -110,21 +111,39 @@ class RagSystem:
         )
 
 
-def rag_system(spec: str) -> System:
-    """`rag-<preset>[-rerank][-noexit]`, e.g. `rag-dense` (PLAN baseline: vector only, no
-    rerank) or `rag-hybrid-bm25-rerank`. `-noexit` is the no-exit-checks leak baseline."""
-    from fabops.authz.trace import Tracer
-    from fabops.config import get_settings
-    from fabops.llm.client import LLMClient
-    from fabops.rag.answer import Answerer
+_CTX = re.compile(r"-ctx(\d+)$")
 
+
+def parse_rag_spec(spec: str) -> tuple[str, bool, bool, int]:
+    """`rag-<preset>[-rerank][-noexit][-ctxN]` -> (preset, rerank, exit_checks, context_chunks).
+
+    `-ctxN` sets how many chunks go to the LLM (default 8), for the tuning experiment.
+    """
     body = spec.removeprefix("rag-")
+    context_chunks = 8
+    if m := _CTX.search(body):
+        context_chunks = int(m.group(1))
+        body = body[: m.start()]
     exit_checks = not body.endswith("-noexit")
     body = body.removesuffix("-noexit")
     rerank = body.endswith("-rerank")
     preset = body.removesuffix("-rerank")
     if preset not in RETRIEVAL_PRESETS:
         raise ValueError(f"unknown retrieval preset {preset!r}; one of {sorted(RETRIEVAL_PRESETS)}")
+    if context_chunks < 1:
+        raise ValueError("-ctxN needs N >= 1")
+    return preset, rerank, exit_checks, context_chunks
+
+
+def rag_system(spec: str) -> System:
+    """`rag-<preset>[-rerank][-noexit][-ctxN]`, e.g. `rag-dense` (PLAN baseline: vector only,
+    no rerank) or `rag-hybrid-bm25-rerank`. `-noexit` is the no-exit-checks leak baseline."""
+    from fabops.authz.trace import Tracer
+    from fabops.config import get_settings
+    from fabops.llm.client import LLMClient
+    from fabops.rag.answer import Answerer
+
+    preset, rerank, exit_checks, context_chunks = parse_rag_spec(spec)
     retriever = make_retriever(**RETRIEVAL_PRESETS[preset], rerank=rerank, k=20)
     client = LLMClient.from_env()
     if not exit_checks:
@@ -136,7 +155,10 @@ def rag_system(spec: str) -> System:
             f"{get_settings().fabops_cache_dir}/../traces-unmasked.jsonl", unsafe_unmasked=True
         )
     )
-    return RagSystem(spec, Answerer(retriever, client, tracer, exit_checks=exit_checks))
+    return RagSystem(
+        spec,
+        Answerer(retriever, client, tracer, context_chunks=context_chunks, exit_checks=exit_checks),
+    )
 
 
 def load_system(spec: str) -> System:

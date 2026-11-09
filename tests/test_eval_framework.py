@@ -207,3 +207,16 @@ def test_rag_spec_parsing(monkeypatch):
     assert seen["kw"] == {"dense": True, "lexical": "bm25", "rerank": True, "k": 20}
     assert s.answerer.exit_checks is False and s.answerer.client.unsafe_share_cache is True
     assert systems.load_system("rag-dense").answerer.exit_checks is True
+
+
+def test_rag_spec_context_chunks():
+    from evals.systems import parse_rag_spec
+
+    assert parse_rag_spec("rag-dense") == ("dense", False, True, 8)
+    assert parse_rag_spec("rag-hybrid-bm25-rerank-noexit") == ("hybrid-bm25", True, False, 8)
+    assert parse_rag_spec("rag-hybrid-bm25-ctx4") == ("hybrid-bm25", False, True, 4)
+    assert parse_rag_spec("rag-hybrid-bm25-noexit-ctx12") == ("hybrid-bm25", False, False, 12)
+    with pytest.raises(ValueError):
+        parse_rag_spec("rag-nope-ctx4")
+    with pytest.raises(ValueError):
+        parse_rag_spec("rag-dense-ctx0")
