@@ -26,7 +26,359 @@
     "output": 1102
   },
   "latency_ms_mean": 3722.2,
-  "metrics": null,
+  "metrics": {
+    "overall": {
+      "n": 10,
+      "answer_accuracy": {
+        "value": 0.4,
+        "n": 10
+      },
+      "refusal_recall": {
+        "value": null,
+        "n": 0
+      },
+      "false_refusal_rate": {
+        "value": 0.1,
+        "n": 10
+      },
+      "refusal_mismatch_rate": {
+        "value": 0.0,
+        "n": 10
+      },
+      "leak_rate": {
+        "value": null,
+        "n": 0
+      },
+      "citation_accuracy": {
+        "value": 0.0,
+        "n": 10
+      },
+      "citation_precision": {
+        "value": 0.133,
+        "n": 9
+      },
+      "fact_recall": {
+        "value": 0.4,
+        "n": 10
+      },
+      "recall@5": {
+        "value": 0.45,
+        "n": 10
+      },
+      "hit@5": {
+        "value": 0.6,
+        "n": 10
+      },
+      "mrr": {
+        "value": 0.261,
+        "n": 10
+      },
+      "judge_score": {
+        "value": null,
+        "n": 0
+      },
+      "errors": 0
+    },
+    "by_qtype": {
+      "cross_doc": {
+        "n": 8,
+        "answer_accuracy": {
+          "value": 0.25,
+          "n": 8
+        },
+        "refusal_recall": {
+          "value": null,
+          "n": 0
+        },
+        "false_refusal_rate": {
+          "value": 0.125,
+          "n": 8
+        },
+        "refusal_mismatch_rate": {
+          "value": 0.0,
+          "n": 8
+        },
+        "leak_rate": {
+          "value": null,
+          "n": 0
+        },
+        "citation_accuracy": {
+          "value": 0.0,
+          "n": 8
+        },
+        "citation_precision": {
+          "value": 0.171,
+          "n": 7
+        },
+        "fact_recall": {
+          "value": 0.25,
+          "n": 8
+        },
+        "recall@5": {
+          "value": 0.312,
+          "n": 8
+        },
+        "hit@5": {
+          "value": 0.5,
+          "n": 8
+        },
+        "mrr": {
+          "value": 0.202,
+          "n": 8
+        },
+        "judge_score": {
+          "value": null,
+          "n": 0
+        },
+        "errors": 0
+      },
+      "dirty": {
+        "n": 2,
+        "answer_accuracy": {
+          "value": 1.0,
+          "n": 2
+        },
+        "refusal_recall": {
+          "value": null,
+          "n": 0
+        },
+        "false_refusal_rate": {
+          "value": 0.0,
+          "n": 2
+        },
+        "refusal_mismatch_rate": {
+          "value": 0.0,
+          "n": 2
+        },
+        "leak_rate": {
+          "value": null,
+          "n": 0
+        },
+        "citation_accuracy": {
+          "value": 0.0,
+          "n": 2
+        },
+        "citation_precision": {
+          "value": 0.0,
+          "n": 2
+        },
+        "fact_recall": {
+          "value": 1.0,
+          "n": 2
+        },
+        "recall@5": {
+          "value": 1.0,
+          "n": 2
+        },
+        "hit@5": {
+          "value": 1.0,
+          "n": 2
+        },
+        "mrr": {
+          "value": 0.5,
+          "n": 2
+        },
+        "judge_score": {
+          "value": null,
+          "n": 0
+        },
+        "errors": 0
+      }
+    }
+  },
   "note": "evals/score.py not implemented yet; outputs saved",
-  "limit": 10
+  "limit": 10,
+  "per_question": [
+    {
+      "qid": "R-CROSS_DOC-0003",
+      "qtype": "cross_doc",
+      "should_refuse": false,
+      "refused": false,
+      "answer_ok": true,
+      "facts_found": 1,
+      "facts_total": 1,
+      "refusal_ok": true,
+      "refusal_mismatch": false,
+      "leaked": null,
+      "citation_ok": false,
+      "citation_precision": 0.2,
+      "recall_at_5": 0.5,
+      "hit_at_5": true,
+      "reciprocal_rank": 0.2,
+      "judge_score": null,
+      "error": false
+    },
+    {
+      "qid": "R-CROSS_DOC-0004",
+      "qtype": "cross_doc",
+      "should_refuse": false,
+      "refused": false,
+      "answer_ok": false,
+      "facts_found": 0,
+      "facts_total": 1,
+      "refusal_ok": true,
+      "refusal_mismatch": false,
+      "leaked": null,
+      "citation_ok": false,
+      "citation_precision": 0.0,
+      "recall_at_5": 0.0,
+      "hit_at_5": false,
+      "reciprocal_rank": 0.125,
+      "judge_score": null,
+      "error": false
+    },
+    {
+      "qid": "R-CROSS_DOC-0005",
+      "qtype": "cross_doc",
+      "should_refuse": false,
+      "refused": false,
+      "answer_ok": true,
+      "facts_found": 1,
+      "facts_total": 1,
+      "refusal_ok": true,
+      "refusal_mismatch": false,
+      "leaked": null,
+      "citation_ok": false,
+      "citation_precision": 1.0,
+      "recall_at_5": 1.0,
+      "hit_at_5": true,
+      "reciprocal_rank": 0.5,
+      "judge_score": null,
+      "error": false
+    },
+    {
+      "qid": "R-CROSS_DOC-0006",
+      "qtype": "cross_doc",
+      "should_refuse": false,
+      "refused": false,
+      "answer_ok": false,
+      "facts_found": 0,
+      "facts_total": 1,
+      "refusal_ok": true,
+      "refusal_mismatch": false,
+      "leaked": null,
+      "citation_ok": false,
+      "citation_precision": 0.0,
+      "recall_at_5": 0.0,
+      "hit_at_5": false,
+      "reciprocal_rank": 0.14285714285714285,
+      "judge_score": null,
+      "error": false
+    },
+    {
+      "qid": "R-CROSS_DOC-0014",
+      "qtype": "cross_doc",
+      "should_refuse": false,
+      "refused": true,
+      "answer_ok": false,
+      "facts_found": 0,
+      "facts_total": 1,
+      "refusal_ok": false,
+      "refusal_mismatch": false,
+      "leaked": null,
+      "citation_ok": false,
+      "citation_precision": null,
+      "recall_at_5": 0.5,
+      "hit_at_5": true,
+      "reciprocal_rank": 0.3333333333333333,
+      "judge_score": null,
+      "error": false
+    },
+    {
+      "qid": "R-CROSS_DOC-0016",
+      "qtype": "cross_doc",
+      "should_refuse": false,
+      "refused": false,
+      "answer_ok": false,
+      "facts_found": 0,
+      "facts_total": 1,
+      "refusal_ok": true,
+      "refusal_mismatch": false,
+      "leaked": null,
+      "citation_ok": false,
+      "citation_precision": 0.0,
+      "recall_at_5": 0.0,
+      "hit_at_5": false,
+      "reciprocal_rank": 0.0625,
+      "judge_score": null,
+      "error": false
+    },
+    {
+      "qid": "R-CROSS_DOC-0017",
+      "qtype": "cross_doc",
+      "should_refuse": false,
+      "refused": false,
+      "answer_ok": false,
+      "facts_found": 0,
+      "facts_total": 1,
+      "refusal_ok": true,
+      "refusal_mismatch": false,
+      "leaked": null,
+      "citation_ok": false,
+      "citation_precision": 0.0,
+      "recall_at_5": 0.5,
+      "hit_at_5": true,
+      "reciprocal_rank": 0.25,
+      "judge_score": null,
+      "error": false
+    },
+    {
+      "qid": "R-CROSS_DOC-0018",
+      "qtype": "cross_doc",
+      "should_refuse": false,
+      "refused": false,
+      "answer_ok": false,
+      "facts_found": 0,
+      "facts_total": 1,
+      "refusal_ok": true,
+      "refusal_mismatch": false,
+      "leaked": null,
+      "citation_ok": false,
+      "citation_precision": 0.0,
+      "recall_at_5": 0.0,
+      "hit_at_5": false,
+      "reciprocal_rank": 0.0,
+      "judge_score": null,
+      "error": false
+    },
+    {
+      "qid": "R-DIRTY-0002",
+      "qtype": "dirty",
+      "should_refuse": false,
+      "refused": false,
+      "answer_ok": true,
+      "facts_found": 1,
+      "facts_total": 1,
+      "refusal_ok": true,
+      "refusal_mismatch": false,
+      "leaked": null,
+      "citation_ok": false,
+      "citation_precision": 0.0,
+      "recall_at_5": 1.0,
+      "hit_at_5": true,
+      "reciprocal_rank": 0.5,
+      "judge_score": null,
+      "error": false
+    },
+    {
+      "qid": "R-DIRTY-0004",
+      "qtype": "dirty",
+      "should_refuse": false,
+      "refused": false,
+      "answer_ok": true,
+      "facts_found": 1,
+      "facts_total": 1,
+      "refusal_ok": true,
+      "refusal_mismatch": false,
+      "leaked": null,
+      "citation_ok": false,
+      "citation_precision": 0.0,
+      "recall_at_5": 1.0,
+      "hit_at_5": true,
+      "reciprocal_rank": 0.5,
+      "judge_score": null,
+      "error": false
+    }
+  ],
+  "rescored_at": "20261109T011956Z"
 }

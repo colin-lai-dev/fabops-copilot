@@ -133,7 +133,10 @@ def test_test_split_is_locked_without_flag(eval_dirs):
 def test_dev_run_saves_outputs_and_summary(eval_dirs):
     s = runner.run("dev", "refuse_all", **eval_dirs)
     assert s["n"] == 2 and s["errors"] == 0 and s["n_by_qtype"] == {"fact": 2}
-    assert s["metrics"] is None  # score.py is still a stub
+    # refuse_all 對可回答題全部拒答：正確率 0、誤拒率 1
+    assert s["metrics"]["overall"]["answer_accuracy"] == {"value": 0.0, "n": 2}
+    assert s["metrics"]["overall"]["false_refusal_rate"] == {"value": 1.0, "n": 2}
+    assert len(s["per_question"]) == 2
     raw = (eval_dirs["results_dir"] / f"{s['run_id']}.jsonl").read_text(encoding="utf-8")
     assert len(raw.splitlines()) == 2
     assert "（測試）問題" not in raw  # outputs store qids, not question text

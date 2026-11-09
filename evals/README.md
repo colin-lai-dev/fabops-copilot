@@ -13,8 +13,7 @@
 | `run.py` | 對指定 split 跑系統，存原始輸出與摘要 | Claude Code |
 | `systems.py` | 受測系統（`refuse_all` 是下限 baseline） | Claude Code |
 | `synonyms.py` | 事實比對用的同義詞／縮寫表 | Claude Code |
-| `score.py` | 評分邏輯 | **Colin** |
-| `_interim_metrics.py` | 暫時的檢索指標（Recall@5、Hit@5、MRR）；**score.py 完成後刪除** | Claude Code |
+| `score.py` | 評分邏輯（ADR-0005 與修訂段落的 5 條規則；測試在 `tests/test_score.py`） | Claude Code 實作，**Colin** review |
 | `leak.py` | 跑權限洩漏測試集，依出口路徑統計 a/N | Claude Code |
 | `leak_cases.jsonl` | 權限洩漏測試集（格式：`schema.py` 的 `LeakCase`；範例：`leak.example.jsonl`） | **Colin** |
 | `judge_labels.jsonl` | 人工標註 50 題（格式：`JudgeLabel`；範例：`judge_labels.example.jsonl`） | **Colin** |
