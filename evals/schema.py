@@ -180,6 +180,7 @@ class JudgeLabel(BaseModel):
     qid: str
     passed: bool  # the answer meets the question's rubric / key facts (strict: 部分 = False)
     partial: bool = False  # Colin marked it 部分; counted as passed only in the lenient rate
+    points: list[str] = []  # open questions: per rubric point 有／漏／錯 (empty = not filled)
     notes: str = ""
 
     @model_validator(mode="after")
