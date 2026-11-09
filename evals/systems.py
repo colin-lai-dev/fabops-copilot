@@ -15,6 +15,7 @@ import re
 from collections.abc import Callable
 from typing import Protocol
 
+from evals.baselines import UNSAFE_SUFFIXES, NaiveQuestionCache
 from evals.schema import SystemOutput
 from fabops.authz.scope import Scope
 
@@ -48,17 +49,22 @@ RETRIEVAL_PRESETS = {
 }
 
 
-def make_retriever(**overrides):
-    """Retriever wired to the DB and the default models (lazy imports keep tests light)."""
+def make_retriever(*, unfiltered: bool = False, **overrides):
+    """Retriever wired to the DB and the default models (lazy imports keep tests light).
+
+    `unfiltered=True` is the eval-only no-pre-filter leak baseline (`evals/baselines.py`).
+    """
     import psycopg
 
+    from evals.baselines import UnfilteredRetriever
     from fabops.config import get_settings
     from fabops.rag.models import default_encoder, default_reranker
     from fabops.rag.retrieve import RetrievalConfig, Retriever
 
     cfg = RetrievalConfig(**overrides)
     url = get_settings().database_url
-    return Retriever(
+    cls = UnfilteredRetriever if unfiltered else Retriever
+    return cls(
         lambda: psycopg.connect(url),
         default_encoder(),
         default_reranker() if cfg.rerank else None,
@@ -136,15 +142,21 @@ def parse_rag_spec(spec: str) -> tuple[str, bool, bool, int]:
 
 
 def rag_system(spec: str) -> System:
-    """`rag-<preset>[-rerank][-noexit][-ctxN]`, e.g. `rag-dense` (PLAN baseline: vector only,
+    """`rag-<preset>[-rerank][-noexit][-ctxN][-noprefilter|-naivecache]`, e.g. `rag-dense`
+    (PLAN baseline: vector only,
     no rerank) or `rag-hybrid-bm25-rerank`. `-noexit` is the no-exit-checks leak baseline."""
     from fabops.authz.trace import Tracer
     from fabops.config import get_settings
     from fabops.llm.client import LLMClient
     from fabops.rag.answer import Answerer
 
-    preset, rerank, exit_checks, context_chunks = parse_rag_spec(spec)
-    retriever = make_retriever(**RETRIEVAL_PRESETS[preset], rerank=rerank, k=20)
+    # eval-only unsafe baselines (evals/baselines.py): strip their suffix first
+    unsafe = next((s for s in UNSAFE_SUFFIXES if spec.endswith(s)), None)
+    base = spec.removesuffix(unsafe) if unsafe else spec
+    preset, rerank, exit_checks, context_chunks = parse_rag_spec(base)
+    retriever = make_retriever(
+        **RETRIEVAL_PRESETS[preset], rerank=rerank, k=20, unfiltered=unsafe == "-noprefilter"
+    )
     client = LLMClient.from_env()
     if not exit_checks:
         client.unsafe_share_cache = True
@@ -155,10 +167,13 @@ def rag_system(spec: str) -> System:
             f"{get_settings().fabops_cache_dir}/../traces-unmasked.jsonl", unsafe_unmasked=True
         )
     )
-    return RagSystem(
+    system = RagSystem(
         spec,
         Answerer(retriever, client, tracer, context_chunks=context_chunks, exit_checks=exit_checks),
     )
+    if unsafe == "-naivecache":
+        return NaiveQuestionCache(system, spec)
+    return system
 
 
 def load_system(spec: str) -> System:

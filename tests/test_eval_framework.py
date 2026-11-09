@@ -202,11 +202,26 @@ def test_rag_spec_parsing(monkeypatch):
     from evals import systems
 
     seen = {}
-    monkeypatch.setattr(systems, "make_retriever", lambda **kw: seen.setdefault("kw", kw))
+    monkeypatch.setattr(systems, "make_retriever", lambda **kw: seen.update(kw=kw))
     s = systems.load_system("rag-hybrid-bm25-rerank-noexit")
-    assert seen["kw"] == {"dense": True, "lexical": "bm25", "rerank": True, "k": 20}
+    assert seen["kw"] == {
+        "dense": True,
+        "lexical": "bm25",
+        "rerank": True,
+        "k": 20,
+        "unfiltered": False,
+    }
     assert s.answerer.exit_checks is False and s.answerer.client.unsafe_share_cache is True
     assert systems.load_system("rag-dense").answerer.exit_checks is True
+
+    # eval-only unsafe baselines
+    from evals.baselines import NaiveQuestionCache
+
+    s = systems.load_system("rag-hybrid-bm25-noprefilter")
+    assert seen["kw"]["unfiltered"] is True and s.answerer.exit_checks is True
+    s = systems.load_system("rag-hybrid-bm25-naivecache")
+    assert isinstance(s, NaiveQuestionCache) and seen["kw"]["unfiltered"] is False
+    assert s.answerer.exit_checks is True and s.answerer.client.unsafe_share_cache is False
 
 
 def test_rag_spec_context_chunks():
