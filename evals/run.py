@@ -117,7 +117,9 @@ def summarize(
     files: list[Path],
     questions: list[Question],
     outputs: list[SystemOutput],
+    git: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
+    """`git`: the state when the run *started* (the code that produced the outputs)."""
     settings = get_settings()
     latencies = [o.latency_ms for o in outputs if o.latency_ms is not None]
     return {
@@ -128,7 +130,7 @@ def summarize(
         "n_by_qtype": dict(sorted(Counter(q.qtype.value for q in questions).items())),
         "questions_sha256": files_sha256(files),
         "question_files": [p.name for p in files],
-        "git": git_state(),
+        "git": git if git is not None else git_state(),
         "llm": {"provider": settings.llm_provider, "model": settings.llm_model},
         "errors": sum(o.error is not None for o in outputs),
         "cost_usd": round(sum(o.cost_usd for o in outputs), 6),
@@ -180,9 +182,10 @@ def run(
         raise FileNotFoundError(f"no question files in {evals_dir / split}")
     questions = load_questions(files)[:limit]
     system = load_system(system_spec)
+    git = git_state()  # before the run: files may change while a long run is in progress
     outputs = run_questions(system, questions, load_scopes(users_path))
     run_id = f"{datetime.now(UTC):%Y%m%dT%H%M%SZ}-{split}-{system.name}"
-    summary = summarize(run_id, split, system.name, files, questions, outputs)
+    summary = summarize(run_id, split, system.name, files, questions, outputs, git)
     summary["limit"] = limit
     summary["summary_path"] = str(write_run(run_id, outputs, questions, summary, results_dir))
     return summary
