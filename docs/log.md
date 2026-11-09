@@ -4,6 +4,13 @@
 細節本身留在對應文件：架構決策 → `docs/decisions/`，實驗 → `docs/experiments.md`，
 待決事項 → `docs/open-questions.md`，階段驗收 → `docs/gates/`，程式變更 → git log。
 
+## 2026-11-09
+
+- **交接指示 002 完成**（Claude Code）：`score.py` 實作並刪除暫時評分器；dev 全量 RAG 完成，回答正確率 hybrid 0.850 vs dense baseline 0.700（n=60）；
+  洩漏測試集規則產生 90 題，有出口檢查 0/90、無出口檢查 13/90（全在 trace）；人工標註表 50 題備妥。細節：`docs/experiments.md`、`docs/gates/phase-1.md`。
+- **rerank 複查**：沒有 512 token 截斷，結論不變（rerank 偏好整份異常報告）；chunk 數 8 維持；整份文件 ctx4 略好但暫不改預設，待 Colin 決定。
+- 待 Colin：洩漏分類確認、切塊預設、快取 baseline 做法、標註「部分」的算法（`docs/open-questions.md`）。
+
 ## 2026-11-08
 
 - **分工調整（Colin 決定）**：`score.py` 與洩漏測試集改由 Claude Code 實作、Colin review；手寫題由規劃者起草 31 題

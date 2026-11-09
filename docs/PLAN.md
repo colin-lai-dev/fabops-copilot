@@ -33,22 +33,22 @@ Eval 基礎先做，凍結後才開始調參。
       錯字與縮寫、問到舊版 SOP、應拒答
   - [x] 規則題 151 題（dev 60、test 91）
   - [ ] 手寫題目（Claude 起草 `evals/handwritten.draft.jsonl`，**[Colin]** 修改定稿）
-- [ ] 權限洩漏測試集：直接越權 + 快取、日誌間接路徑（規則產生，Colin 確認分類）
-- [ ] `evals/score.py`（Claude Code 實作，Colin review）
-- [ ] **[Colin]** 人工標註 50 題
+- [x] 權限洩漏測試集：直接越權 + 快取、日誌間接路徑（規則產生 90 題，**分類待 Colin 確認**，見 `evals/leak/README.md`）
+- [x] `evals/score.py`（Claude Code 實作，**Colin review 中**）
+- [ ] **[Colin]** 人工標註 50 題（標註表已備好：`evals/labels/label-sheet.md`）
 - [ ] Judge 選擇實驗：GPT-5.4 mini vs Gemini 2.5 Flash，以人工標註的一致率決定（ADR-0008）
 - [ ] 凍結 test set（記錄 commit hash 到 experiments.md）
 - [x] 切塊（依 SOP 章節）與 bge-m3 索引
-- [x] 中文 BM25 斷詞比較（jieba vs bge-m3 sparse），結果寫 ADR（ADR-0009，提議中）
+- [x] 中文 BM25 斷詞比較（jieba vs bge-m3 sparse），結果寫 ADR（ADR-0009，已採用）
 - [x] 檢索：角色 pre-filter → hybrid search → rerank（rerank 預設關閉，見 experiments.md）
 - [x] 回答生成：附來源引用、優先最新版、無可用資料時拒答
 - [x] 出口檢查：LLM 回應快取、trace 日誌遮罩
-- [ ] Baseline 實驗：只用向量、不 rerank；無出口檢查版本
+- [x] Baseline 實驗：只用向量、不 rerank；無出口檢查版本
   - [x] 檢索 baseline（`ret-dense`）與系統實作（`rag-dense`、`-noexit`）
-  - [ ] dev 全量 RAG 執行（2026-11-08 因系統記憶體不足被中止）
-- [ ] 調參實驗（只看 dev）：切塊大小、top-k、rerank
-  - [x] rerank、異常報告切法（見 experiments.md）
-  - [ ] 切塊大小（400／1200 字）、送進 LLM 的 chunk 數
+  - [x] dev 全量 RAG 執行（2026-11-09 完成）
+- [x] 調參實驗（只看 dev）：切塊大小、top-k、rerank
+  - [x] rerank（含 2026-11-09 截斷複查）、異常報告切法（見 experiments.md）
+  - [x] 切塊大小（400／1200 字無差異，改比章節 vs 整份文件）、送進 LLM 的 chunk 數（見 experiments.md；是否改預設待 Colin 決定）
 - [ ] 第一輪 test eval，依實際花費重估預算
 
 **Gate：** 凍結 test set 上的 RAG 數字（附 n 與 baseline）；檢索、快取、日誌三條路徑的
