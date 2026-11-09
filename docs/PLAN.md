@@ -33,9 +33,9 @@ Eval 基礎先做，凍結後才開始調參。
       錯字與縮寫、問到舊版 SOP、應拒答
   - [x] 規則題 151 題（dev 60、test 91）
   - [x] 手寫題目 31 題（Claude 起草，**[Colin]** 審閱後全部保留；dev 12、test 19）
-- [x] 權限洩漏測試集：直接越權 + 快取、日誌間接路徑（規則產生 90 題，**分類待 Colin 確認**，見 `evals/leak/README.md`）
+- [x] 權限洩漏測試集：直接越權 + 快取、日誌間接路徑（規則產生 90 題，分類已採用；每條路徑都有會洩漏的對照組）
 - [x] `evals/score.py`（Claude Code 實作，**Colin review 中**）
-- [ ] **[Colin]** 人工標註 50 題（標註表已備好：`evals/labels/label-sheet.md`）
+- [ ] **[Colin]** 人工標註 50 題（標註表已重做：open 25 題逐點判斷，`evals/labels/label-sheet.md`；手機版 `private/label-sheet-mobile.md`）
 - [ ] Judge 選擇實驗：GPT-5.4 mini vs Gemini 2.5 Flash，以人工標註的一致率決定（ADR-0008）
 - [x] 凍結 test set（`6ebbb5d`，見 experiments.md）
 - [x] 切塊（依 SOP 章節）與 bge-m3 索引

@@ -6,6 +6,9 @@
 
 ## 2026-11-09
 
+- **交接指示 003 完成**（Claude Code）：手寫題 31 題原樣定稿並切分；**test set 凍結於 `6ebbb5d`（110 題）**；洩漏測試補上無 pre-filter 與問題層快取兩個對照組，
+  正式系統三條路徑都 0/30、各對照組 19/30（檢索）、23/30（快取）、13/30（日誌）；judge 校準題庫 22 題，標註表改以 open 題為主重做；
+  rerank 在手寫題上也沒有一致提升，維持關閉；ADR-0005 加規則 6（「部分」）。細節：`docs/experiments.md`、`docs/gates/phase-1.md`。
 - **交接指示 002 完成**（Claude Code）：`score.py` 實作並刪除暫時評分器；dev 全量 RAG 完成，回答正確率 hybrid 0.850 vs dense baseline 0.700（n=60）；
   洩漏測試集規則產生 90 題，有出口檢查 0/90、無出口檢查 13/90（全在 trace）；人工標註表 50 題備妥。細節：`docs/experiments.md`、`docs/gates/phase-1.md`。
 - **rerank 複查**：沒有 512 token 截斷，結論不變（rerank 偏好整份異常報告）；chunk 數 8 維持；整份文件 ctx4 略好但暫不改預設，待 Colin 決定。

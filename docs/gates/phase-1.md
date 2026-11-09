@@ -1,7 +1,7 @@
 # Phase 1 Gate 報告（進行中）
 
 - Branch：`phase-1-rag`
-- 狀態：**草稿**。Claude Code 能做的任務都已完成；剩下的都要等 Colin（第 5、6 節）。到達 gate 時補上 test set 數字。
+- 狀態：**草稿**。test set 已凍結；Claude Code 能做的任務都已完成，剩下的都要等 Colin（第 6 節）。到達 gate 時補上 test set 數字。
 
 ## 1. 完成的任務
 
@@ -27,6 +27,11 @@
 | **權限洩漏測試集**（規則產生 90 題） | `ef570a8` |
 | **人工標註表**（50 題，不含判斷） | `986446d` |
 | 執行摘要的 git 狀態改在開始時記錄 | `42e0075` |
+| 標註「部分」：嚴格為主、另報寬鬆比例（ADR-0005 規則 6） | `1b10aae` |
+| **手寫題 31 題定稿並切分；test set 凍結（110 題）** | `6ebbb5d`、`4dc3306` |
+| 洩漏對照組：無 pre-filter、問題層快取（eval 專用） | `1d4ebee` |
+| judge 校準題庫（22 題 open，不進 dev/test） | `46a5bac` |
+| 標註表重做（open 題逐點判斷、手機版） | `bc1a975` |
 
 ## 2. 架構摘要
 
@@ -52,10 +57,11 @@
 7. `src/fabops/llm/client.py` 的 `cache_key`：洩漏測試顯示 key 含整個 prompt 本身就隔開了不同權限（見第 4 節）。
 8. `evals/run.py` 的 `run_questions`：身分只以 `Scope` 傳給系統，不進題目文字（ADR-0001）。
 
-## 4. Dev eval（只看 dev；test 尚未執行）
+## 4. Dev eval（只看 dev；test 已凍結、尚未執行）
 
-題目 `evals/dev/rule.jsonl`（sha256 `e4a44891de9fcf17`），n = 60（可回答 54、應拒答 6），qwen3:8b（地端，$0）。
-基準 = `rag-dense`（PLAN 的「只用向量、不 rerank」）。
+**test set 已凍結**於 `6ebbb5d`：110 題（規則 91 + 手寫 19），各檔 sha256 見 `experiments.md`。
+
+dev（2026-11-09 稍早，規則題 n = 60：可回答 54、應拒答 6），qwen3:8b（地端，$0）。基準 = `rag-dense`（PLAN 的「只用向量、不 rerank」）。
 
 | 指標 | 基準 `rag-dense` | 預設 `rag-hybrid-bm25` |
 | --- | --- | --- |
@@ -66,27 +72,31 @@
 | 應拒答題的拒答率（n=6） | 1.000 | 1.000 |
 | 可回答題的誤拒率（n=54） | 0.056 | 0.037 |
 
-- cross_doc 回答正確率只有 0.250（n=8），引用正確率 0.000：需要兩段式檢索，依決定留給 Phase 2 的三組對照（RAG 單次檢索 vs 固定 workflow vs agent），
-  Phase 1 不加引用展開。
-- 洩漏測試（N=90，每條路徑 30）：有出口檢查 **0/90**；無出口檢查 13/90（全部在 trace 路徑：13/30）。
-  檢索與快取路徑在 baseline 也是 0/30，原因與限制見 `experiments.md`（2026-11-09 權限洩漏測試）。
-- 調參：rerank 沒有截斷問題、維持關閉；送 8 個 chunk 最好；整份文件 ctx4 略好（0.883，多 2 題）但暫不改預設。
+加入手寫題後的 dev（72 題）預設系統：回答正確率 0.826（n=69，不含 open）、Recall@5 0.854（n=65）；手寫題非 open 6/9。
+
+- cross_doc 回答正確率只有 0.250（n=8），需要兩段式檢索，依決定留給 Phase 2 的三組對照。
+- **洩漏測試（N=90，每條路徑 30）**：
+
+  | 路徑 | 正式系統 | 無出口檢查 | 無 pre-filter | 問題層快取 |
+  | --- | --- | --- | --- | --- |
+  | 檢索 | **0/30** | 0/30 | **19/30** | 3/30 |
+  | 快取 | **0/30** | 0/30 | 16/30 | **23/30** |
+  | 日誌 | **0/30** | **13/30** | 0/30 | 0/30 |
+
+  粗體對照格 = 專門拿掉該路徑檢查的 baseline。沒洩漏的對照題都已確認原因（目標文件不在檢索結果中），見 `experiments.md`。
+- 調參：rerank 在規則題與手寫題上都沒有一致提升，維持關閉；送 8 個 chunk；維持依章節切塊。
 - 細節與所有數字：`docs/experiments.md` 2026-11-08、2026-11-09 各筆。
 
 ## 5. 待 Colin 決定（`docs/open-questions.md`）
 
-1. 洩漏測試集的分類與題數（`evals/leak/README.md`）。
-2. 預設切塊要不要改成「整份文件、送 4 份」。
-3. 快取路徑的洩漏 baseline：要不要改成「只以問題當 key」的快取，讓對照有意義。
-4. 標註表「部分」算通過還是不通過（暫定不通過）。
-5. 標註表目前沒有 open 題；手寫題定稿後是否重產。
+002 回報的 5 項已由規劃者代決（2026-11-09）。目前沒有新的待決事項。
 
 ## 6. Colin 的項目
 
 | 項目 | 狀態 |
 | --- | --- |
-| 手寫題定稿（`evals/handwritten.draft.jsonl` → `evals/handwritten.jsonl`，再 split） | 未完成；卡住「凍結 test set」與「test 達 100 題」（目前 test 91 題） |
+| 手寫題定稿 | **完成**（31 題全部保留；test 凍結） |
 | review `score.py`，跑 `/quiz score` | 未完成 |
-| 人工標註 50 題（`evals/labels/label-sheet.md`，填完 `uv run python -m evals.label_sheet parse`） | 未完成；卡住 judge 選擇實驗 |
+| 人工標註 50 題（`evals/labels/label-sheet.md`；手機版 `private/label-sheet-mobile.md`；填完 `uv run python -m evals.label_sheet parse`） | 未完成；卡住 judge 選擇實驗 |
 | Judge 選擇實驗（GPT-5.4 mini vs Gemini 2.5 Flash） | 要標註完成，且要呼叫付費模型（需 Colin 同意） |
 | 第一輪 test eval（`make eval-test`） | gate 時、經 Colin 同意 |

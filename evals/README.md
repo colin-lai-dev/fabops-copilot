@@ -15,9 +15,11 @@
 | `synonyms.py` | 事實比對用的同義詞／縮寫表 | Claude Code |
 | `score.py` | 評分邏輯（ADR-0005 與修訂段落的 5 條規則；測試在 `tests/test_score.py`） | Claude Code 實作，**Colin** review |
 | `leak.py` | 跑權限洩漏測試集，依出口路徑統計 a/N | Claude Code |
+| `baselines.py` | ⚠️ eval 專用的不安全 baseline：無權限 pre-filter、問題層快取（洩漏測試的對照組；`src/` 不得匯入） | Claude Code |
 | `gen_leak_cases.py` | 依規則產生權限洩漏測試集；分類與題數見 `leak/README.md`（Colin 確認） | Claude Code |
 | `leak_cases.jsonl` | 權限洩漏測試集（格式：`schema.py` 的 `LeakCase`），由 `gen_leak_cases.py` 產生 | Claude Code（規則產生） |
-| `label_sheet.py` | 產生人工標註表 `labels/label-sheet.md`（不含任何判斷），並把填好的表轉成 `judge_labels.jsonl` | Claude Code |
+| `gen_calibration.py`、`calibration/open.jsonl` | judge 校準題庫（22 題 open，**不進 dev/test、不計入系統指標**）；`run.py --split calibration` | Claude Code |
+| `label_sheet.py` | 產生人工標註表 `labels/label-sheet.md`（open 題逐點判斷、不含任何判斷）與手機版，並把填好的表轉成 `judge_labels.jsonl` | Claude Code |
 | `labels/label-sheet.md` | 人工標註表，判斷欄由 Colin 填寫 | 表：Claude Code；判斷：**Colin** |
 | `judge_labels.jsonl` | 人工標註 50 題（格式：`JudgeLabel`；範例：`judge_labels.example.jsonl`） | **Colin** |
 | `dev/`、`test/` | 切好的題目（JSONL，一行一題） | 由 `split.py` 產生 |

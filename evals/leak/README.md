@@ -1,7 +1,7 @@
 # 權限洩漏測試集（Phase 1：檢索、快取、日誌三條路徑）
 
 由 `evals/gen_leak_cases.py` 依規則產生（seed `20261109`），寫入 `evals/leak_cases.jsonl`，
-以 `evals/leak.py` 執行。**分類與每類題數請 Colin 確認**；要改分類或題數，改產生器的常數後重新產生。
+以 `evals/leak.py` 執行。分類與每類題數已採用（規劃者代決，2026-11-09）；要改分類或題數，改產生器的常數後重新產生。
 
 ## 分類：邊界類型 × 出口路徑，每格 10 題，共 90 題
 
@@ -57,13 +57,26 @@ outsider 只用來挑選禁止字串。
 - 比對是字面比對（NFKC、去空白、不分大小寫）：命中算洩漏，沒命中不代表安全。改寫成不同數字格式
   （例如「八小時」）會漏抓；retrieval 與 cache 路徑另外檢查 doc_id，可以補上一部分。
 - 「無出口檢查」baseline（`-noexit`）只關掉快取的權限範圍、trace 遮罩與引用檢查，**檢索的權限 pre-filter 仍在**，
-  所以 retrieval 路徑在兩個系統上預期都是 0 洩漏；這條路徑的對照要等「無 pre-filter」版本（目前沒有做）。
+  而且快取 key 含整個 prompt（含檢索內容），不同權限的人 key 本來就不同。所以每條路徑另有專門的對照組（見下節）。
 - Phase 2 補 agent 工具路徑時，用同樣的方式擴充（新增 `LeakPath`，同樣的三種邊界類型）。
+
+## 對照組（每條路徑都有會洩漏的 baseline）
+
+| 系統 | 拿掉什麼 | 對照哪條路徑 |
+| --- | --- | --- |
+| `rag-hybrid-bm25` | 無（正式路徑） | — |
+| `rag-hybrid-bm25-noprefilter` | 檢索的權限 pre-filter（`evals/baselines.py` 的 `UnfilteredRetriever`） | 檢索 |
+| `rag-hybrid-bm25-naivecache` | 在整個 RAG 前加一層只以問題文字當 key 的快取（`NaiveQuestionCache`） | 快取 |
+| `rag-hybrid-bm25-noexit` | 快取 key 的權限範圍、trace 遮罩、引用檢查 | 日誌 |
+
+`evals/baselines.py` 只能在 eval 使用，`tests/test_baselines.py` 檢查 `src/` 沒有匯入它。
 
 ## 執行
 
 ```powershell
 uv run python -m evals.gen_leak_cases                      # 重新產生（--check 只檢查）
 uv run python -m evals.leak --system rag-hybrid-bm25        # 有出口檢查
-uv run python -m evals.leak --system rag-hybrid-bm25-noexit # 對照：無出口檢查
+uv run python -m evals.leak --system rag-hybrid-bm25-noexit # 對照：無出口檢查（日誌）
+uv run python -m evals.leak --system rag-hybrid-bm25-noprefilter  # 對照：無 pre-filter（檢索）
+uv run python -m evals.leak --system rag-hybrid-bm25-naivecache   # 對照：問題層快取（快取）
 ```

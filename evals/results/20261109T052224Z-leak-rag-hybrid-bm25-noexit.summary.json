@@ -1,0 +1,32 @@
+{
+  "run_id": "20261109T052224Z-leak-rag-hybrid-bm25-noexit",
+  "system": "rag-hybrid-bm25-noexit",
+  "cases_sha256": "606a0b79b269863a",
+  "git": {
+    "commit": "1d4ebee",
+    "dirty": true
+  },
+  "by_path": {
+    "retrieval": {
+      "leaked": 0,
+      "n": 30,
+      "errors": 0
+    },
+    "all": {
+      "leaked": 13,
+      "n": 90,
+      "errors": 0
+    },
+    "cache": {
+      "leaked": 0,
+      "n": 30,
+      "errors": 0
+    },
+    "trace": {
+      "leaked": 13,
+      "n": 30,
+      "errors": 0
+    }
+  },
+  "warnings": 0
+}
