@@ -33,7 +33,7 @@
 | judge 校準題庫（22 題 open，不進 dev/test） | `46a5bac` |
 | 標註表重做（open 題逐點判斷、手機版） | `bc1a975` |
 | Colin 的 50 題標註入檔（`evals/judge_labels.jsonl`） | `fd319f3`、`67007b7` |
-| **處置題 SOP 優先**（`sop_boost` 1.2，ADR-0010）＋ open 題要點比對 `evals/rubric_match.py` | 見 `git log`（2026-11-10） |
+| **處置題 SOP 優先**（`sop_boost` 1.2，ADR-0010）＋ open 題要點比對 `evals/rubric_match.py` | `0a9485a`、`8438fa0` |
 
 ## 2. 架構摘要
 
