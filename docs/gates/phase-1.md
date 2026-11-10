@@ -92,6 +92,7 @@ dev（2026-11-09 稍早，規則題 n = 60：可回答 54、應拒答 6），qwe
 - 調參：rerank 在規則題與手寫題上都沒有一致提升，維持關閉；送 8 個 chunk；維持依章節切塊。
 - **人工標註（n=50，Colin）**：open 對 0／部分 5／錯 20（n=25）；其他題型 對 16／部分 1／錯 8（n=25）。
 - **處置題 SOP 優先（ADR-0010）**：open 題要點命中率 校準 0.155 → 0.591（n=110 點）、dev 0 → 0.600（n=15 點），dev 其他題型沒有任何一題改變（n=69），MRR 0.729 → 0.758（n=65）。嚴格通過率仍 0（升級條件 0/22），留給 Phase 2。
+- **Haiku 5.5（主力）dev**：回答正確率 0.783（n=69；dense baseline 0.739）、Recall@5 0.854（n=65；baseline 0.646）、open 要點命中率 0.933（n=15 點）、誤拒率 0.200（n=65）。細節見 `experiments.md`。
 - **SOP 章節展開（不採用）**：升級條件 25/25 進入 context，但 qwen3 仍 0/22；要點命中率 0.591 → 0.609（n=110 點），token +7%。
 - 細節與所有數字：`docs/experiments.md` 2026-11-08、2026-11-09、2026-11-10 各筆。
 
@@ -106,5 +107,5 @@ dev（2026-11-09 稍早，規則題 n = 60：可回答 54、應拒答 6），qwe
 | 手寫題定稿 | **完成**（31 題全部保留；test 凍結） |
 | review `score.py`，跑 `/quiz score` | 未完成 |
 | 人工標註 50 題 | **完成**（2026-11-10，`evals/judge_labels.jsonl`） |
-| Judge 選擇實驗（GPT-5.4 mini vs Gemini 2.5 Flash） | Colin 已同意（US$1 內）；**卡在 `.env` 沒有 `OPENAI_API_KEY`、`GEMINI_API_KEY`** |
-| 第一輪 test eval（`make eval-test`） | Colin 已同意（2026-11-10，US$2 內）；**卡在沒有 `ANTHROPIC_API_KEY` 與 judge**，尚未執行 |
+| Judge 選擇實驗（GPT-5.4 mini vs Gemini 2.5 Flash） | key 已加；**卡住**：OpenAI 沒有額度（429）、Gemini 2.5 Flash 回 404，等 Colin 決定 |
+| 第一輪 test eval（`make eval-test`） | Colin 已同意（2026-11-10，US$2 內）；Haiku 可用，**等 judge**，尚未執行 |

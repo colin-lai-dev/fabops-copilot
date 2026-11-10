@@ -23,6 +23,47 @@
 
 ## 紀錄
 
+### 2026-11-10：judge 選擇實驗——兩個候選模型都無法呼叫（未執行）
+
+- 交接指示 006 第 3 步。三個 key 都已放進 `.env`，各送一個極小的探測請求（不經 `LLMClient`，合計 < US$0.0001）：
+  - **GPT-5.4 mini**：`429 You have no credits remaining`（OpenAI 帳號沒有額度）。
+  - **Gemini 2.5 Flash**：模型清單中有 `models/gemini-2.5-flash`，但 chat 呼叫（OpenAI 相容端點）一律 `404`；同一把 key 呼叫 `gemini-3.5-flash` 正常。
+- ADR-0008 指定的兩個 judge 都不能用；換成其他模型屬於偏離 ADR，**停下來等 Colin 決定**。judge 程式 `evals/judge.py` 已完成（只用 mock 測試）。
+- test eval 依指示要在選出 judge 之後才跑，因此也還沒執行。
+
+### 2026-11-10：Claude Haiku 5.5 跑 dev（主力模型，ADR-0008）
+
+- 目的：交接指示 006 第 1 步。看主力模型在現行預設（ADR-0010：hybrid-bm25、`sop_boost` 1.2、送 8 個 chunk、rerank 關閉、不展開章節）下的表現。
+- 設定：`claude-haiku-5-5`，thinking 關閉（`LLM_REASONING_EFFORT=none` → `thinking: disabled`；新版 API 不接受 `temperature`，
+  commit `53e20ef` 修正 provider 後才能呼叫）。dev 72 題（sha256 `658c0a21051cb765`），另跑校準題庫 22 題（不計入系統指標，只看 open 要點）。
+  git `53e20ef`。**未使用 test。**
+- 結果（dev）：
+
+  | 指標 | Haiku `rag-dense`（baseline） | Haiku `rag-hybrid-bm25`（預設） | qwen3 `rag-hybrid-bm25` |
+  | --- | --- | --- | --- |
+  | 回答正確率（非 open，n=69） | 0.739 | **0.783** | 0.826 |
+  | 引用正確率（n=65） | 0.677 | 0.738 | 0.769 |
+  | Recall@5（n=65） | 0.646 | 0.854 | 0.854 |
+  | 可回答題誤拒率（n=65） | 0.262 | **0.200** | 0.031 |
+  | 應拒答題拒答率（n=7） | 1.000 | 1.000 | 1.000 |
+  | dev open 要點命中率（n=15 點） | 0.000 | **0.933** | 0.600 |
+  | 校準 open 要點命中率（n=110 點） | — | **0.900** | 0.591 |
+  | 校準 open 嚴格通過（n=22） | — | **11/22** | 0/22 |
+  | 升級條件（要點 5）：校準 n=22／dev n=3 | — | **11/22**／2/3 | 0/22／0/3 |
+  | 每題平均延遲 | 1.8 s | 1.7 s | 0.3 s（快取） |
+  | 花費 | US$0.0291 | US$0.0247 | $0 |
+
+  open 題用 `rubric_match`（要點關鍵詞，與 Colin 標註 125/125 一致；抓不到「提到但說錯」）。校準題庫：US$0.0081。
+  run_id：`20261110T143530Z-dev-rag-hybrid-bm25`、`20261110T143759Z-dev-rag-dense`、`20261110T143904Z-calibration-rag-hybrid-bm25`。
+- 觀察：
+  - open 題大幅改善：qwen3 只寫處置步驟，Haiku 會把每一步寫完整；校準題庫要點 1～4 都是 22/22，升級條件 11/22。
+  - **誤拒率 0.200（13/65）是主要問題**：cross_doc 5 題、dirty 3 題、fact 3 題、paraphrase 2 題。共同點是 context 不完整——
+    cross_doc 的異常報告或對應 SOP 沒被檢索到、或 SOP 的步驟章節沒進 context——Haiku 會說「文件中沒有」而拒答，qwen3 則從異常報告摘要句硬答。
+    所以 Haiku 的回答正確率反而比 qwen3 低 3 題（0.783 vs 0.826，n=69），差距來自檢索缺口，不是生成。
+  - 升級條件 11/22 剛好一半，依交接指示的條件（低於一半才試生成規則）**不調整，設定凍結**。
+  - 未嘗試的方向（記錄用，不在本階段做）：章節展開在 qwen3 上不採用，但 Haiku 會寫出 context 中的升級條件，可能有幫助；留給 Phase 2 與 agent 對照。
+- 實際花費：Haiku 181 次呼叫，輸入 493,451、輸出 30,186 tokens，**US$0.0631**（usage log）；探測呼叫 < US$0.0001。
+
 ### 2026-11-10：SOP 章節展開（small-to-big，只用 dev 與校準題庫）——不採用
 
 - 目的：交接指示 005 第 1 點。004 的「升級條件」（要點 5）0/22，原因看起來是升級條件在 SOP 的另一個章節，沒有進入 context。

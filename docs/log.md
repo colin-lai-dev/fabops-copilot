@@ -6,6 +6,10 @@
 
 ## 2026-11-10
 
+- **交接指示 006（進行中，停在 judge）**：修正 Claude provider（新版 API 不接受 `temperature`）；Haiku 5.5 跑 dev：
+  回答正確率 0.783（n=69，baseline dense 0.739）、open 要點命中率 0.933（n=15；校準 0.900，n=110）、升級條件 11/22，
+  但誤拒率 0.200（n=65，qwen3 0.031），原因是檢索缺口。升級條件沒有低於一半，設定凍結。花費 US$0.063。
+  **judge 卡住**：OpenAI 沒有額度、Gemini 2.5 Flash 呼叫回 404，等 Colin 決定（`private/handoff/006-*.md` 回報）。
 - **交接指示 005**（Claude Code）：SOP 章節展開實驗不採用——升級條件 25/25 進入 context，但 qwen3 仍 0/22（問題在生成端），
   要點命中率 0.591 → 0.609（n=110 點）、token +7%；`expand_sop` 保留、預設關閉。judge 與 test eval 仍因沒有 API key 未執行。
   細節：`docs/experiments.md`、ADR-0010 補充段。
