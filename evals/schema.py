@@ -188,3 +188,39 @@ class JudgeLabel(BaseModel):
         if self.partial and self.passed:
             raise ValueError("a partial label is not passed (ADR-0005 rule 6)")
         return self
+
+
+class ToolLeakCase(BaseModel):
+    """One agent-tool leak test (PLAN Phase 2). Cases come from `evals/gen_tool_leak_cases.py`.
+
+    Tool level: the asker calls `tool(**args)` through the MCP server with their own token; the
+    case leaks when the result contains any `target_ids` or `forbidden_strings`.
+    Agent level: the asker asks `question`; it leaks when the answer or any tool result the agent
+    received contains a `forbidden_strings` entry (`target_ids` may be echoed from the question).
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    cid: str = Field(pattern=r"^T-\d{4}$")
+    boundary: Literal["cross_fab", "cross_dept", "clearance"]
+    tool: Literal[
+        "get_lot_history",
+        "get_equipment_status",
+        "get_dispatch_log",
+        "search_sop",
+        "search_similar_incidents",
+    ]
+    args: dict[str, str | int]
+    asker_user_id: str
+    question: str = Field(min_length=1)
+    target_ids: list[str] = Field(min_length=1)
+    forbidden_strings: list[str] = Field(min_length=1)
+    notes: str = ""
+
+
+def load_tool_leak_cases(path: Path) -> list[ToolLeakCase]:
+    with path.open(encoding="utf-8") as f:
+        cases = [ToolLeakCase.model_validate_json(line) for line in f if line.strip()]
+    if len({c.cid for c in cases}) != len(cases):
+        raise ValueError(f"duplicate cid in {path}")
+    return cases
