@@ -119,3 +119,23 @@ def test_reasoning_effort_is_part_of_the_cache_key(make_client):
     before = c.cache_key(MSG, LOW, 0.0, 10)
     p.reasoning_effort = "none"
     assert c.cache_key(MSG, LOW, 0.0, 10) != before
+
+
+def test_anthropic_request_has_no_sampling_params_and_maps_no_think():
+    from fabops.llm.client import AnthropicProvider
+
+    p = AnthropicProvider(api_key="test-not-a-key", reasoning_effort="none")
+    kw = p.request_kwargs(
+        [{"role": "system", "content": "S"}, {"role": "user", "content": "Q"}], "m", 64
+    )
+    assert kw == {
+        "model": "m",
+        "messages": [{"role": "user", "content": "Q"}],
+        "max_tokens": 64,
+        "system": "S",
+        "thinking": {"type": "disabled"},
+    }
+    default = AnthropicProvider(api_key="test-not-a-key").request_kwargs(
+        [{"role": "user", "content": "Q"}], "m", 64
+    )
+    assert "thinking" not in default and "temperature" not in default

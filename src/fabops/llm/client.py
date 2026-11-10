@@ -85,20 +85,34 @@ class OpenAICompatibleProvider:
 
 
 class AnthropicProvider:
+    """Claude via the official SDK.
+
+    The current API (2026-10-21) rejects sampling parameters, so `temperature` is accepted
+    for the Provider interface but never sent. `reasoning_effort="none"` turns thinking off
+    (`thinking: disabled`, accepted by Claude Haiku 5.5 at its default effort), matching the
+    no-think setting used for qwen3; any other value leaves the model's default thinking on.
+    """
+
     name = "anthropic"
 
-    def __init__(self, api_key: str | None = None):
+    def __init__(self, api_key: str | None = None, reasoning_effort: str | None = None):
         import anthropic
 
+        self.reasoning_effort = reasoning_effort
         self._client = anthropic.Anthropic(api_key=api_key or os.environ.get("ANTHROPIC_API_KEY"))
 
-    def complete(self, messages, model, temperature, max_tokens) -> Completion:
+    def request_kwargs(self, messages: list[dict], model: str, max_tokens: int) -> dict:
         system = "\n\n".join(m["content"] for m in messages if m["role"] == "system")
         rest = [m for m in messages if m["role"] != "system"]
-        kwargs = {"system": system} if system else {}
-        r = self._client.messages.create(
-            model=model, messages=rest, temperature=temperature, max_tokens=max_tokens, **kwargs
-        )
+        kwargs: dict = {"model": model, "messages": rest, "max_tokens": max_tokens}
+        if system:
+            kwargs["system"] = system
+        if self.reasoning_effort == "none":
+            kwargs["thinking"] = {"type": "disabled"}
+        return kwargs
+
+    def complete(self, messages, model, temperature, max_tokens) -> Completion:
+        r = self._client.messages.create(**self.request_kwargs(messages, model, max_tokens))
         text = "".join(b.text for b in r.content if getattr(b, "type", "") == "text")
         return Completion(text, r.usage.input_tokens, r.usage.output_tokens)
 
@@ -110,7 +124,7 @@ def make_provider(
     reasoning_effort: str | None = None,
 ) -> Provider:
     if name == "anthropic":
-        return AnthropicProvider(api_key)
+        return AnthropicProvider(api_key, reasoning_effort)
     return OpenAICompatibleProvider(name, base_url, api_key, reasoning_effort)
 
 
