@@ -109,3 +109,31 @@ def test_superseded_can_be_included_explicitly(db):
     r = Retriever(lambda: psycopg.connect(url), FakeEncoder(), None, cfg)
     got = {h.doc_id for h in r.search("處置程序 等待 重新量測", admin).hits}
     assert any(docs[d]["superseded_by"] for d in got)
+
+
+def test_disposal_query_detection():
+    from fabops.rag.retrieve import is_disposal_query
+
+    assert is_disposal_query("FX1 的 ETCHER CHC 剛跳「終點偵測逾時」，我現在該怎麼處理？")
+    assert is_disposal_query("FX3 廠的蝕刻機台壓力異常要怎麼處理？")
+    assert not is_disposal_query("SOP-FX1-ETC-EPD-0118 的上限是多少？")
+
+
+def test_boost_sop_only_touches_sop_chunks():
+    from fabops.rag.retrieve import boost_sop
+
+    got = boost_sop({"s": 1.0, "i": 1.1}, {"s": "sop", "i": "incident"}, 1.2)
+    assert got == {"s": 1.2, "i": 1.1}
+    assert boost_sop({"s": 1.0}, {"s": "sop"}, 1.0) == {"s": 1.0}
+
+
+@pytest.mark.db
+def test_sop_boost_keeps_the_permission_filter(db):
+    url, users, docs = db
+    cfg = RetrievalConfig(lexical="bm25", k=50, candidates=200, sop_boost=2.0)
+    r = Retriever(lambda: psycopg.connect(url), FakeEncoder(), None, cfg)
+    for u in users:
+        scope = scope_of_user(u)
+        for h in r.search("腔體壓力異常要怎麼處理？", scope).hits:
+            assert visible(scope, docs[h.doc_id]), (u["user_id"], h.doc_id)
+            assert h.doc_type in ("sop", "incident")

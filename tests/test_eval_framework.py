@@ -235,3 +235,19 @@ def test_rag_spec_context_chunks():
         parse_rag_spec("rag-nope-ctx4")
     with pytest.raises(ValueError):
         parse_rag_spec("rag-dense-ctx0")
+
+
+def test_split_sop_boost():
+    from evals.systems import split_sop_boost
+
+    assert split_sop_boost("rag-hybrid-bm25") == ("rag-hybrid-bm25", {})
+    assert split_sop_boost("rag-hybrid-bm25-sop1.2") == ("rag-hybrid-bm25", {"sop_boost": 1.2})
+    assert split_sop_boost("rag-dense-sop1-ctx4") == ("rag-dense-ctx4", {"sop_boost": 1.0})
+
+
+def test_sop_boost_only_in_the_default_preset():
+    from evals.systems import RETRIEVAL_PRESETS
+    from fabops.rag.retrieve import RetrievalConfig
+
+    assert RetrievalConfig(**RETRIEVAL_PRESETS["hybrid-bm25"]).sop_boost == 1.2
+    assert RetrievalConfig(**RETRIEVAL_PRESETS["dense"]).sop_boost == 1.0  # PLAN baseline

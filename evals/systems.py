@@ -40,12 +40,14 @@ REGISTRY: dict[str, Callable[[], System]] = {"refuse_all": RefuseAll}
 
 # ---------------------------------------------------------------- retrieval only (no LLM)
 
+# The SOP boost (ADR-0010) is part of the default system only; the other presets are
+# baselines and earlier experiments, kept at 1.0 so their numbers stay comparable.
 RETRIEVAL_PRESETS = {
-    "dense": {"dense": True, "lexical": "none"},
-    "bm25": {"dense": False, "lexical": "bm25"},
-    "sparse": {"dense": False, "lexical": "sparse"},
-    "hybrid-bm25": {"dense": True, "lexical": "bm25"},
-    "hybrid-sparse": {"dense": True, "lexical": "sparse"},
+    "dense": {"dense": True, "lexical": "none", "sop_boost": 1.0},
+    "bm25": {"dense": False, "lexical": "bm25", "sop_boost": 1.0},
+    "sparse": {"dense": False, "lexical": "sparse", "sop_boost": 1.0},
+    "hybrid-bm25": {"dense": True, "lexical": "bm25"},  # RetrievalConfig default: 1.2
+    "hybrid-sparse": {"dense": True, "lexical": "sparse", "sop_boost": 1.0},
 }
 
 
@@ -83,15 +85,31 @@ class RetrievalOnly:
         return SystemOutput(answer="", retrieved=r.doc_ids(), latency_ms=sum(r.timings_ms.values()))
 
 
+_SOP = re.compile(r"-sop(\d+(?:\.\d+)?)")
+
+
+def split_sop_boost(spec: str) -> tuple[str, dict[str, float]]:
+    """Remove a `-sopW` suffix (SOP boost for disposal questions, ADR-0010) from a spec.
+
+    Returns the remaining spec and the retriever override (`{}` = the preset's default).
+    `-sop1` turns the boost off, e.g. to compare against the default.
+    """
+    m = _SOP.search(spec)
+    if not m:
+        return spec, {}
+    return spec[: m.start()] + spec[m.end() :], {"sop_boost": float(m.group(1))}
+
+
 def retrieval_system(spec: str) -> System:
-    """`ret-<preset>[-rerank]`, e.g. `ret-dense`, `ret-hybrid-bm25-rerank`."""
-    body = spec.removeprefix("ret-")
+    """`ret-<preset>[-rerank][-sopW]`, e.g. `ret-dense`, `ret-hybrid-bm25-rerank`."""
+    base, sop = split_sop_boost(spec)
+    body = base.removeprefix("ret-")
     rerank = body.endswith("-rerank")
     preset = body.removesuffix("-rerank")
     if preset not in RETRIEVAL_PRESETS:
         raise ValueError(f"unknown retrieval preset {preset!r}; one of {sorted(RETRIEVAL_PRESETS)}")
     # k=20 chunks so that at least 5 distinct documents are usually ranked.
-    retriever = make_retriever(**RETRIEVAL_PRESETS[preset], rerank=rerank, k=20)
+    retriever = make_retriever(**{**RETRIEVAL_PRESETS[preset], **sop}, rerank=rerank, k=20)
     return RetrievalOnly(spec, retriever)
 
 
@@ -142,7 +160,7 @@ def parse_rag_spec(spec: str) -> tuple[str, bool, bool, int]:
 
 
 def rag_system(spec: str) -> System:
-    """`rag-<preset>[-rerank][-noexit][-ctxN][-noprefilter|-naivecache]`, e.g. `rag-dense`
+    """`rag-<preset>[-rerank][-noexit][-ctxN][-sopW][-noprefilter|-naivecache]`, e.g. `rag-dense`
     (PLAN baseline: vector only,
     no rerank) or `rag-hybrid-bm25-rerank`. `-noexit` is the no-exit-checks leak baseline."""
     from fabops.authz.trace import Tracer
@@ -153,9 +171,13 @@ def rag_system(spec: str) -> System:
     # eval-only unsafe baselines (evals/baselines.py): strip their suffix first
     unsafe = next((s for s in UNSAFE_SUFFIXES if spec.endswith(s)), None)
     base = spec.removesuffix(unsafe) if unsafe else spec
+    base, sop = split_sop_boost(base)
     preset, rerank, exit_checks, context_chunks = parse_rag_spec(base)
     retriever = make_retriever(
-        **RETRIEVAL_PRESETS[preset], rerank=rerank, k=20, unfiltered=unsafe == "-noprefilter"
+        **{**RETRIEVAL_PRESETS[preset], **sop},
+        rerank=rerank,
+        k=20,
+        unfiltered=unsafe == "-noprefilter",
     )
     client = LLMClient.from_env()
     if not exit_checks:
