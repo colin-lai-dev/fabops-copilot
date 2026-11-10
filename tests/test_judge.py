@@ -89,3 +89,24 @@ def test_agreement_collapses_missing_and_wrong_points():
     assert a["strict"] == {"agree": 1, "n": 2, "rate": 0.5}
     assert a["three_class"]["agree"] == 1
     assert a["cost_usd"] == 0.02
+
+
+def test_backoff_retries_rate_limits_only():
+    import pytest
+
+    from evals.judge import with_backoff
+
+    class RateLimitError(Exception):
+        pass
+
+    calls, waits = [], []
+
+    def flaky():
+        calls.append(1)
+        if len(calls) < 3:
+            raise RateLimitError()
+        return "ok"
+
+    assert with_backoff(flaky, sleep=waits.append) == "ok" and waits == [5.0, 10.0]
+    with pytest.raises(ValueError):
+        with_backoff(lambda: (_ for _ in ()).throw(ValueError()), sleep=waits.append)

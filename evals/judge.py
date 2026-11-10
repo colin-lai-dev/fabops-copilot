@@ -1,6 +1,7 @@
 """LLM judge（ADR-0005／0008）：依評分準則判斷系統回答，並與 Colin 的 50 題標註比較一致率。
 
     uv run python -m evals.judge agree --provider gemini --model <model>   # 只用標註表的 50 題
+    uv run python -m evals.judge score <run_id> --provider ... --model ... [--allow-test]
 
 判斷方式與標註表相同（交接指示 004），judge 的判斷才能和人工直接比較：
 - open 題：逐點判斷 `有`／`漏`／`錯`，整題由程式換算（全部有 → 對，全部沒有 → 錯，其餘 → 部分）。
@@ -18,6 +19,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+import time
 from collections import Counter
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
@@ -200,8 +202,27 @@ def make_client(provider: str, model: str, reasoning_effort: str | None):
     )
 
 
-def judge_items(client, items: Sequence[tuple[Question, RunRecord]], scopes) -> list[Judged]:
-    return [judge_one(client, q, r, scopes[q.user_id]) for q, r in items]
+def with_backoff(fn, *, tries: int = 6, base_s: float = 5.0, sleep=time.sleep):
+    """Retry `fn` on HTTP 429 (rate limit) with exponential backoff; re-raise anything else."""
+    for attempt in range(tries):
+        try:
+            return fn()
+        except Exception as e:  # provider SDKs raise their own RateLimitError classes
+            if "RateLimit" not in type(e).__name__ or attempt == tries - 1:
+                raise
+            sleep(base_s * 2**attempt)
+    raise AssertionError("unreachable")
+
+
+def judge_items(
+    client, items: Sequence[tuple[Question, RunRecord]], scopes, *, pause_s: float = 0.0
+) -> list[Judged]:
+    out = []
+    for q, r in items:
+        out.append(with_backoff(lambda q=q, r=r: judge_one(client, q, r, scopes[q.user_id])))
+        if pause_s:
+            time.sleep(pause_s)
+    return out
 
 
 def load_labels(path: Path = LABELS) -> list[JudgeLabel]:
@@ -216,7 +237,7 @@ def run_agree(client, name: str, results_dir: Path = RESULTS) -> dict:
     for run_id in sorted({lab.run_id for lab in labels}):
         by_qid = {q.qid: (q, r) for q, r in load_run(run_id, results_dir)}
         items += [by_qid[lab.qid] for lab in labels if lab.run_id == run_id]
-    judged = {(j.run_id, j.qid): j for j in judge_items(client, items, scopes)}
+    judged = {(j.run_id, j.qid): j for j in judge_items(client, items, scopes, pause_s=2.0)}
     summary = {
         "judge": name,
         "at": f"{datetime.now(UTC):%Y%m%dT%H%M%SZ}",
@@ -230,14 +251,90 @@ def run_agree(client, name: str, results_dir: Path = RESULTS) -> dict:
     return summary
 
 
+def open_items(run_id: str, *, allow_test: bool = False, results_dir: Path = RESULTS):
+    """(question, record) for the open questions of one saved run; test needs `allow_test`."""
+    from evals.run import check_split_allowed, question_files
+    from evals.schema import load_questions
+
+    summary = json.loads((results_dir / f"{run_id}.summary.json").read_text(encoding="utf-8"))
+    check_split_allowed(summary["split"], allow_test)
+    questions = {q.qid: q for q in load_questions(question_files(summary["split"]))}
+    with (results_dir / f"{run_id}.jsonl").open(encoding="utf-8") as f:
+        records = [RunRecord.model_validate_json(x) for x in f if x.strip()]
+    items = [(questions[r.qid], r) for r in records if questions[r.qid].qtype is QType.OPEN]
+    return summary, items
+
+
+def run_score(
+    client, name: str, run_id: str, *, allow_test: bool = False, results_dir: Path = RESULTS
+) -> dict:
+    """Judge the open questions of a saved run (no new system outputs).
+
+    Writes `<run_id>.judge-<name>.json` with counts only (committed) and the per-question
+    verdicts and reasons to `<run_id>.judge-<name>.jsonl` (gitignored like other raw outputs).
+    The rubric keyword match is reported alongside as the no-LLM reference.
+    """
+    from evals.rubric_match import match_points
+    from evals.synonyms import synonym_table
+
+    summary, items = open_items(run_id, allow_test=allow_test, results_dir=results_dir)
+    judged = judge_items(client, items, load_scopes(), pause_s=2.0)
+    table = synonym_table()
+    proxy = [
+        verdict(match_points(r.output.answer, q.rubric or "", table, r.output.refused))
+        for q, r in items
+    ]
+    ok = [j for j in judged if j.error is None]
+    n = len(ok)
+    pts = [p for j in ok for p in j.points]
+
+    def rate(k: int, d: int) -> dict:
+        return {"value": round(k / d, 3) if d else None, "n": d}
+
+    out = {
+        "run_id": run_id,
+        "split": summary["split"],
+        "system": summary["system"],
+        "llm": summary["llm"],
+        "judge": name,
+        "at": f"{datetime.now(UTC):%Y%m%dT%H%M%SZ}",
+        "n_open": len(items),
+        "errors": len(judged) - n,
+        "strict_pass": rate(sum(j.verdict == "對" for j in ok), n),
+        "lenient_pass": rate(sum(j.verdict in ("對", "部分") for j in ok), n),
+        "point_recall": rate(pts.count("有"), len(pts)),
+        "verdicts": dict(Counter(j.verdict for j in ok)),
+        "rubric_match_strict_pass": rate(proxy.count("對"), len(proxy)),
+        "cost_usd": round(sum(j.cost_usd for j in judged), 6),
+    }
+    base = results_dir / f"{run_id}.judge-{name}"
+    base.with_suffix(".json").write_text(
+        json.dumps(out, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
+    with base.with_suffix(".jsonl").open("w", encoding="utf-8", newline="\n") as f:
+        for j in judged:
+            f.write(json.dumps(vars(j), ensure_ascii=False) + "\n")
+    out["path"] = str(base.with_suffix(".json"))
+    return out
+
+
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    p.add_argument("cmd", choices=["agree"])
+    p.add_argument("cmd", choices=["agree", "score"])
+    p.add_argument("run_id", nargs="?", help="score: the saved run to judge")
+    p.add_argument("--allow-test", action="store_true", help="score: required for a test run")
     p.add_argument("--provider", required=True, choices=["openai", "gemini", "anthropic", "ollama"])
     p.add_argument("--model", required=True)
     p.add_argument("--reasoning-effort", default=None)
     a = p.parse_args(argv)
     client = make_client(a.provider, a.model, a.reasoning_effort)
+    if a.cmd == "score":
+        if not a.run_id:
+            p.error("score needs a run_id")
+        s = run_score(client, a.model, a.run_id, allow_test=a.allow_test)
+        for k, v in s.items():  # counts only: never question or answer text
+            print(f"{k:>26}: {json.dumps(v, ensure_ascii=False)}")
+        return 0
     s = run_agree(client, a.model)
     keys = ("judge", "errors", "strict", "three_class", "open_three_class", "other_three_class")
     for k in (*keys, "open_points", "cost_usd", "path"):
