@@ -6,6 +6,9 @@
 
 ## 2026-11-10
 
+- **交接指示 005**（Claude Code）：SOP 章節展開實驗不採用——升級條件 25/25 進入 context，但 qwen3 仍 0/22（問題在生成端），
+  要點命中率 0.591 → 0.609（n=110 點）、token +7%；`expand_sop` 保留、預設關閉。judge 與 test eval 仍因沒有 API key 未執行。
+  細節：`docs/experiments.md`、ADR-0010 補充段。
 - **交接指示 004**（Claude Code）：Colin 的 50 題標註入檔（open 對 0／部分 5／錯 20，其他 16／1／8）；
   處置題 SOP 優先採用（ADR-0010，`sop_boost` 1.2）：open 要點命中率 校準 0.155 → 0.591（n=110 點），dev 其他題型不變；
   新增 `evals/rubric_match.py`（與標註 125/125 點一致）。**judge 選擇與 test eval 因 `.env` 沒有 API key 跳過**，花費 $0。

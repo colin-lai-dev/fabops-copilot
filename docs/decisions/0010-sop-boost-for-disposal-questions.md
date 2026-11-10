@@ -46,3 +46,9 @@ SOP chunk 的融合分數乘以 1.2，再取前 k 個 chunk。只有預設系統
 - 問題類型靠關鍵詞判斷；若之後的問法不含這些詞（例如「CHC 剛跳 EPD timeout，下一步？」），boost 不會啟動。
   Phase 2 可改由 agent 的路由決定，或擴充關鍵詞並在 dev 上重新確認。
 - 以 rerank、切塊或 context 數量重新調參時，要連同 `sop_boost` 一起重測。
+
+## 補充（2026-11-10）：章節展開不採用
+
+交接指示 005 試了「處置類問題把排名最高的 SOP 換成全部章節」（`expand_sop`）。升級條件因此 25/25 進入 context，
+但 qwen3:8b 仍 0/22 沒寫出來，要點命中率校準 0.591 → 0.609（n=110 點）、dev open 0.600 → 0.467（n=15 點），input tokens +7%。
+沒有明確改善，**本 ADR 的決定不變**，`expand_sop` 預設關閉（`docs/experiments.md` 2026-11-10）。

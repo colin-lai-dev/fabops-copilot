@@ -23,6 +23,36 @@
 
 ## 紀錄
 
+### 2026-11-10：SOP 章節展開（small-to-big，只用 dev 與校準題庫）——不採用
+
+- 目的：交接指示 005 第 1 點。004 的「升級條件」（要點 5）0/22，原因看起來是升級條件在 SOP 的另一個章節，沒有進入 context。
+- 做法：處置類問題（`is_disposal_query`）中，context 裡排名最高的那份 SOP 換成它的全部章節（依 `seq` 排序，放在它第一次出現的位置），
+  章節經同一個權限條件取回（`Retriever.expand_context`、`merge_sections`）。其他題型不變。系統名 `rag-hybrid-bm25-expand`。
+- 設定：同 2026-11-10 SOP 優先那一筆（qwen3:8b、送 8 個 chunk、`sop_boost` 1.2），對照為 ADR-0010 現行預設。
+  git `4df21d9`＋未提交的展開程式（之後與本筆一起提交）。**未使用 test。**
+- 切塊層（open 題 n=25）：處置步驟＋升級條件都在 context：13/25 → **25/25**；展開的 SOP 都是應引用的那份（25/25）；
+  context 平均 9.2 個 chunk（原本 8 個）。
+- 端到端：
+
+  | 指標 | ADR-0010 預設 | ＋章節展開 |
+  | --- | --- | --- |
+  | 校準 open：要點命中率（n=110 點） | 0.591 | 0.609 |
+  | 校準 open：逐點命中（要點 1～5，各 n=22） | 9、21、19、16、0 | 9、21、21、16、0 |
+  | 校準 open：嚴格通過率（n=22） | 0.000 | 0.000 |
+  | dev open：要點命中率（n=15 點） | 0.600 | 0.467 |
+  | dev 非 open：answer_ok／citation_ok／Recall@5 改變的題數（n=69） | — | 0 |
+  | 每題平均 input tokens：校準 open（n=22） | 1,660 | 1,778（+7%） |
+  | 每題平均 input tokens：dev 全部（n=72） | 2,081 | 2,108 |
+
+  run_id：`20261110T101547Z-calibration-rag-hybrid-bm25`、`20261110T104022Z-calibration-rag-hybrid-bm25-expand`、
+  `20261110T101622Z-dev-rag-hybrid-bm25`、`20261110T104114Z-dev-rag-hybrid-bm25-expand`。
+- 觀察：
+  - 升級條件已經 25/25 在 context 裡，qwen3:8b 仍然 0/22 沒寫出來：**剩下的是生成端的問題**（模型只寫「處置步驟」章節），不是檢索。
+  - dev open 少的 2 點來自 H-0002：展開後回答退回摘要句寫法（「確認異常後等待 10 分鐘重測……」），n=3，屬於雜訊範圍。
+  - 沒有任何回答提到補償參數（展開會帶入「限授權人員」的補償章節，評分準則把它算錯），兩版都是 0。
+- 結論：**不採用**，`expand_sop` 預設維持關閉（選項與 `-expand` 後綴保留）。依交接指示的條件：沒有明確改善，而且 token 增加。
+  升級條件留給生成端處理（prompt 要求涵蓋升級條件，或換 Haiku 5.5 後在 dev 重看），見 `open-questions.md`。
+
 ### 2026-11-10：judge 選擇實驗與 test eval——未執行（沒有 API key）
 
 - 交接指示 004 第 3、4 點。以 `fabops.config` 檢查（只看有無，不讀值）：`ANTHROPIC_API_KEY`、`OPENAI_API_KEY`、`GEMINI_API_KEY` 三個都沒有設定。
