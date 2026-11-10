@@ -1,0 +1,261 @@
+import json
+
+import pytest
+
+from evals import run as runner
+from evals.schema import QType, Question, SystemOutput, dump_questions, load_questions
+from evals.split import split_pool, stratified_split
+from fabops.authz.scope import Scope
+
+
+def q(qid="R-FACT-0001", qtype="fact", **kw):
+    base = {
+        "qid": qid,
+        "qtype": qtype,
+        "source": "rule",
+        "question": "（測試）問題",
+        "user_id": "eng_fx1_etch",
+        "key_facts": ["10 分鐘"],
+        "expected_doc_ids": ["SOP-FX1-ETC-PRS-0412-v1"],
+    }
+    return Question(**{**base, **kw})
+
+
+# ---------------------------------------------------------------- schema
+
+
+def test_refuse_question_needs_no_docs_or_facts():
+    r = q("R-REFUSE-0001", "refuse", should_refuse=True, key_facts=[], expected_doc_ids=[])
+    assert r.should_refuse
+
+
+@pytest.mark.parametrize(
+    "kw",
+    [
+        {"qtype": "refuse"},  # refuse without should_refuse
+        {"should_refuse": True},  # refusal with key facts
+        {"expected_doc_ids": []},  # answerable without a target document
+        {"key_facts": []},  # factual question without facts
+        {"qtype": "open", "key_facts": []},  # open without rubric
+        {"qtype": "cross_doc"},  # cross_doc with a single document
+        {"identity": "admin_all"},  # unknown field
+        {"qid": "bad id"},
+    ],
+)
+def test_inconsistent_questions_are_rejected(kw):
+    with pytest.raises(ValueError):
+        q(**kw)
+
+
+def test_open_question_with_rubric():
+    assert q("H-0001", "open", source="handwritten", key_facts=[], rubric="說明處置順序").rubric
+
+
+def test_roundtrip_and_duplicate_detection(tmp_path):
+    path = tmp_path / "pool.jsonl"
+    dump_questions([q(), q("R-FACT-0002")], path)
+    assert [x.qid for x in load_questions([path])] == ["R-FACT-0001", "R-FACT-0002"]
+    dump_questions([q(), q()], path)
+    with pytest.raises(ValueError, match="duplicate"):
+        load_questions([path])
+
+
+def test_example_file_is_valid():
+    examples = load_questions([runner.EVALS / "questions.example.jsonl"])
+    assert {e.qtype for e in examples} == set(QType)
+
+
+# ---------------------------------------------------------------- split
+
+
+def pool(n_per_type=10):
+    out = []
+    for t in ("fact", "paraphrase"):
+        for i in range(n_per_type):
+            out.append(q(f"R-{t.upper()}-{i:04d}", t))
+    return out
+
+
+def test_split_is_stratified_40_60_and_deterministic():
+    dev, test = stratified_split(pool())
+    assert len(dev) == 8 and len(test) == 12
+    assert sum(x.qtype is QType.FACT for x in dev) == 4
+    assert not {x.qid for x in dev} & {x.qid for x in test}
+    assert stratified_split(pool()) == (dev, test)
+
+
+def test_split_never_overwrites_frozen_test(tmp_path):
+    src = tmp_path / "rule.jsonl"
+    dump_questions(pool(), src)
+    assert split_pool(src, evals_dir=tmp_path) == {"dev": 8, "test": 12}
+    with pytest.raises(FileExistsError):
+        split_pool(src, evals_dir=tmp_path)
+
+
+# ---------------------------------------------------------------- runner
+
+
+@pytest.fixture
+def eval_dirs(tmp_path):
+    (tmp_path / "dev").mkdir()
+    (tmp_path / "test").mkdir()
+    dump_questions([q(), q("R-FACT-0002", user_id="op_fx1_etch")], tmp_path / "dev" / "a.jsonl")
+    dump_questions([q("R-FACT-0003")], tmp_path / "test" / "a.jsonl")
+    users = tmp_path / "users.jsonl"
+    users.write_text(
+        "\n".join(
+            json.dumps(u)
+            for u in [
+                {
+                    "user_id": "eng_fx1_etch",
+                    "fabs": ["FX1"],
+                    "departments": ["etch"],
+                    "clearance": 1,
+                },
+                {
+                    "user_id": "op_fx1_etch",
+                    "fabs": ["FX1"],
+                    "departments": ["etch"],
+                    "clearance": 0,
+                },
+            ]
+        ),
+        encoding="utf-8",
+    )
+    return {"evals_dir": tmp_path, "results_dir": tmp_path / "results", "users_path": users}
+
+
+def test_test_split_is_locked_without_flag(eval_dirs):
+    with pytest.raises(runner.TestSplitLocked):
+        runner.run("test", "refuse_all", **eval_dirs)
+
+
+def test_dev_run_saves_outputs_and_summary(eval_dirs):
+    s = runner.run("dev", "refuse_all", **eval_dirs)
+    assert s["n"] == 2 and s["errors"] == 0 and s["n_by_qtype"] == {"fact": 2}
+    # refuse_all 對可回答題全部拒答：正確率 0、誤拒率 1
+    assert s["metrics"]["overall"]["answer_accuracy"] == {"value": 0.0, "n": 2}
+    assert s["metrics"]["overall"]["false_refusal_rate"] == {"value": 1.0, "n": 2}
+    assert len(s["per_question"]) == 2
+    raw = (eval_dirs["results_dir"] / f"{s['run_id']}.jsonl").read_text(encoding="utf-8")
+    assert len(raw.splitlines()) == 2
+    assert "（測試）問題" not in raw  # outputs store qids, not question text
+
+
+class RecordingSystem:
+    name = "recording"
+
+    def __init__(self):
+        self.calls = []
+
+    def answer(self, question, scope):
+        self.calls.append((question, scope))
+        if scope.clearance == 0:
+            raise RuntimeError("boom")
+        return SystemOutput(answer="ok")
+
+
+def test_identity_is_injected_as_scope_not_text(eval_dirs, monkeypatch):
+    system = RecordingSystem()
+    monkeypatch.setattr(runner, "load_system", lambda spec: system)
+    s = runner.run("dev", "x", **eval_dirs)
+    (text1, scope1), (_, scope2) = system.calls
+    assert "eng_fx1_etch" not in text1
+    assert scope1 == Scope.of(["FX1"], ["etch"], 1) and scope2.clearance == 0
+    assert s["errors"] == 1  # a failing question is recorded, not fatal
+
+
+def test_unknown_user_is_rejected(eval_dirs):
+    dump_questions([q(user_id="ghost")], eval_dirs["evals_dir"] / "dev" / "a.jsonl")
+    with pytest.raises(ValueError, match="ghost"):
+        runner.run("dev", "refuse_all", **eval_dirs)
+
+
+# ---------------------------------------------------------------- corpus check
+
+
+def test_corpus_check_rejects_unknown_and_invisible_docs():
+    from evals.corpus import check_questions
+
+    docs = {"D1": {"fab": "FX2", "department": "etch", "clearance": 1, "body_md": "等待 10 分鐘"}}
+    scopes = {"eng_fx1_etch": Scope.of(["FX1"], ["etch"], 1)}
+    res = check_questions(
+        [q(expected_doc_ids=["D1"]), q("R-FACT-0002", expected_doc_ids=["NOPE"])], docs, scopes
+    )
+    assert any("cannot see" in e for e in res.errors)  # cross-fab: belongs in the leakage set
+    assert any("unknown doc" in e for e in res.errors)
+    assert res.warnings == []  # "10 分鐘" found literally
+
+
+# ---------------------------------------------------------------- system specs
+
+
+@pytest.mark.parametrize("spec", ["ret-nope", "rag-nope", "rag-nope-rerank-noexit", "bogus"])
+def test_unknown_system_specs_fail_before_loading_models(spec):
+    from evals.systems import load_system
+
+    with pytest.raises(ValueError):
+        load_system(spec)
+
+
+def test_rag_spec_parsing(monkeypatch):
+    from evals import systems
+
+    seen = {}
+    monkeypatch.setattr(systems, "make_retriever", lambda **kw: seen.update(kw=kw))
+    s = systems.load_system("rag-hybrid-bm25-rerank-noexit")
+    assert seen["kw"] == {
+        "dense": True,
+        "lexical": "bm25",
+        "rerank": True,
+        "k": 20,
+        "unfiltered": False,
+    }
+    assert s.answerer.exit_checks is False and s.answerer.client.unsafe_share_cache is True
+    assert systems.load_system("rag-dense").answerer.exit_checks is True
+
+    # eval-only unsafe baselines
+    from evals.baselines import NaiveQuestionCache
+
+    s = systems.load_system("rag-hybrid-bm25-noprefilter")
+    assert seen["kw"]["unfiltered"] is True and s.answerer.exit_checks is True
+    s = systems.load_system("rag-hybrid-bm25-naivecache")
+    assert isinstance(s, NaiveQuestionCache) and seen["kw"]["unfiltered"] is False
+    assert s.answerer.exit_checks is True and s.answerer.client.unsafe_share_cache is False
+
+
+def test_rag_spec_context_chunks():
+    from evals.systems import parse_rag_spec
+
+    assert parse_rag_spec("rag-dense") == ("dense", False, True, 8)
+    assert parse_rag_spec("rag-hybrid-bm25-rerank-noexit") == ("hybrid-bm25", True, False, 8)
+    assert parse_rag_spec("rag-hybrid-bm25-ctx4") == ("hybrid-bm25", False, True, 4)
+    assert parse_rag_spec("rag-hybrid-bm25-noexit-ctx12") == ("hybrid-bm25", False, False, 12)
+    with pytest.raises(ValueError):
+        parse_rag_spec("rag-nope-ctx4")
+    with pytest.raises(ValueError):
+        parse_rag_spec("rag-dense-ctx0")
+
+
+def test_split_sop_boost():
+    from evals.systems import split_sop_boost
+
+    assert split_sop_boost("rag-hybrid-bm25") == ("rag-hybrid-bm25", {})
+    assert split_sop_boost("rag-hybrid-bm25-sop1.2") == ("rag-hybrid-bm25", {"sop_boost": 1.2})
+    assert split_sop_boost("rag-dense-sop1-ctx4") == ("rag-dense-ctx4", {"sop_boost": 1.0})
+
+
+def test_split_expand():
+    from evals.systems import split_expand
+
+    assert split_expand("rag-hybrid-bm25") == ("rag-hybrid-bm25", {})
+    assert split_expand("rag-hybrid-bm25-expand") == ("rag-hybrid-bm25", {"expand_sop": True})
+    assert split_expand("rag-dense-noexpand-ctx4") == ("rag-dense-ctx4", {"expand_sop": False})
+
+
+def test_sop_boost_only_in_the_default_preset():
+    from evals.systems import RETRIEVAL_PRESETS
+    from fabops.rag.retrieve import RetrievalConfig
+
+    assert RetrievalConfig(**RETRIEVAL_PRESETS["hybrid-bm25"]).sop_boost == 1.2
+    assert RetrievalConfig(**RETRIEVAL_PRESETS["dense"]).sop_boost == 1.0  # PLAN baseline

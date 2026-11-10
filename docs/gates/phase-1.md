@@ -1,0 +1,163 @@
+# Phase 1 Gate 報告
+
+- Branch：`phase-1-rag`（已合併回 `main`，tag `phase-1`）
+- 狀態：**已通過（Colin，2026-11-11）**
+
+## 0. 最終數字
+
+全部為合成資料（虛構 Fab-X）。基準 = `rag-dense`（只用向量、不 rerank）；預設 = `rag-hybrid-bm25`（權限 pre-filter → dense + BM25 → RRF → 處置題 SOP 優先）。
+
+**Test set（凍結於 `6ebbb5d`，110 題，Claude Haiku 5.5，只跑一次，2026-11-10）**
+
+| 指標 | 基準 | 預設 |
+| --- | --- | --- |
+| 回答正確率（非 open，n=105） | 0.657 | **0.752** |
+| Recall@5（n=99） | 0.682 | **0.788** |
+| 引用正確率（n=99） | 0.636 | **0.747** |
+| 可回答題誤拒率（n=99，越低越好） | 0.313 | **0.212** |
+| 應拒答題拒答率（n=11） | 1.000 | 1.000 |
+| open：judge 嚴格通過（n=5） | 0/5 | **4/5** |
+| open：judge 要點命中率（n=25 點） | 0.64 | **0.96** |
+| 每題延遲／花費 | 1.7 s／US$0.00041 | 2.0 s／US$0.00038 |
+
+**權限洩漏（規則產生 90 題，每條路徑 30 題，qwen3:8b）**
+
+| 路徑 | 正式系統 | 該路徑的對照組 |
+| --- | --- | --- |
+| 檢索 | **0/30** | 19/30（無 pre-filter） |
+| 快取 | **0/30** | 23/30（問題層快取） |
+| 日誌 | **0/30** | 13/30（無出口檢查） |
+| 合計 | **0/90** | 55/90 |
+
+**Judge 一致率（Gemini 3.6 Flash vs Colin 人工標註，n=50）**：整題嚴格一致 50/50；三分類 49/50；open 逐點 124/125。
+
+### 已知限制
+
+- **洩漏集不是 test set**：90 題沒有 dev/test 之分，也沒有凍結；對照組是為了證明檢查有效而設計的，不是盲測。字面比對沒命中不代表安全（`evals/leak/README.md`）。
+- **人工標註多為「漏」**：Colin 的 50 題標註中，錯誤大多是漏掉要點（尤其 open 題的升級條件），judge 一致率主要驗證的是「抓漏答」，對「答錯但字面像對」的判斷樣本很少。
+- **cross_doc 2/16**：單次檢索無法從異常報告跳到它引用的 SOP，留給 Phase 2 三組對照。
+- **誤拒 21%（21/99）**：Haiku 5.5 在檢索不完整時傾向拒答，原因是檢索缺口而非權限。
+- Judge 只比較了 Gemini 3.6 Flash；GPT-5.4 mini 未比較（Colin 決定先不加 OpenAI 額度）。
+- open 題 test 只有 5 題（25 點），數字的信賴區間很寬。
+
+## 1. 完成的任務
+
+| 任務 | Commit |
+| --- | --- |
+| 權限 policy 純函式（ADR-0002），之後的 SQL 條件以它為準 | `fa4cdcb` |
+| Eval 框架：題目格式、`evals/run.py`、dev/test 分割 | `56079bc` |
+| 規則題 151 題（dev 60、test 91）與語料檢查 | `75e6a8d` |
+| ADR-0005 預設評分規則釘成測試 | `02d56c5` |
+| 依賴：FlagEmbedding、jieba（Colin 2026-11-08 同意） | `4247432` |
+| 切塊（SOP 依章節，chunk 帶文件標頭） | `d12ac14` |
+| SQL 權限條件由同一個 policy 產生，DB 測試比對兩者一致 | `476df27` |
+| bge-m3 索引（dense + sparse 一次產生，jieba token） | `7063982` |
+| 檢索：權限 pre-filter → dense + BM25/sparse → RRF → 選用 rerank | `8b0d785` |
+| LLM client：`reasoning_effort`、快取讀取時核對 scope | `daef8da` |
+| trace 遮罩出口（本機 JSONL，ADR-0007） | `e037071` |
+| 回答生成（引用、拒答、出口檢查）＋ seed 測試改用 `_test` DB | `39282cc`（兩件事混在同一個 commit；依決定不改寫歷史） |
+| RAG 系統與 baseline（`rag-dense`、`-noexit`） | `53b806b` |
+| 洩漏測試與標註的格式、洩漏 runner | `caa9953` |
+| rerank 預設關閉 | `d13c1a8` |
+| **`evals/score.py`**（ADR-0005 與修訂 5 條規則；刪除暫時評分器） | `6f2a97d` |
+| `-ctxN`：送進 LLM 的 chunk 數實驗 | `e4e40cd` |
+| **權限洩漏測試集**（規則產生 90 題） | `ef570a8` |
+| **人工標註表**（50 題，不含判斷） | `986446d` |
+| 執行摘要的 git 狀態改在開始時記錄 | `42e0075` |
+| 標註「部分」：嚴格為主、另報寬鬆比例（ADR-0005 規則 6） | `1b10aae` |
+| **手寫題 31 題定稿並切分；test set 凍結（110 題）** | `6ebbb5d`、`4dc3306` |
+| 洩漏對照組：無 pre-filter、問題層快取（eval 專用） | `1d4ebee` |
+| judge 校準題庫（22 題 open，不進 dev/test） | `46a5bac` |
+| 標註表重做（open 題逐點判斷、手機版） | `bc1a975` |
+| Colin 的 50 題標註入檔（`evals/judge_labels.jsonl`） | `fd319f3`、`67007b7` |
+| **處置題 SOP 優先**（`sop_boost` 1.2，ADR-0010）＋ open 題要點比對 `evals/rubric_match.py` | `0a9485a`、`8438fa0` |
+
+## 2. 架構摘要
+
+```
+問題 + user_id ─(runner 查出 Scope，ADR-0001)─▶ Retriever
+  Retriever：sql_filter(scope) pre-filter ─▶ dense（pgvector 精確搜尋）＋ BM25（jieba）─▶ RRF
+             ─▶ 處置類問題：SOP chunk 分數 ×1.2（ADR-0010）─▶（選用 rerank）
+  Answerer：前 8 個 chunk 當資料放進 prompt ─▶ LLMClient（快取 key 含 scope 與整個 prompt）─▶ JSON
+            ─▶ 出口檢查（引用必須是這次檢索到、且 scope 看得到的文件）─▶ Tracer（只存 id、hash、長度）
+評分：evals/run.py ─▶ evals/score.py（每題 QuestionScore，彙總時每個指標都帶 n）
+洩漏：evals/gen_leak_cases.py ─▶ evals/leak_cases.jsonl ─▶ evals/leak.py（三條路徑 a/N）
+```
+
+## 3. 最該 review 的地方
+
+1. `evals/score.py` 的 `contains_fact`、`_boundary_ok`、`_variants`：規則 2、3（數字邊界、正規化、同義詞雙向替換）。
+   句尾英文句點不算小數點，這是我加的判斷（測試 `test_contains_fact_trailing_decimal_point_is_not_a_number_boundary`）。
+2. `evals/score.py` 的 `score_question`：`answer_ok` 的定義（事實題＝未拒答且含全部關鍵事實；拒答題＝有拒答且未洩漏；open 題留給 judge），
+   以及沒有引用時精確率記為 None 而不是 0。
+3. `evals/score.py` 的 `_REFUSAL_PHRASES`：只影響 `refusal_mismatch`，用語表是依 qwen3 實際輸出補的。
+4. `evals/gen_leak_cases.py` 的 `eligible_pairs` 與 `distinctive`：「只違反一個條件」與「禁止字串不出現在 outsider 看得到的任何文件」。
+5. `evals/leak/README.md`：分類與題數，**請確認**。
+6. `evals/label_sheet.py` 的 `select`：50 題怎麼抽（最大餘數法，每個題型至少 1 題）。
+7. `src/fabops/llm/client.py` 的 `cache_key`：洩漏測試顯示 key 含整個 prompt 本身就隔開了不同權限（見第 4 節）。
+8. `evals/run.py` 的 `run_questions`：身分只以 `Scope` 傳給系統，不進題目文字（ADR-0001）。
+9. `src/fabops/rag/retrieve.py` 的 `is_disposal_query`、`boost_sop` 與 `search` 中呼叫它的位置：只讀問題文字、在 pre-filter 之後（ADR-0010）。
+10. `evals/rubric_match.py` 的 `point_needles`：要點 → 關鍵詞的規則；它和你的標註 125/125 點一致，但抓不到「提到但說錯」。
+
+## 4. Dev eval（以下為 gate 前的 dev 紀錄；test 數字見第 0 節）
+
+**test set 已凍結**於 `6ebbb5d`：110 題（規則 91 + 手寫 19），各檔 sha256 見 `experiments.md`。
+
+dev（2026-11-09 稍早，規則題 n = 60：可回答 54、應拒答 6），qwen3:8b（地端，$0）。基準 = `rag-dense`（PLAN 的「只用向量、不 rerank」）。
+
+| 指標 | 基準 `rag-dense` | 預設 `rag-hybrid-bm25` |
+| --- | --- | --- |
+| 回答正確率（n=60） | 0.700 | **0.850** |
+| 引用正確率（n=54） | 0.648 | **0.741** |
+| Recall@5（n=54） | 0.657 | **0.861** |
+| MRR（n=54） | 0.512 | 0.750 |
+| 應拒答題的拒答率（n=6） | 1.000 | 1.000 |
+| 可回答題的誤拒率（n=54） | 0.056 | 0.037 |
+
+加入手寫題後的 dev（72 題）預設系統：回答正確率 0.826（n=69，不含 open）、Recall@5 0.854（n=65）；手寫題非 open 6/9。
+
+- cross_doc 回答正確率只有 0.250（n=8），需要兩段式檢索，依決定留給 Phase 2 的三組對照。
+- **洩漏測試（N=90，每條路徑 30）**：
+
+  | 路徑 | 正式系統 | 無出口檢查 | 無 pre-filter | 問題層快取 |
+  | --- | --- | --- | --- | --- |
+  | 檢索 | **0/30** | 0/30 | **19/30** | 3/30 |
+  | 快取 | **0/30** | 0/30 | 16/30 | **23/30** |
+  | 日誌 | **0/30** | **13/30** | 0/30 | 0/30 |
+
+  粗體對照格 = 專門拿掉該路徑檢查的 baseline。沒洩漏的對照題都已確認原因（目標文件不在檢索結果中），見 `experiments.md`。
+- 調參：rerank 在規則題與手寫題上都沒有一致提升，維持關閉；送 8 個 chunk；維持依章節切塊。
+- **人工標註（n=50，Colin）**：open 對 0／部分 5／錯 20（n=25）；其他題型 對 16／部分 1／錯 8（n=25）。
+- **處置題 SOP 優先（ADR-0010）**：open 題要點命中率 校準 0.155 → 0.591（n=110 點）、dev 0 → 0.600（n=15 點），dev 其他題型沒有任何一題改變（n=69），MRR 0.729 → 0.758（n=65）。嚴格通過率仍 0（升級條件 0/22），留給 Phase 2。
+- **Haiku 5.5（主力）dev**：回答正確率 0.783（n=69；dense baseline 0.739）、Recall@5 0.854（n=65；baseline 0.646）、open 要點命中率 0.933（n=15 點）、誤拒率 0.200（n=65）。細節見 `experiments.md`。
+- **SOP 章節展開（不採用）**：升級條件 25/25 進入 context，但 qwen3 仍 0/22；要點命中率 0.591 → 0.609（n=110 點），token +7%。
+- 細節與所有數字：`docs/experiments.md` 2026-11-08、2026-11-09、2026-11-10 各筆。
+
+### Test eval（2026-11-10，Haiku 5.5，110 題，只跑一次；設定在執行前 commit `a3a0f7e`）
+
+| 指標 | 基準 `rag-dense` | 預設 `rag-hybrid-bm25` |
+| --- | --- | --- |
+| 回答正確率（非 open，n=105） | 0.657 | **0.752** |
+| 引用正確率（n=99） | 0.636 | **0.747** |
+| Recall@5（n=99） | 0.682 | **0.788** |
+| 可回答題誤拒率（n=99） | 0.313 | **0.212** |
+| 應拒答題拒答率（n=11） | 1.000 | 1.000 |
+| open：judge 嚴格通過（n=5） | 0/5 | **4/5** |
+| open：judge 要點命中率（n=25） | 0.64 | **0.96** |
+| 每題延遲／花費 | 1.7 s／US$0.00041 | 2.0 s／US$0.00038 |
+
+弱點：cross_doc 2/16、誤拒 21/99。open 題由 Gemini 3.6 Flash judge 評分（與 Colin 標註嚴格一致 50/50），對已存輸出評、不重跑系統。細節：`experiments.md`。
+
+## 5. 待 Colin 決定（`docs/open-questions.md`）
+
+002 回報的 5 項已由規劃者代決（2026-11-09）。2026-11-10 新增 1 項暫定：處置類問題靠關鍵詞判斷（ADR-0010 後果）。
+
+## 6. Colin 的項目
+
+| 項目 | 狀態 |
+| --- | --- |
+| 手寫題定稿 | **完成**（31 題全部保留；test 凍結） |
+| review `score.py`，跑 `/quiz score` | 未完成 |
+| 人工標註 50 題 | **完成**（2026-11-10，`evals/judge_labels.jsonl`） |
+| Judge 選擇實驗 | **Gemini 3.6 Flash 完成**（嚴格一致 50/50）；GPT-5.4 mini 未比較（Colin 決定先不加 OpenAI 額度） |
+| 第一輪 test eval（`make eval-test`） | **完成**（2026-11-10，Haiku 5.5，110 題） |

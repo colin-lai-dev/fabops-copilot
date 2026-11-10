@@ -98,7 +98,9 @@ CREATE TABLE chunks (
     fab           text NOT NULL,
     department    text NOT NULL,
     clearance     smallint NOT NULL,
-    embedding     vector(1024)       -- bge-m3 dense; filled in Phase 1
+    embedding     vector(1024),      -- bge-m3 dense (fabops.rag.index)
+    sparse        jsonb,             -- bge-m3 lexical weights {token_id: weight}
+    tokens        text[]             -- jieba tokens for BM25
 );
 
 CREATE INDEX ON chunks (fab, department, clearance);

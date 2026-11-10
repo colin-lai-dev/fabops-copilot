@@ -1,0 +1,32 @@
+{
+  "run_id": "20261109T052553Z-leak-rag-hybrid-bm25-noprefilter",
+  "system": "rag-hybrid-bm25-noprefilter",
+  "cases_sha256": "606a0b79b269863a",
+  "git": {
+    "commit": "bc1a975",
+    "dirty": true
+  },
+  "by_path": {
+    "retrieval": {
+      "leaked": 19,
+      "n": 30,
+      "errors": 0
+    },
+    "all": {
+      "leaked": 35,
+      "n": 90,
+      "errors": 0
+    },
+    "cache": {
+      "leaked": 16,
+      "n": 30,
+      "errors": 0
+    },
+    "trace": {
+      "leaked": 0,
+      "n": 30,
+      "errors": 0
+    }
+  },
+  "warnings": 0
+}

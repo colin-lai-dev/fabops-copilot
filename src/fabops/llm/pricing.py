@@ -8,6 +8,9 @@ PRICES: dict[str, tuple[float, float]] = {
     "claude-sonnet-5-5": (2.00, 10.00),
     "gpt-5.4-mini": (0.75, 4.50),
     "gemini-2.5-flash": (0.30, 2.50),
+    # Official pricing page (aistudio.google.com/docs/pricing), checked 2026-11-10: standard
+    # paid tier through 2026-12-31, output includes thinking; doubles from 2027-01-01.
+    "gemini-3.6-flash": (0.75, 3.75),
 }
 
 LOCAL_PROVIDERS = {"ollama"}

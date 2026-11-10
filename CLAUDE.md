@@ -5,24 +5,32 @@
 
 ## 工作模式：階段內自動執行
 
+- **語言**：所有回覆、進度說明、回報、文件（docs/ 與 private/ 內的 .md）一律用台灣繁體中文；
+  程式碼、程式註解、commit 訊息、檔名維持英文。
 - 架構決策都已寫成 ADR（`docs/decisions/`，狀態為「已採用」）。實作必須遵守 ADR；
   要偏離 ADR，必須先停下來問我。
 - 一個階段內依 `docs/PLAN.md` 的任務順序連續實作，不需要每一步都等我確認。
 - 遇到 ADR 沒涵蓋的問題：採用最保守、最容易回頭修改的做法，記錄到
   `docs/open-questions.md`（問題、你的暫定做法、替代方案），然後繼續。
-- 以下情況必須停下來問我：新增 PLAN 以外的依賴、改變目錄結構、違反 ADR、
-  需要花錢呼叫付費模型、要刪除資料或改寫 git 歷史。
+- **Colin 的偏好：不重要的事直接做，不要問。** 權限採 auto 模式（`.claude/settings.json`），
+  一般指令、檔案編輯、新增小型依賴都直接執行，事後在 `docs/log.md` 與 commit 訊息交代清楚即可。
+- 只有以下情況必須停下來問我：違反或修改已採用的 ADR、需要花錢呼叫付費模型、
+  新增 100 MB 以上的依賴或模型下載、刪除資料或改寫 git 歷史、會改變我電腦設定的動作。
 - 到達階段的 gate 就停下，產出 gate 報告（見下方）後等我 review。
 
-## 交接指示（使用者說「接手」時）
+## 交接指示（使用者說「接手」或「go」時）
 
 - Claude（另一個對話中的規劃者）會把給你的指示寫在 `private/handoff/`，檔名為
   `NNN-<主題>.md`，第二行是 `狀態：待執行` 或 `狀態：已完成`。此資料夾不進 git。
-- 使用者說「接手」（或「繼續」）時：讀 `private/handoff/` 中**編號最小、狀態為待執行**
+- 使用者說「接手」、「go」或「繼續」（不分大小寫，前後有無其他字皆可）時：讀 `private/handoff/` 中**編號最小、狀態為待執行**
   的檔案，照它執行。指示與本檔或 ADR 衝突時，以本檔與 ADR 為準，並在回報中指出衝突。
 - 完成後：把該檔第二行改成 `狀態：已完成（YYYY-MM-DD）`，在檔尾加上 `## 回報`
   （5 行以內：結果、改了什麼、要使用者決定的事），同樣內容也在對話中回報。
 - 沒有待執行的檔案時，改讀 `docs/PLAN.md`，從第一個未完成的任務接續。
+- **所有停下來給 Colin 的回報都要寫成檔案**（規劃者會直接讀，Colin 不必轉貼）：
+  - 來自交接指示的回報：寫在該指示檔尾的 `## 回報`。
+  - 其他情況（到達 gate、被卡住、需要決定）：寫到 `private/handoff/reports/YYYY-MM-DD-HHMM-<主題>.md`。
+  - 回報內容與對話中的回覆相同；對話中最後一行註明回報檔案的路徑。
 
 ## Git 與提交
 
@@ -39,17 +47,23 @@
 5. `docs/open-questions.md` 中待我決定的項目。
 6. 我需要完成的手寫或設計任務是否已完成。
 
-## 保留給我的部分
+## 保留給我的部分（2026-11-08 調整）
 
-**親手寫（你不要實作）：**
-- `evals/score.py`：評分邏輯。你可以建立介面 stub（`raise NotImplementedError`）、
-  寫測試、寫 `evals/run.py` 等周邊程式；我寫完後由你 review。
+**由 Claude Code 實作，Colin review：**
+- `evals/score.py`：依 ADR-0005（含修訂段落的 5 條規則）實作，`tests/test_score.py` 必須全部通過。
+  完成後在 gate 報告列出 Colin 該讀的函式，並提醒他跑 `/quiz score`。
+- 權限洩漏測試集：依 `LeakCase` 格式以規則產生（跨廠、跨部門、等級不足 × 檢索、快取、日誌路徑），
+  分類與每類題數寫在 `evals/leak/README.md` 給 Colin 確認。Phase 2 補 agent 工具路徑時同樣做法。
+
+**Claude（規劃者）起草，Colin 修改：**
+- 手寫題：草稿在 `evals/handwritten.draft.jsonl`。Colin 改完後改名為 `evals/handwritten.jsonl` 再執行 split。
+  `docs/experiments.md` 要照實記錄出處（Claude 起草、Colin 修改），不得寫成純手寫。你不要修改這份草稿。
+
+**只能由 Colin 親自完成（不得代做）：**
+- 人工標註 50 題（judge 校準）。你只能準備標註表；標註結果必須是 Colin 的判斷。
 - Agent loop 練習：`playground/agent_loop.py`，Phase 2 開頭的練習，不是交付物。
-
-**親自設計（你可以建立格式與 schema，但不要替我產生內容）：**
-- `evals/` 中標記為手寫的題目、人工標註的 50 題 judge 校準資料
-- 權限洩漏測試集、prompt injection 測試集
-- 髒資料的類型清單（已列在 PLAN；要新增類型請提出）
+- Prompt injection 測試集（Phase 2）：你可以建立格式與 schema，內容由 Colin 設計。
+- 髒資料的類型清單（已列在 PLAN；要新增類型請提出）。
 
 若某任務被這些部分卡住，先做同階段其他任務，並在 gate 報告中標出。
 

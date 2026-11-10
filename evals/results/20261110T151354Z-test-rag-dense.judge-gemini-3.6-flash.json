@@ -1,0 +1,34 @@
+{
+  "run_id": "20261110T151354Z-test-rag-dense",
+  "split": "test",
+  "system": "rag-dense",
+  "llm": {
+    "provider": "anthropic",
+    "model": "claude-haiku-5-5"
+  },
+  "judge": "gemini-3.6-flash",
+  "at": "20261110T152709Z",
+  "n_open": 5,
+  "errors": 0,
+  "strict_pass": {
+    "value": 0.0,
+    "n": 5
+  },
+  "lenient_pass": {
+    "value": 0.8,
+    "n": 5
+  },
+  "point_recall": {
+    "value": 0.64,
+    "n": 25
+  },
+  "verdicts": {
+    "錯": 1,
+    "部分": 4
+  },
+  "rubric_match_strict_pass": {
+    "value": 0.0,
+    "n": 5
+  },
+  "cost_usd": 0.020277
+}
