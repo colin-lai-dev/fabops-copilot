@@ -1,7 +1,44 @@
-# Phase 1 Gate 報告（進行中）
+# Phase 1 Gate 報告
 
-- Branch：`phase-1-rag`
-- 狀態：**草稿**。test set 已凍結；人工標註完成；處置題 SOP 優先已採用（ADR-0010）。test eval 完成（Haiku 5.5，110 題），judge 暫定 Gemini 3.6 Flash（GPT-5.4 mini 待補）。
+- Branch：`phase-1-rag`（已合併回 `main`，tag `phase-1`）
+- 狀態：**已通過（Colin，2026-11-11）**
+
+## 0. 最終數字
+
+全部為合成資料（虛構 Fab-X）。基準 = `rag-dense`（只用向量、不 rerank）；預設 = `rag-hybrid-bm25`（權限 pre-filter → dense + BM25 → RRF → 處置題 SOP 優先）。
+
+**Test set（凍結於 `6ebbb5d`，110 題，Claude Haiku 5.5，只跑一次，2026-11-10）**
+
+| 指標 | 基準 | 預設 |
+| --- | --- | --- |
+| 回答正確率（非 open，n=105） | 0.657 | **0.752** |
+| Recall@5（n=99） | 0.682 | **0.788** |
+| 引用正確率（n=99） | 0.636 | **0.747** |
+| 可回答題誤拒率（n=99，越低越好） | 0.313 | **0.212** |
+| 應拒答題拒答率（n=11） | 1.000 | 1.000 |
+| open：judge 嚴格通過（n=5） | 0/5 | **4/5** |
+| open：judge 要點命中率（n=25 點） | 0.64 | **0.96** |
+| 每題延遲／花費 | 1.7 s／US$0.00041 | 2.0 s／US$0.00038 |
+
+**權限洩漏（規則產生 90 題，每條路徑 30 題，qwen3:8b）**
+
+| 路徑 | 正式系統 | 該路徑的對照組 |
+| --- | --- | --- |
+| 檢索 | **0/30** | 19/30（無 pre-filter） |
+| 快取 | **0/30** | 23/30（問題層快取） |
+| 日誌 | **0/30** | 13/30（無出口檢查） |
+| 合計 | **0/90** | 55/90 |
+
+**Judge 一致率（Gemini 3.6 Flash vs Colin 人工標註，n=50）**：整題嚴格一致 50/50；三分類 49/50；open 逐點 124/125。
+
+### 已知限制
+
+- **洩漏集不是 test set**：90 題沒有 dev/test 之分，也沒有凍結；對照組是為了證明檢查有效而設計的，不是盲測。字面比對沒命中不代表安全（`evals/leak/README.md`）。
+- **人工標註多為「漏」**：Colin 的 50 題標註中，錯誤大多是漏掉要點（尤其 open 題的升級條件），judge 一致率主要驗證的是「抓漏答」，對「答錯但字面像對」的判斷樣本很少。
+- **cross_doc 2/16**：單次檢索無法從異常報告跳到它引用的 SOP，留給 Phase 2 三組對照。
+- **誤拒 21%（21/99）**：Haiku 5.5 在檢索不完整時傾向拒答，原因是檢索缺口而非權限。
+- Judge 只比較了 Gemini 3.6 Flash；GPT-5.4 mini 未比較（Colin 決定先不加 OpenAI 額度）。
+- open 題 test 只有 5 題（25 點），數字的信賴區間很寬。
 
 ## 1. 完成的任務
 
@@ -62,7 +99,7 @@
 9. `src/fabops/rag/retrieve.py` 的 `is_disposal_query`、`boost_sop` 與 `search` 中呼叫它的位置：只讀問題文字、在 pre-filter 之後（ADR-0010）。
 10. `evals/rubric_match.py` 的 `point_needles`：要點 → 關鍵詞的規則；它和你的標註 125/125 點一致，但抓不到「提到但說錯」。
 
-## 4. Dev eval（只看 dev；test 已凍結、尚未執行）
+## 4. Dev eval（以下為 gate 前的 dev 紀錄；test 數字見第 0 節）
 
 **test set 已凍結**於 `6ebbb5d`：110 題（規則 91 + 手寫 19），各檔 sha256 見 `experiments.md`。
 
@@ -122,5 +159,5 @@ dev（2026-11-09 稍早，規則題 n = 60：可回答 54、應拒答 6），qwe
 | 手寫題定稿 | **完成**（31 題全部保留；test 凍結） |
 | review `score.py`，跑 `/quiz score` | 未完成 |
 | 人工標註 50 題 | **完成**（2026-11-10，`evals/judge_labels.jsonl`） |
-| Judge 選擇實驗 | **Gemini 3.6 Flash 完成**（嚴格一致 50/50）；GPT-5.4 mini 待 OpenAI 額度 |
+| Judge 選擇實驗 | **Gemini 3.6 Flash 完成**（嚴格一致 50/50）；GPT-5.4 mini 未比較（Colin 決定先不加 OpenAI 額度） |
 | 第一輪 test eval（`make eval-test`） | **完成**（2026-11-10，Haiku 5.5，110 題） |

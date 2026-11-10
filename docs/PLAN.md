@@ -34,9 +34,9 @@ Eval 基礎先做，凍結後才開始調參。
   - [x] 規則題 151 題（dev 60、test 91）
   - [x] 手寫題目 31 題（Claude 起草，**[Colin]** 審閱後全部保留；dev 12、test 19）
 - [x] 權限洩漏測試集：直接越權 + 快取、日誌間接路徑（規則產生 90 題，分類已採用；每條路徑都有會洩漏的對照組）
-- [x] `evals/score.py`（Claude Code 實作，**Colin review 中**）
-- [ ] **[Colin]** 人工標註 50 題（標註表已重做：open 25 題逐點判斷，`evals/labels/label-sheet.md`；手機版 `private/label-sheet-mobile.md`）
-- [ ] Judge 選擇實驗：GPT-5.4 mini vs Gemini 2.5 Flash，以人工標註的一致率決定（ADR-0008）
+- [x] `evals/score.py`（Claude Code 實作，Colin review）
+- [x] **[Colin]** 人工標註 50 題（2026-11-10，`evals/judge_labels.jsonl`）
+- [x] Judge 選擇實驗：以人工標註的一致率決定（ADR-0008）。採用 Gemini 3.6 Flash（嚴格一致 50/50）；GPT-5.4 mini 未比較，Colin 決定先不加 OpenAI 額度
 - [x] 凍結 test set（`6ebbb5d`，見 experiments.md）
 - [x] 切塊（依 SOP 章節）與 bge-m3 索引
 - [x] 中文 BM25 斷詞比較（jieba vs bge-m3 sparse），結果寫 ADR（ADR-0009，已採用）
@@ -49,10 +49,10 @@ Eval 基礎先做，凍結後才開始調參。
 - [x] 調參實驗（只看 dev）：切塊大小、top-k、rerank
   - [x] rerank（含 2026-11-09 截斷複查）、異常報告切法（見 experiments.md）
   - [x] 切塊大小（400／1200 字無差異，改比章節 vs 整份文件）、送進 LLM 的 chunk 數（見 experiments.md；是否改預設待 Colin 決定）
-- [ ] 第一輪 test eval，依實際花費重估預算
+- [x] 第一輪 test eval，依實際花費重估預算（2026-11-10，Haiku 5.5，110 題；Phase 1 API 花費約 US$0.29）
 
 **Gate：** 凍結 test set 上的 RAG 數字（附 n 與 baseline）；檢索、快取、日誌三條路徑的
-洩漏測試（a/N vs b/N）；履歷 Phase 1 版數字填上，開始投遞。
+洩漏測試（a/N vs b/N）；履歷 Phase 1 版數字填上，開始投遞。**已通過（Colin，2026-11-11），見 `docs/gates/phase-1.md`。**
 
 ## Phase 2：Agent workflow（第 6–8 週）
 
