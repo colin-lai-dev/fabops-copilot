@@ -26,6 +26,7 @@ class ToolResult:
     ok: bool
     data: Any = None
     error: str | None = None
+    transient: bool = False  # transport failure: worth one retry
 
 
 class ToolGateway(Protocol):
@@ -74,7 +75,7 @@ class McpGateway:
         try:
             r = await self._client.call_tool(name, args, raise_on_error=False)
         except Exception as e:  # transport failure, unknown tool, schema error
-            return ToolResult(False, error=f"{type(e).__name__}: {str(e)[:200]}")
+            return ToolResult(False, error=f"{type(e).__name__}: {str(e)[:200]}", transient=True)
         if r.is_error:
             text = " ".join(getattr(c, "text", "") for c in r.content).strip()
             return ToolResult(False, error=text[:300] or "tool error")

@@ -37,3 +37,7 @@ Claude Code 遇到 ADR 沒涵蓋的問題時記錄於此，並採用暫定做法
 | 2026-11-11 | agent 工具路徑洩漏集的分類與題數 | 3 種邊界 × 5 個工具，共 101 題；MES 工具每格上限 5 題，搜尋工具沿用 Phase 1 的 60 題。詳見 `evals/leak/README.md` 的 Phase 2 段。 | 每格題數調整；加入 agent 層（LLM 提問）的判定作為主要數字。 | **待 Colin 確認** |
 | 2026-11-11 | 異常報告的量測值也出現在等級較低的 MES alarm 中 | Phase 1 的 9 個禁止字串在工具路徑不成立（asker 可從 MES 合法查到），工具路徑已排除；Phase 1 的 90 題不改（Phase 1 系統查不到 MES）。資料本身不改。 | 讓 alarm 的等級跟著對應異常報告（產生器改規則，要重新產生資料與索引，會動到已凍結的 test set）。 | 暫定 |
 | 2026-11-11 | 工具查不到與無權限的回覆 | 兩者回覆完全相同（`查無此資料，或你沒有權限查看。`），避免工具成為「某批號／機台是否存在」的探測器；代價是 agent 無法分辨是打錯編號還是沒權限。 | 分開回覆（較好除錯，但洩漏存在與否）。 | 暫定 |
+| 2026-11-11 | 核准後的「執行」要不要真的改 MES 資料 | **模擬執行**：只把 proposal 狀態改成 executed 並寫 audit log，不改 `lots`／`chambers`，eval 才能重現。 | 真的寫入（例如 `lots.status='hold'`），需要另一個有寫入權限的服務與還原機制。 | 暫定 |
+| 2026-11-11 | 誰可以核准 | graph 只要求核准者 id 由呼叫端（API 的登入使用者）提供、不可由 LLM 填寫，並寫進 audit log；**目前沒有檢查核准者的權限**，也允許提出者自己核准。 | API（Phase 2 前端）加上：核准者必須看得到目標、等級 ≥ confidential、且不是提出者。 | 暫定 |
+| 2026-11-11 | 無效的 LLM 回覆也會被快取 | agent 第二次決策在 prompt 加一行「上次輸出無法解析」，讓快取 key 不同，重試才有意義。快取本身不改。 | `LLMClient` 不快取無法通過 schema 的回覆（要改 `structured()` 與既有快取行為）。 | 暫定 |
+| 2026-11-11 | Phase 2 第一次 agent DB 測試寫進了開發資料庫 | 測試已改用 `fabops_test`；開發 DB 中留有 3 筆測試用 proposal、audit 與 checkpoint 資料（`agent_*`、`checkpoint*` 資料表）。依規定刪資料前先問，**未刪除**。 | Colin 同意後 `TRUNCATE agent_audit_log, agent_proposals`。 | 待 Colin 決定 |

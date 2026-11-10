@@ -39,6 +39,9 @@ target-version = "py312"
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "SIM"]
 
+[tool.ruff.lint.per-file-ignores]
+"src/fabops/agent/prompts.py" = ["E501"]  # prompt text: one rule per line
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]  # so tests can import the evals/ package
