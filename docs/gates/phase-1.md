@@ -1,7 +1,7 @@
 # Phase 1 Gate 報告（進行中）
 
 - Branch：`phase-1-rag`
-- 狀態：**草稿**。test set 已凍結；人工標註完成；處置題 SOP 優先已採用（ADR-0010）。**judge 選擇與 test eval 因為沒有 API key 尚未執行**（第 6 節），補上 key 後即可接續。
+- 狀態：**草稿**。test set 已凍結；人工標註完成；處置題 SOP 優先已採用（ADR-0010）。test eval 完成（Haiku 5.5，110 題），judge 暫定 Gemini 3.6 Flash（GPT-5.4 mini 待補）。
 
 ## 1. 完成的任務
 
@@ -105,10 +105,11 @@ dev（2026-11-09 稍早，規則題 n = 60：可回答 54、應拒答 6），qwe
 | Recall@5（n=99） | 0.682 | **0.788** |
 | 可回答題誤拒率（n=99） | 0.313 | **0.212** |
 | 應拒答題拒答率（n=11） | 1.000 | 1.000 |
-| open（n=5） | 待 judge | 待 judge（`rubric_match` 參考：4/5） |
+| open：judge 嚴格通過（n=5） | 0/5 | **4/5** |
+| open：judge 要點命中率（n=25） | 0.64 | **0.96** |
 | 每題延遲／花費 | 1.7 s／US$0.00041 | 2.0 s／US$0.00038 |
 
-弱點：cross_doc 2/16、誤拒 21/99。open 題等 judge 校準完成後，對已存輸出評分（不重跑系統）。細節：`experiments.md`。
+弱點：cross_doc 2/16、誤拒 21/99。open 題由 Gemini 3.6 Flash judge 評分（與 Colin 標註嚴格一致 50/50），對已存輸出評、不重跑系統。細節：`experiments.md`。
 
 ## 5. 待 Colin 決定（`docs/open-questions.md`）
 
@@ -121,5 +122,5 @@ dev（2026-11-09 稍早，規則題 n = 60：可回答 54、應拒答 6），qwe
 | 手寫題定稿 | **完成**（31 題全部保留；test 凍結） |
 | review `score.py`，跑 `/quiz score` | 未完成 |
 | 人工標註 50 題 | **完成**（2026-11-10，`evals/judge_labels.jsonl`） |
-| Judge 選擇實驗（GPT-5.4 mini vs Gemini 2.5 Flash） | key 已加；**卡住**：OpenAI 沒有額度（429）、Gemini 2.5 Flash 回 404，等 Colin 決定 |
-| 第一輪 test eval（`make eval-test`） | Colin 已同意（2026-11-10，US$2 內）；Haiku 可用，**等 judge**，尚未執行 |
+| Judge 選擇實驗 | **Gemini 3.6 Flash 完成**（嚴格一致 50/50）；GPT-5.4 mini 待 OpenAI 額度 |
+| 第一輪 test eval（`make eval-test`） | **完成**（2026-11-10，Haiku 5.5，110 題） |

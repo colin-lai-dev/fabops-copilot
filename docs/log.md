@@ -6,6 +6,8 @@
 
 ## 2026-11-10
 
+- **交接指示 006 完成**：Gemini 3.6 Flash judge 校準與 Colin 標註嚴格一致 50/50（三分類 49/50、open 逐點 124/125），暫定採用；
+  test open 題 judge 嚴格通過 4/5 vs dense 0/5。GPT-5.4 mini 待 OpenAI 額度。本 session 付費合計約 US$0.29。
 - **test eval 完成（Colin 同意先跑系統輸出）**：Haiku 5.5，110 題，回答正確率 0.752 vs dense 0.657（n=105）、
   Recall@5 0.788 vs 0.682（n=99）、誤拒率 0.212 vs 0.313；open 5 題待 judge。ADR-0008 judge 候選改為 Gemini 3.6 Flash
   （3.5 Flash 已轉給 3.6），Gemini 免費方案每天 20 次已用完、待付費；GPT-5.4 mini 待 OpenAI 額度。花費 Haiku US$0.151。

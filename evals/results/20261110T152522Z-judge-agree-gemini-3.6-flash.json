@@ -1,0 +1,748 @@
+{
+  "judge": "gemini-3.6-flash",
+  "at": "20261110T152522Z",
+  "n_labels": 50,
+  "errors": 0,
+  "strict": {
+    "agree": 50,
+    "n": 50,
+    "rate": 1.0
+  },
+  "three_class": {
+    "agree": 49,
+    "n": 50,
+    "rate": 0.98
+  },
+  "open_three_class": {
+    "agree": 24,
+    "n": 25,
+    "rate": 0.96
+  },
+  "other_three_class": {
+    "agree": 25,
+    "n": 25,
+    "rate": 1.0
+  },
+  "open_points": {
+    "agree": 124,
+    "n": 125,
+    "rate": 0.992,
+    "confusion": {
+      "人工有/judge有": 17,
+      "人工沒有/judge有": 1,
+      "人工沒有/judge沒有": 107
+    }
+  },
+  "judge_verdicts": {
+    "部分": 7,
+    "錯": 27,
+    "對": 16
+  },
+  "cost_usd": 0.097618,
+  "tokens": {
+    "input": 26672,
+    "output": 33741
+  },
+  "per_question": [
+    {
+      "qid": "C-OPEN-0001",
+      "run_id": "20261109T052815Z-calibration-rag-hybrid-bm25",
+      "verdict": "部分",
+      "points": [
+        "有",
+        "有",
+        "有",
+        "有",
+        "漏"
+      ],
+      "reason": "系統回答完整包含要點 1 至 4 的步驟與數值，但遺漏了要點 5「超過 8 小時未排除升級至模組經理」。",
+      "cost_usd": 0.0,
+      "input_tokens": 1589,
+      "output_tokens": 1258,
+      "error": null
+    },
+    {
+      "qid": "C-OPEN-0002",
+      "run_id": "20261109T052815Z-calibration-rag-hybrid-bm25",
+      "verdict": "部分",
+      "points": [
+        "漏",
+        "有",
+        "有",
+        "有",
+        "漏"
+      ],
+      "reason": "回答漏掉了確認腔體是否在保養中，且未提及超過2小時未排除升級至模組經理的處置步驟。",
+      "cost_usd": 0.0,
+      "input_tokens": 495,
+      "output_tokens": 851,
+      "error": null
+    },
+    {
+      "qid": "C-OPEN-0003",
+      "run_id": "20261109T052815Z-calibration-rag-hybrid-bm25",
+      "verdict": "錯",
+      "points": [
+        "漏",
+        "錯",
+        "錯",
+        "錯",
+        "漏"
+      ],
+      "reason": "回答漏掉確認保養、暫停派貨與4小時升級，且重測缺少5分鐘、未提hold批號及通知經理、驗證缺少3片監控晶圓。",
+      "cost_usd": 0.0,
+      "input_tokens": 1687,
+      "output_tokens": 2026,
+      "error": null
+    },
+    {
+      "qid": "C-OPEN-0004",
+      "run_id": "20261109T052815Z-calibration-rag-hybrid-bm25",
+      "verdict": "錯",
+      "points": [
+        "漏",
+        "錯",
+        "漏",
+        "錯",
+        "漏"
+      ],
+      "reason": "回答遺漏確認保養與暫停派貨、連續3次處置及升級機制，且缺少「5分鐘」與「2片」等關鍵數值。",
+      "cost_usd": 0.0,
+      "input_tokens": 480,
+      "output_tokens": 696,
+      "error": null
+    },
+    {
+      "qid": "C-OPEN-0005",
+      "run_id": "20261109T052815Z-calibration-rag-hybrid-bm25",
+      "verdict": "部分",
+      "points": [
+        "錯",
+        "有",
+        "有",
+        "有",
+        "漏"
+      ],
+      "reason": "回答遺漏了先確認腔體是否在保養中以及超過8小時升級至模組經理的步驟。",
+      "cost_usd": 0.0,
+      "input_tokens": 535,
+      "output_tokens": 1033,
+      "error": null
+    },
+    {
+      "qid": "C-OPEN-0006",
+      "run_id": "20261109T052815Z-calibration-rag-hybrid-bm25",
+      "verdict": "錯",
+      "points": [
+        "漏",
+        "漏",
+        "漏",
+        "錯",
+        "漏"
+      ],
+      "reason": "回答漏掉保養確認、暫停派貨、等待30分鐘、連續3次hold批通知經理與8小時升級等步驟，且驗證晶圓缺少「1片」之精確數量。",
+      "cost_usd": 0.0,
+      "input_tokens": 482,
+      "output_tokens": 981,
+      "error": null
+    },
+    {
+      "qid": "C-OPEN-0007",
+      "run_id": "20261109T052815Z-calibration-rag-hybrid-bm25",
+      "verdict": "錯",
+      "points": [
+        "漏",
+        "錯",
+        "漏",
+        "錯",
+        "漏"
+      ],
+      "reason": "系統回答未提及保養確認與暫停派貨、重測缺少15分鐘數值、缺少hold批與通知工程師步驟、驗證晶圓缺少3片數值，且未提及4小時升級機制。",
+      "cost_usd": 0.0,
+      "input_tokens": 476,
+      "output_tokens": 1296,
+      "error": null
+    },
+    {
+      "qid": "C-OPEN-0008",
+      "run_id": "20261109T052815Z-calibration-rag-hybrid-bm25",
+      "verdict": "錯",
+      "points": [
+        "漏",
+        "錯",
+        "錯",
+        "錯",
+        "漏"
+      ],
+      "reason": "回答遺漏確認保養狀態與升級機制，且重測時間、超限次數處理及復機驗證條件皆與 SOP 準則不符。",
+      "cost_usd": 0.0,
+      "input_tokens": 479,
+      "output_tokens": 638,
+      "error": null
+    },
+    {
+      "qid": "C-OPEN-0009",
+      "run_id": "20261109T052815Z-calibration-rag-hybrid-bm25",
+      "verdict": "錯",
+      "points": [
+        "漏",
+        "錯",
+        "錯",
+        "錯",
+        "漏"
+      ],
+      "reason": "回答遺漏確認保養與暫停派貨及4小時升級機制，且未包含等待30分鐘、連續3次超出上限通知工程師與1片監控晶圓等具體數據與步驟。",
+      "cost_usd": 0.0,
+      "input_tokens": 1150,
+      "output_tokens": 1627,
+      "error": null
+    },
+    {
+      "qid": "C-OPEN-0010",
+      "run_id": "20261109T052815Z-calibration-rag-hybrid-bm25",
+      "verdict": "錯",
+      "points": [
+        "漏",
+        "錯",
+        "錯",
+        "錯",
+        "漏"
+      ],
+      "reason": "回答遺漏確認保養狀態與升級處置，且缺乏等待20分鐘、連續3次及1片晶圓等具體數值與步驟。",
+      "cost_usd": 0.0,
+      "input_tokens": 476,
+      "output_tokens": 1068,
+      "error": null
+    },
+    {
+      "qid": "C-OPEN-0011",
+      "run_id": "20261109T052815Z-calibration-rag-hybrid-bm25",
+      "verdict": "錯",
+      "points": [
+        "漏",
+        "錯",
+        "漏",
+        "錯",
+        "漏"
+      ],
+      "reason": "回答遺漏確認保養/暫停派貨、Hold批/通知工程師與升級機制，且未精確包含「等待 20 分鐘」與「2 片晶圓」之關鍵數值。",
+      "cost_usd": 0.005565,
+      "input_tokens": 475,
+      "output_tokens": 1389,
+      "error": null
+    },
+    {
+      "qid": "C-OPEN-0012",
+      "run_id": "20261109T052815Z-calibration-rag-hybrid-bm25",
+      "verdict": "部分",
+      "points": [
+        "有",
+        "有",
+        "有",
+        "有",
+        "漏"
+      ],
+      "reason": "回答涵蓋前四項步驟，但漏掉了超過 8 小時未排除需升級至模組經理的要點。",
+      "cost_usd": 0.00296775,
+      "input_tokens": 522,
+      "output_tokens": 687,
+      "error": null
+    },
+    {
+      "qid": "C-OPEN-0013",
+      "run_id": "20261109T052815Z-calibration-rag-hybrid-bm25",
+      "verdict": "部分",
+      "points": [
+        "錯",
+        "有",
+        "有",
+        "有",
+        "漏"
+      ],
+      "reason": "未提及確認腔體是否在保養中，且遺漏超過2小時未排除需升級至模組經理的要點。",
+      "cost_usd": 0.00349125,
+      "input_tokens": 490,
+      "output_tokens": 833,
+      "error": null
+    },
+    {
+      "qid": "C-OPEN-0014",
+      "run_id": "20261109T052815Z-calibration-rag-hybrid-bm25",
+      "verdict": "錯",
+      "points": [
+        "漏",
+        "錯",
+        "錯",
+        "錯",
+        "漏"
+      ],
+      "reason": "回答遺漏了暫停派貨與升級機制，且未精確包含30分鐘、1片監控晶圓等關鍵數值與處置動作。",
+      "cost_usd": 0.002685,
+      "input_tokens": 480,
+      "output_tokens": 620,
+      "error": null
+    },
+    {
+      "qid": "C-OPEN-0015",
+      "run_id": "20261109T052815Z-calibration-rag-hybrid-bm25",
+      "verdict": "錯",
+      "points": [
+        "漏",
+        "漏",
+        "漏",
+        "漏",
+        "漏"
+      ],
+      "reason": "系統回答誤判非異常，完全未提及 SOP 要求的各項處置要點。",
+      "cost_usd": 0.00289875,
+      "input_tokens": 460,
+      "output_tokens": 681,
+      "error": null
+    },
+    {
+      "qid": "C-OPEN-0016",
+      "run_id": "20261109T052815Z-calibration-rag-hybrid-bm25",
+      "verdict": "錯",
+      "points": [
+        "漏",
+        "錯",
+        "漏",
+        "錯",
+        "漏"
+      ],
+      "reason": "系統回答遺漏暫停派貨、hold批及升級通報等步驟，且缺乏等待15分鐘與2片監控晶圓等明確數值。",
+      "cost_usd": 0.00232275,
+      "input_tokens": 477,
+      "output_tokens": 524,
+      "error": null
+    },
+    {
+      "qid": "C-OPEN-0017",
+      "run_id": "20261109T052815Z-calibration-rag-hybrid-bm25",
+      "verdict": "部分",
+      "points": [
+        "漏",
+        "漏",
+        "漏",
+        "有",
+        "漏"
+      ],
+      "reason": "回答僅提到濕式清潔與監控晶圓驗證，遺漏了暫停派貨、等待20分鐘、連續3次超限Hold批通知經理及超過2小時升級等關鍵步驟與數值。",
+      "cost_usd": 0.006015,
+      "input_tokens": 480,
+      "output_tokens": 1508,
+      "error": null
+    },
+    {
+      "qid": "C-OPEN-0018",
+      "run_id": "20261109T052815Z-calibration-rag-hybrid-bm25",
+      "verdict": "錯",
+      "points": [
+        "漏",
+        "錯",
+        "漏",
+        "錯",
+        "漏"
+      ],
+      "reason": "回答遺漏確認保養狀態與暫停派貨、hold批號及通知工程師、升級模組經理機制，且等待重測缺少30分鐘與監控晶圓缺少1片之具體數字。",
+      "cost_usd": 0.00478275,
+      "input_tokens": 477,
+      "output_tokens": 1180,
+      "error": null
+    },
+    {
+      "qid": "C-OPEN-0019",
+      "run_id": "20261109T052815Z-calibration-rag-hybrid-bm25",
+      "verdict": "錯",
+      "points": [
+        "漏",
+        "錯",
+        "漏",
+        "錯",
+        "漏"
+      ],
+      "reason": "回答遺漏確認保養/暫停派貨、連續3次hold批通知工程師及2小時升級，且等待時間與監控晶圓片數均未提及具體數字。",
+      "cost_usd": 0.00783975,
+      "input_tokens": 1528,
+      "output_tokens": 1785,
+      "error": null
+    },
+    {
+      "qid": "C-OPEN-0020",
+      "run_id": "20261109T052815Z-calibration-rag-hybrid-bm25",
+      "verdict": "錯",
+      "points": [
+        "漏",
+        "錯",
+        "錯",
+        "錯",
+        "漏"
+      ],
+      "reason": "系統回答遺漏確認保養與2小時升級機制，且缺失20分鐘、連續2次hold批/通知工程師及3片監控晶圓等關鍵數值與處理細節。",
+      "cost_usd": 0.0037035,
+      "input_tokens": 478,
+      "output_tokens": 892,
+      "error": null
+    },
+    {
+      "qid": "C-OPEN-0021",
+      "run_id": "20261109T052815Z-calibration-rag-hybrid-bm25",
+      "verdict": "錯",
+      "points": [
+        "漏",
+        "錯",
+        "錯",
+        "錯",
+        "漏"
+      ],
+      "reason": "系統回答遺漏保養確認與暫停派貨、2小時升級，且缺少等待10分鐘與1片晶圓之關鍵數值，並漏掉Hold批號與通知工程師等步驟。",
+      "cost_usd": 0.007849499999999999,
+      "input_tokens": 1141,
+      "output_tokens": 1865,
+      "error": null
+    },
+    {
+      "qid": "C-OPEN-0022",
+      "run_id": "20261109T052815Z-calibration-rag-hybrid-bm25",
+      "verdict": "錯",
+      "points": [
+        "漏",
+        "錯",
+        "漏",
+        "錯",
+        "漏"
+      ],
+      "reason": "回答遺漏確認保養與暫停派貨、hold批與通知經理及4小時升級，且等待時間與監控晶圓數量缺乏明確數字。",
+      "cost_usd": 0.003327,
+      "input_tokens": 476,
+      "output_tokens": 792,
+      "error": null
+    },
+    {
+      "qid": "H-0002",
+      "run_id": "20261109T052916Z-dev-rag-hybrid-bm25",
+      "verdict": "錯",
+      "points": [
+        "漏",
+        "錯",
+        "漏",
+        "錯",
+        "漏"
+      ],
+      "reason": "系統回答遺漏了確認保養與暫停派貨、連續3次及hold批號通知工程師、2小時升級等步驟，且等待時間（10分鐘）與監控晶圓數量（1片）等數值未完整寫出。",
+      "cost_usd": 0.00470775,
+      "input_tokens": 482,
+      "output_tokens": 1159,
+      "error": null
+    },
+    {
+      "qid": "H-0004",
+      "run_id": "20261109T052916Z-dev-rag-hybrid-bm25",
+      "verdict": "錯",
+      "points": [
+        "漏",
+        "錯",
+        "漏",
+        "錯",
+        "漏"
+      ],
+      "reason": "回答遺漏了確認保養狀態/暫停派貨與4小時升級，且缺少「20分鐘」、「連續2次」、「2片」等關鍵數值與處置動作。",
+      "cost_usd": 0.0047595,
+      "input_tokens": 481,
+      "output_tokens": 1173,
+      "error": null
+    },
+    {
+      "qid": "H-0005",
+      "run_id": "20261109T052916Z-dev-rag-hybrid-bm25",
+      "verdict": "錯",
+      "points": [
+        "漏",
+        "錯",
+        "漏",
+        "錯",
+        "漏"
+      ],
+      "reason": "回答遺漏確認保養/暫停派貨、hold批通知值班與升級機制，且缺少「30分鐘」與「1片」監控晶圓等關鍵數值。",
+      "cost_usd": 0.00291375,
+      "input_tokens": 480,
+      "output_tokens": 681,
+      "error": null
+    },
+    {
+      "qid": "H-0017",
+      "run_id": "20261109T052916Z-dev-rag-hybrid-bm25",
+      "verdict": "對",
+      "points": [],
+      "reason": "回答正確包含了停機時間 41 分鐘以及連續 3 次超標需 hold 貨的關鍵事實。",
+      "cost_usd": 0.00093375,
+      "input_tokens": 360,
+      "output_tokens": 177,
+      "error": null
+    },
+    {
+      "qid": "H-0022",
+      "run_id": "20261109T052916Z-dev-rag-hybrid-bm25",
+      "verdict": "部分",
+      "points": [],
+      "reason": "系統回答正確指出根本原因為修整器鑽石盤磨損，但未能答出 SOP 規定需通知模組經理。",
+      "cost_usd": 0.001455,
+      "input_tokens": 385,
+      "output_tokens": 311,
+      "error": null
+    },
+    {
+      "qid": "H-0029",
+      "run_id": "20261109T052916Z-dev-rag-hybrid-bm25",
+      "verdict": "對",
+      "points": [],
+      "reason": "系統回答已明確說明查無資料並拒絕回答，符合評分準則。",
+      "cost_usd": 0.0023295,
+      "input_tokens": 736,
+      "output_tokens": 474,
+      "error": null
+    },
+    {
+      "qid": "R-CROSS_DOC-0003",
+      "run_id": "20261109T052916Z-dev-rag-hybrid-bm25",
+      "verdict": "對",
+      "points": [],
+      "reason": "系統回答正確指出異常持續超過 2 小時仍未排除時需進行升級。",
+      "cost_usd": 0.00087675,
+      "input_tokens": 339,
+      "output_tokens": 166,
+      "error": null
+    },
+    {
+      "qid": "R-CROSS_DOC-0004",
+      "run_id": "20261109T052916Z-dev-rag-hybrid-bm25",
+      "verdict": "錯",
+      "points": [],
+      "reason": "系統回答的等待時間為 5 分鐘，與評分準則要求的 30 分鐘不符。",
+      "cost_usd": 0.00151875,
+      "input_tokens": 330,
+      "output_tokens": 339,
+      "error": null
+    },
+    {
+      "qid": "R-CROSS_DOC-0005",
+      "run_id": "20261109T052916Z-dev-rag-hybrid-bm25",
+      "verdict": "對",
+      "points": [],
+      "reason": "系統回答正確包含了 SOP 規定的 2 小時升級時間。",
+      "cost_usd": 0.0011025,
+      "input_tokens": 355,
+      "output_tokens": 223,
+      "error": null
+    },
+    {
+      "qid": "R-CROSS_DOC-0006",
+      "run_id": "20261109T052916Z-dev-rag-hybrid-bm25",
+      "verdict": "錯",
+      "points": [],
+      "reason": "系統回答升級時間為 2 小時，與評分準則要求的 4 小時不符。",
+      "cost_usd": 0.00167175,
+      "input_tokens": 339,
+      "output_tokens": 378,
+      "error": null
+    },
+    {
+      "qid": "R-CROSS_DOC-0014",
+      "run_id": "20261109T052916Z-dev-rag-hybrid-bm25",
+      "verdict": "錯",
+      "points": [],
+      "reason": "系統回答拒答，未提及需通知模組經理",
+      "cost_usd": 0.0009,
+      "input_tokens": 320,
+      "output_tokens": 176,
+      "error": null
+    },
+    {
+      "qid": "R-CROSS_DOC-0016",
+      "run_id": "20261109T052916Z-dev-rag-hybrid-bm25",
+      "verdict": "錯",
+      "points": [],
+      "reason": "系統回答升級時間為 2 小時，與評分準則規定的 4 小時不符。",
+      "cost_usd": 0.00113175,
+      "input_tokens": 339,
+      "output_tokens": 234,
+      "error": null
+    },
+    {
+      "qid": "R-CROSS_DOC-0017",
+      "run_id": "20261109T052916Z-dev-rag-hybrid-bm25",
+      "verdict": "錯",
+      "points": [],
+      "reason": "系統回答的升級時間為 2 小時，與評分準則要求的 8 小時不符。",
+      "cost_usd": 0.00095175,
+      "input_tokens": 339,
+      "output_tokens": 186,
+      "error": null
+    },
+    {
+      "qid": "R-CROSS_DOC-0018",
+      "run_id": "20261109T052916Z-dev-rag-hybrid-bm25",
+      "verdict": "錯",
+      "points": [],
+      "reason": "回答提及的通知對象為值班主任，而非準則要求的製程工程師，內容錯誤。",
+      "cost_usd": 0.000882,
+      "input_tokens": 321,
+      "output_tokens": 171,
+      "error": null
+    },
+    {
+      "qid": "R-REFUSE-0001",
+      "run_id": "20261109T052916Z-dev-rag-hybrid-bm25",
+      "verdict": "對",
+      "points": [],
+      "reason": "系統回答已明確說明無資料並拒絕回答，符合評分準則要求。",
+      "cost_usd": 0.002079,
+      "input_tokens": 742,
+      "output_tokens": 406,
+      "error": null
+    },
+    {
+      "qid": "R-REFUSE-0005",
+      "run_id": "20261109T052916Z-dev-rag-hybrid-bm25",
+      "verdict": "對",
+      "points": [],
+      "reason": "系統回答已明確說明查無資料並拒絕回答，符合評分準則。",
+      "cost_usd": 0.002208,
+      "input_tokens": 739,
+      "output_tokens": 441,
+      "error": null
+    },
+    {
+      "qid": "R-REFUSE-0008",
+      "run_id": "20261109T052916Z-dev-rag-hybrid-bm25",
+      "verdict": "對",
+      "points": [],
+      "reason": "系統正確說明文件中無可用資料並進行拒答。",
+      "cost_usd": 0.0010935,
+      "input_tokens": 308,
+      "output_tokens": 230,
+      "error": null
+    },
+    {
+      "qid": "R-REFUSE-0009",
+      "run_id": "20261109T052916Z-dev-rag-hybrid-bm25",
+      "verdict": "對",
+      "points": [],
+      "reason": "系統回答已明確說明文件中沒有可用資料，符合拒答標準。",
+      "cost_usd": 0.00221325,
+      "input_tokens": 736,
+      "output_tokens": 443,
+      "error": null
+    },
+    {
+      "qid": "R-REFUSE-0013",
+      "run_id": "20261109T052916Z-dev-rag-hybrid-bm25",
+      "verdict": "對",
+      "points": [],
+      "reason": "系統已明確說明查無資料並拒絕回答，符合評分準則。",
+      "cost_usd": 0.001515,
+      "input_tokens": 300,
+      "output_tokens": 344,
+      "error": null
+    },
+    {
+      "qid": "R-REFUSE-0014",
+      "run_id": "20261109T052916Z-dev-rag-hybrid-bm25",
+      "verdict": "對",
+      "points": [],
+      "reason": "系統明確說明文件中無相關資訊並進行拒答，符合評分準則。",
+      "cost_usd": 0.00148575,
+      "input_tokens": 301,
+      "output_tokens": 336,
+      "error": null
+    },
+    {
+      "qid": "H-0015",
+      "run_id": "20261109T052916Z-dev-rag-hybrid-bm25",
+      "verdict": "對",
+      "points": [],
+      "reason": "系統回答正確指出微粒數過高時需執行週保養。",
+      "cost_usd": 0.00092475,
+      "input_tokens": 338,
+      "output_tokens": 179,
+      "error": null
+    },
+    {
+      "qid": "H-0024",
+      "run_id": "20261109T052916Z-dev-rag-hybrid-bm25",
+      "verdict": "錯",
+      "points": [],
+      "reason": "回答未提及關鍵事實「30 分鐘」。",
+      "cost_usd": 0.00107775,
+      "input_tokens": 342,
+      "output_tokens": 219,
+      "error": null
+    },
+    {
+      "qid": "R-DIRTY-0002",
+      "run_id": "20261109T052916Z-dev-rag-hybrid-bm25",
+      "verdict": "對",
+      "points": [],
+      "reason": "回答正確包含關鍵事實週保養",
+      "cost_usd": 0.000741,
+      "input_tokens": 323,
+      "output_tokens": 133,
+      "error": null
+    },
+    {
+      "qid": "R-FACT-0015",
+      "run_id": "20261109T052916Z-dev-rag-hybrid-bm25",
+      "verdict": "對",
+      "points": [],
+      "reason": "系統回答正確指出連續 3 次量測超出上限需 hold 批號。",
+      "cost_usd": 0.00094575,
+      "input_tokens": 331,
+      "output_tokens": 186,
+      "error": null
+    },
+    {
+      "qid": "R-FACT-0024",
+      "run_id": "20261109T052916Z-dev-rag-hybrid-bm25",
+      "verdict": "對",
+      "points": [],
+      "reason": "回答已正確提及需要執行「週保養」才能復機。",
+      "cost_usd": 0.001044,
+      "input_tokens": 327,
+      "output_tokens": 213,
+      "error": null
+    },
+    {
+      "qid": "R-FACT-0031",
+      "run_id": "20261109T052916Z-dev-rag-hybrid-bm25",
+      "verdict": "錯",
+      "points": [],
+      "reason": "系統回答拒答且未提及關鍵事實「壓力計校正偏移」。",
+      "cost_usd": 0.00100575,
+      "input_tokens": 311,
+      "output_tokens": 206,
+      "error": null
+    },
+    {
+      "qid": "R-OLD_VERSION-0007",
+      "run_id": "20261109T052916Z-dev-rag-hybrid-bm25",
+      "verdict": "對",
+      "points": [],
+      "reason": "回答正確提到需等待 5 分鐘後重新量測。",
+      "cost_usd": 0.000978,
+      "input_tokens": 324,
+      "output_tokens": 196,
+      "error": null
+    },
+    {
+      "qid": "R-PARAPHRASE-0007",
+      "run_id": "20261109T052916Z-dev-rag-hybrid-bm25",
+      "verdict": "對",
+      "points": [],
+      "reason": "系統回答正確指出驗證需要跑 2 片監控片。",
+      "cost_usd": 0.0007245,
+      "input_tokens": 311,
+      "output_tokens": 131,
+      "error": null
+    }
+  ]
+}
