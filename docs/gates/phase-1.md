@@ -1,7 +1,7 @@
 # Phase 1 Gate 報告（進行中）
 
 - Branch：`phase-1-rag`
-- 狀態：**草稿**。test set 已凍結；Claude Code 能做的任務都已完成，剩下的都要等 Colin（第 6 節）。到達 gate 時補上 test set 數字。
+- 狀態：**草稿**。test set 已凍結；人工標註完成；處置題 SOP 優先已採用（ADR-0010）。**judge 選擇與 test eval 因為沒有 API key 尚未執行**（第 6 節），補上 key 後即可接續。
 
 ## 1. 完成的任務
 
@@ -32,12 +32,15 @@
 | 洩漏對照組：無 pre-filter、問題層快取（eval 專用） | `1d4ebee` |
 | judge 校準題庫（22 題 open，不進 dev/test） | `46a5bac` |
 | 標註表重做（open 題逐點判斷、手機版） | `bc1a975` |
+| Colin 的 50 題標註入檔（`evals/judge_labels.jsonl`） | `fd319f3`、`67007b7` |
+| **處置題 SOP 優先**（`sop_boost` 1.2，ADR-0010）＋ open 題要點比對 `evals/rubric_match.py` | 見 `git log`（2026-11-10） |
 
 ## 2. 架構摘要
 
 ```
 問題 + user_id ─(runner 查出 Scope，ADR-0001)─▶ Retriever
-  Retriever：sql_filter(scope) pre-filter ─▶ dense（pgvector 精確搜尋）＋ BM25（jieba）─▶ RRF ─▶（選用 rerank）
+  Retriever：sql_filter(scope) pre-filter ─▶ dense（pgvector 精確搜尋）＋ BM25（jieba）─▶ RRF
+             ─▶ 處置類問題：SOP chunk 分數 ×1.2（ADR-0010）─▶（選用 rerank）
   Answerer：前 8 個 chunk 當資料放進 prompt ─▶ LLMClient（快取 key 含 scope 與整個 prompt）─▶ JSON
             ─▶ 出口檢查（引用必須是這次檢索到、且 scope 看得到的文件）─▶ Tracer（只存 id、hash、長度）
 評分：evals/run.py ─▶ evals/score.py（每題 QuestionScore，彙總時每個指標都帶 n）
@@ -56,6 +59,8 @@
 6. `evals/label_sheet.py` 的 `select`：50 題怎麼抽（最大餘數法，每個題型至少 1 題）。
 7. `src/fabops/llm/client.py` 的 `cache_key`：洩漏測試顯示 key 含整個 prompt 本身就隔開了不同權限（見第 4 節）。
 8. `evals/run.py` 的 `run_questions`：身分只以 `Scope` 傳給系統，不進題目文字（ADR-0001）。
+9. `src/fabops/rag/retrieve.py` 的 `is_disposal_query`、`boost_sop` 與 `search` 中呼叫它的位置：只讀問題文字、在 pre-filter 之後（ADR-0010）。
+10. `evals/rubric_match.py` 的 `point_needles`：要點 → 關鍵詞的規則；它和你的標註 125/125 點一致，但抓不到「提到但說錯」。
 
 ## 4. Dev eval（只看 dev；test 已凍結、尚未執行）
 
@@ -85,11 +90,13 @@ dev（2026-11-09 稍早，規則題 n = 60：可回答 54、應拒答 6），qwe
 
   粗體對照格 = 專門拿掉該路徑檢查的 baseline。沒洩漏的對照題都已確認原因（目標文件不在檢索結果中），見 `experiments.md`。
 - 調參：rerank 在規則題與手寫題上都沒有一致提升，維持關閉；送 8 個 chunk；維持依章節切塊。
-- 細節與所有數字：`docs/experiments.md` 2026-11-08、2026-11-09 各筆。
+- **人工標註（n=50，Colin）**：open 對 0／部分 5／錯 20（n=25）；其他題型 對 16／部分 1／錯 8（n=25）。
+- **處置題 SOP 優先（ADR-0010）**：open 題要點命中率 校準 0.155 → 0.591（n=110 點）、dev 0 → 0.600（n=15 點），dev 其他題型沒有任何一題改變（n=69），MRR 0.729 → 0.758（n=65）。嚴格通過率仍 0（升級條件 0/22），留給 Phase 2。
+- 細節與所有數字：`docs/experiments.md` 2026-11-08、2026-11-09、2026-11-10 各筆。
 
 ## 5. 待 Colin 決定（`docs/open-questions.md`）
 
-002 回報的 5 項已由規劃者代決（2026-11-09）。目前沒有新的待決事項。
+002 回報的 5 項已由規劃者代決（2026-11-09）。2026-11-10 新增 1 項暫定：處置類問題靠關鍵詞判斷（ADR-0010 後果）。
 
 ## 6. Colin 的項目
 
@@ -97,6 +104,6 @@ dev（2026-11-09 稍早，規則題 n = 60：可回答 54、應拒答 6），qwe
 | --- | --- |
 | 手寫題定稿 | **完成**（31 題全部保留；test 凍結） |
 | review `score.py`，跑 `/quiz score` | 未完成 |
-| 人工標註 50 題（`evals/labels/label-sheet.md`；手機版 `private/label-sheet-mobile.md`；填完 `uv run python -m evals.label_sheet parse`） | 未完成；卡住 judge 選擇實驗 |
-| Judge 選擇實驗（GPT-5.4 mini vs Gemini 2.5 Flash） | 要標註完成，且要呼叫付費模型（需 Colin 同意） |
-| 第一輪 test eval（`make eval-test`） | gate 時、經 Colin 同意 |
+| 人工標註 50 題 | **完成**（2026-11-10，`evals/judge_labels.jsonl`） |
+| Judge 選擇實驗（GPT-5.4 mini vs Gemini 2.5 Flash） | Colin 已同意（US$1 內）；**卡在 `.env` 沒有 `OPENAI_API_KEY`、`GEMINI_API_KEY`** |
+| 第一輪 test eval（`make eval-test`） | Colin 已同意（2026-11-10，US$2 內）；**卡在沒有 `ANTHROPIC_API_KEY` 與 judge**，尚未執行 |

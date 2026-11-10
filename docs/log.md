@@ -4,6 +4,13 @@
 細節本身留在對應文件：架構決策 → `docs/decisions/`，實驗 → `docs/experiments.md`，
 待決事項 → `docs/open-questions.md`，階段驗收 → `docs/gates/`，程式變更 → git log。
 
+## 2026-11-10
+
+- **交接指示 004**（Claude Code）：Colin 的 50 題標註入檔（open 對 0／部分 5／錯 20，其他 16／1／8）；
+  處置題 SOP 優先採用（ADR-0010，`sop_boost` 1.2）：open 要點命中率 校準 0.155 → 0.591（n=110 點），dev 其他題型不變；
+  新增 `evals/rubric_match.py`（與標註 125/125 點一致）。**judge 選擇與 test eval 因 `.env` 沒有 API key 跳過**，花費 $0。
+  細節：`docs/experiments.md`、`docs/decisions/0010-*.md`、`docs/gates/phase-1.md`。
+
 ## 2026-11-09
 
 - **交接指示 003 完成**（Claude Code）：手寫題 31 題原樣定稿並切分；**test set 凍結於 `6ebbb5d`（110 題）**；洩漏測試補上無 pre-filter 與問題層快取兩個對照組，
