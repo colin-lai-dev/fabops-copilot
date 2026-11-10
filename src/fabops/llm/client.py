@@ -76,12 +76,18 @@ class OpenAICompatibleProvider:
         r = self._client.chat.completions.create(
             model=model, messages=messages, temperature=temperature, max_tokens=max_tokens, **extra
         )
-        u = r.usage
-        return Completion(
-            r.choices[0].message.content or "",
-            u.prompt_tokens if u else 0,
-            u.completion_tokens if u else 0,
-        )
+        return Completion(r.choices[0].message.content or "", *billed_tokens(r.usage))
+
+
+def billed_tokens(u) -> tuple[int, int]:
+    """(input, output) tokens. Gemini's OpenAI-compatible usage leaves thinking tokens out of
+    `completion_tokens` but counts them in `total_tokens`; they are billed as output, so the
+    output is taken as `total - prompt` whenever that is larger."""
+    if u is None:
+        return 0, 0
+    prompt, completion = u.prompt_tokens or 0, u.completion_tokens or 0
+    total = getattr(u, "total_tokens", None) or 0
+    return prompt, max(completion, total - prompt)
 
 
 class AnthropicProvider:

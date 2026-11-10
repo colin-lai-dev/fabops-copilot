@@ -113,7 +113,7 @@ def judge_one(client, q: Question, r: RunRecord, scope: Scope) -> Judged:
     schema = OpenJudgment if points else FactJudgment
     try:
         parsed, results = client.structured(
-            messages, schema, scope, max_tokens=1024, purpose="judge"
+            messages, schema, scope, max_tokens=4096, purpose="judge"
         )
     except ValueError as e:
         return Judged(q.qid, r.run_id, "", [], "", 0.0, 0, 0, error=str(e))

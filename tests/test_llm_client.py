@@ -139,3 +139,15 @@ def test_anthropic_request_has_no_sampling_params_and_maps_no_think():
         [{"role": "user", "content": "Q"}], "m", 64
     )
     assert "thinking" not in default and "temperature" not in default
+
+
+def test_thinking_tokens_are_billed_as_output():
+    from types import SimpleNamespace
+
+    from fabops.llm.client import billed_tokens
+
+    gemini = SimpleNamespace(prompt_tokens=10, completion_tokens=5, total_tokens=171)
+    assert billed_tokens(gemini) == (10, 161)
+    plain = SimpleNamespace(prompt_tokens=10, completion_tokens=5, total_tokens=15)
+    assert billed_tokens(plain) == (10, 5)
+    assert billed_tokens(None) == (0, 0)
