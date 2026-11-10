@@ -135,10 +135,13 @@ class Retriever:
             raise ValueError("at least one ranker is required")
         self.connect, self.encoder, self.reranker, self.cfg = connect, encoder, reranker, config
 
-    def _where(self, scope: Scope) -> tuple[str, dict[str, Any]]:
+    def _where(self, scope: Scope, doc_type: str | None = None) -> tuple[str, dict[str, Any]]:
         cond, params = sql_filter(scope, alias="c.")
         if not self.cfg.include_superseded:
             cond += " AND d.superseded_by IS NULL"
+        if doc_type is not None:  # agent search tools (Phase 2): SOPs or incidents only
+            cond += " AND d.doc_type = %(doc_type)s"
+            params = {**params, "doc_type": doc_type}
         return cond, params
 
     def expand_context(self, query: str, hits: list[Hit], scope: Scope) -> list[Hit]:
@@ -166,12 +169,12 @@ class Retriever:
             ]
         return merge_sections(hits, top.doc_id, sections)
 
-    def search(self, query: str, scope: Scope) -> Retrieval:
+    def search(self, query: str, scope: Scope, doc_type: str | None = None) -> Retrieval:
         cfg, t = self.cfg, {}
         t0 = time.perf_counter()
         enc = self.encoder.encode([query])
         t["encode"] = time.perf_counter() - t0
-        cond, params = self._where(scope)
+        cond, params = self._where(scope, doc_type)
         rankings: dict[str, list[str]] = {}
         rows: dict[str, dict[str, Any]] = {}
         with self.connect() as conn, conn.cursor() as cur:

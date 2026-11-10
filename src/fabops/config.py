@@ -35,6 +35,10 @@ class Settings(BaseSettings):
     fabops_usage_log: str = ".cache/usage.jsonl"
     fabops_debug_trace: bool = False
 
+    # Agent tools (ADR-0001): the API signs short-lived identity tokens, the MCP server verifies.
+    fabops_jwt_secret: SecretStr | None = None
+    fabops_mcp_url: str = "http://127.0.0.1:8765/mcp"
+
     def api_key(self, provider: str) -> str | None:
         secret = {
             "anthropic": self.anthropic_api_key,

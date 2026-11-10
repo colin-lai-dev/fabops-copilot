@@ -13,6 +13,10 @@ dependencies = [
     "anthropic>=0.40",
     "flagembedding>=1.4.2",
     "jieba>=0.42.1",
+    "fastmcp>=4.1.8",
+    "langgraph>=1.2.20",
+    "langgraph-checkpoint-postgres>=3.2.0",
+    "pyjwt>=2.15.1",
 ]
 
 [dependency-groups]

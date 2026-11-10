@@ -26,11 +26,14 @@ UNSAFE_SUFFIXES = ("-noprefilter", "-naivecache")
 class UnfilteredRetriever(Retriever):
     """⚠️ eval 專用：權限條件換成 TRUE，任何人都檢索得到所有文件。"""
 
-    def _where(self, scope: Scope) -> tuple[str, dict[str, Any]]:
-        cond = "TRUE"
+    def _where(self, scope: Scope, doc_type: str | None = None) -> tuple[str, dict[str, Any]]:
+        cond, params = "TRUE", {}
         if not self.cfg.include_superseded:
             cond += " AND d.superseded_by IS NULL"
-        return cond, {}
+        if doc_type is not None:
+            cond += " AND d.doc_type = %(doc_type)s"
+            params["doc_type"] = doc_type
+        return cond, params
 
 
 class NaiveQuestionCache:

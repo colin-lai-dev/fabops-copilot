@@ -23,6 +23,8 @@ ALLOWED = frozenset(
         "doc_ids", "chunk_ids", "clearances", "n_hits", "cited", "dropped_citations",
         "refused", "cached", "input_tokens", "output_tokens", "cost_usd", "latency_ms",
         "timings_ms", "error_type", "config",
+        # Phase 2 (agent): counts, ids and states only
+        "dropped_rows", "thread_id", "proposal_id", "action", "status", "steps", "decision",
     }
 )  # fmt: skip
 
