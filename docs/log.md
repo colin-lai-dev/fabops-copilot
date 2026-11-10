@@ -4,6 +4,12 @@
 細節本身留在對應文件：架構決策 → `docs/decisions/`，實驗 → `docs/experiments.md`，
 待決事項 → `docs/open-questions.md`，階段驗收 → `docs/gates/`，程式變更 → git log。
 
+## 2026-11-11
+
+- **Phase 1 gate 通過（Colin）**：test（110 題，Haiku 5.5）回答正確率 75.2% vs 65.7%、Recall@5 78.8% vs 68.2%；洩漏 0/90 vs 各路徑對照 55/90；
+  judge Gemini 3.6 Flash 與人工標註整題一致 50/50。Phase 1 API 花費約 US$0.29。GPT-5.4 mini 未比較（Colin 決定先不加 OpenAI 額度）。
+- 交接指示 007：Phase 1 結案、README 更新（開始投履歷）、開始 Phase 2。
+
 ## 2026-11-10
 
 - **交接指示 006 完成**：Gemini 3.6 Flash judge 校準與 Colin 標註嚴格一致 50/50（三分類 49/50、open 逐點 124/125），暫定採用；
