@@ -137,3 +137,45 @@ def test_sop_boost_keeps_the_permission_filter(db):
         for h in r.search("腔體壓力異常要怎麼處理？", scope).hits:
             assert visible(scope, docs[h.doc_id]), (u["user_id"], h.doc_id)
             assert h.doc_type in ("sop", "incident")
+
+
+def _h(cid, doc, dtype="sop"):
+    from fabops.rag.retrieve import Hit
+
+    return Hit(cid, doc, cid, "FX1", "etch", 1, 1.0, {}, dtype)
+
+
+def test_merge_sections_puts_the_whole_sop_at_its_first_position():
+    from fabops.rag.retrieve import merge_sections
+
+    hits = [_h("INC-1#00", "INC-1", "incident"), _h("S#03", "S"), _h("T#01", "T"), _h("S#02", "S")]
+    sections = [_h(f"S#0{i}", "S") for i in range(5)]
+    got = [h.chunk_id for h in merge_sections(hits, "S", sections)]
+    assert got == ["INC-1#00", "S#00", "S#01", "S#02", "S#03", "S#04", "T#01"]
+    assert merge_sections(hits, "S", []) == hits
+
+
+def test_expand_context_is_off_for_other_questions():
+    cfg = RetrievalConfig(expand_sop=True)
+    r = Retriever(lambda: None, None, None, cfg)  # would fail if it touched the DB
+    hits = [_h("S#03", "S")]
+    assert r.expand_context("SOP 的上限是多少？", hits, None) == hits
+    off = Retriever(lambda: None, None, None, RetrievalConfig(expand_sop=False))
+    assert off.expand_context("要怎麼處理？", hits, None) == hits
+
+
+@pytest.mark.db
+def test_expand_context_respects_the_permission_filter(db):
+    url, users, docs = db
+    cfg = RetrievalConfig(lexical="bm25", k=8, candidates=200, expand_sop=True)
+    r = Retriever(lambda: psycopg.connect(url), FakeEncoder(), None, cfg)
+    for u in users:
+        scope = scope_of_user(u)
+        q = "腔體壓力異常要怎麼處理？"
+        hits = r.expand_context(q, r.search(q, scope).hits, scope)
+        for h in hits:
+            assert visible(scope, docs[h.doc_id]), (u["user_id"], h.doc_id)
+        sops = [h.doc_id for h in hits if h.doc_type == "sop"]
+        if sops:  # the top SOP's sections are contiguous and unique
+            top = [h.chunk_id for h in hits if h.doc_id == sops[0]]
+            assert top == sorted(set(top))

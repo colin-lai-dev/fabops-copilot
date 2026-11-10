@@ -245,6 +245,14 @@ def test_split_sop_boost():
     assert split_sop_boost("rag-dense-sop1-ctx4") == ("rag-dense-ctx4", {"sop_boost": 1.0})
 
 
+def test_split_expand():
+    from evals.systems import split_expand
+
+    assert split_expand("rag-hybrid-bm25") == ("rag-hybrid-bm25", {})
+    assert split_expand("rag-hybrid-bm25-expand") == ("rag-hybrid-bm25", {"expand_sop": True})
+    assert split_expand("rag-dense-noexpand-ctx4") == ("rag-dense-ctx4", {"expand_sop": False})
+
+
 def test_sop_boost_only_in_the_default_preset():
     from evals.systems import RETRIEVAL_PRESETS
     from fabops.rag.retrieve import RetrievalConfig

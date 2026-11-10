@@ -100,6 +100,14 @@ def split_sop_boost(spec: str) -> tuple[str, dict[str, float]]:
     return spec[: m.start()] + spec[m.end() :], {"sop_boost": float(m.group(1))}
 
 
+def split_expand(spec: str) -> tuple[str, dict[str, bool]]:
+    """`-expand` / `-noexpand`: SOP section expansion on / off (ADR-0010 revision)."""
+    for suffix, on in (("-noexpand", False), ("-expand", True)):
+        if suffix in spec:
+            return spec.replace(suffix, "", 1), {"expand_sop": on}
+    return spec, {}
+
+
 def retrieval_system(spec: str) -> System:
     """`ret-<preset>[-rerank][-sopW]`, e.g. `ret-dense`, `ret-hybrid-bm25-rerank`."""
     base, sop = split_sop_boost(spec)
@@ -160,9 +168,9 @@ def parse_rag_spec(spec: str) -> tuple[str, bool, bool, int]:
 
 
 def rag_system(spec: str) -> System:
-    """`rag-<preset>[-rerank][-noexit][-ctxN][-sopW][-noprefilter|-naivecache]`, e.g. `rag-dense`
-    (PLAN baseline: vector only,
-    no rerank) or `rag-hybrid-bm25-rerank`. `-noexit` is the no-exit-checks leak baseline."""
+    """`rag-<preset>[-rerank][-noexit][-ctxN][-sopW][-[no]expand][-noprefilter|-naivecache]`,
+    e.g. `rag-dense` (PLAN baseline: vector only, no rerank) or `rag-hybrid-bm25-rerank`.
+    `-noexit` is the no-exit-checks leak baseline."""
     from fabops.authz.trace import Tracer
     from fabops.config import get_settings
     from fabops.llm.client import LLMClient
@@ -172,6 +180,8 @@ def rag_system(spec: str) -> System:
     unsafe = next((s for s in UNSAFE_SUFFIXES if spec.endswith(s)), None)
     base = spec.removesuffix(unsafe) if unsafe else spec
     base, sop = split_sop_boost(base)
+    base, expand = split_expand(base)
+    sop = {**sop, **expand}
     preset, rerank, exit_checks, context_chunks = parse_rag_spec(base)
     retriever = make_retriever(
         **{**RETRIEVAL_PRESETS[preset], **sop},

@@ -12,6 +12,11 @@ SOP boost for "how do I handle it" questions (ADR-0010): when the query asks for
 top chunks are cut, so the SOP's steps reach the LLM instead of incident-report summaries.
 It reads only the query text, never the user's identity, and runs after the permission
 pre-filter, so it cannot surface anything the scope may not see.
+
+SOP section expansion (small-to-big, ADR-0010 revision): for disposal questions, the
+highest-ranked SOP among the context chunks is expanded to all of its sections
+(`expand_context`), so the steps and the escalation rule arrive together. The extra sections
+are fetched through the same permission filter as every other candidate.
 """
 
 from __future__ import annotations
@@ -59,6 +64,8 @@ class RetrievalConfig:
     # 1.2 is the smallest value that put every open question's SOP steps into the 8 context
     # chunks on dev + calibration (docs/experiments.md, 2026-11-10; ADR-0010).
     sop_boost: float = 1.2
+    # Expand the top SOP in the context to all its sections for disposal questions.
+    expand_sop: bool = False
 
 
 @dataclass
@@ -100,6 +107,19 @@ def boost_sop(scores: dict[str, float], doc_types: dict[str, str], w: float) -> 
     return {c: s * w if doc_types.get(c) == "sop" else s for c, s in scores.items()}
 
 
+def merge_sections(hits: list[Hit], doc_id: str, sections: list[Hit]) -> list[Hit]:
+    """Put `sections` (one document, in order) where `doc_id` first appears in `hits`."""
+    if not sections:
+        return hits
+    out: list[Hit] = []
+    for h in hits:
+        if h.doc_id != doc_id:
+            out.append(h)
+        elif not any(x.doc_id == doc_id for x in out):
+            out.extend(sections)
+    return out
+
+
 class Retriever:
     def __init__(
         self,
@@ -120,6 +140,31 @@ class Retriever:
         if not self.cfg.include_superseded:
             cond += " AND d.superseded_by IS NULL"
         return cond, params
+
+    def expand_context(self, query: str, hits: list[Hit], scope: Scope) -> list[Hit]:
+        """Replace the top SOP's chunks in `hits` with all its visible sections, in order.
+
+        Only for disposal questions with `expand_sop` on; other hits keep their order.
+        """
+        if not self.cfg.expand_sop or not is_disposal_query(query):
+            return hits
+        top = next((h for h in hits if h.doc_type == "sop"), None)
+        if top is None:
+            return hits
+        cond, params = self._where(scope)
+        with self.connect() as conn, conn.cursor() as cur:
+            cur.execute(
+                "SELECT c.chunk_id, c.doc_id, c.text, c.fab, c.department, c.clearance, "
+                "d.doc_type FROM chunks c "
+                f"JOIN documents d USING (doc_id) WHERE {cond} AND c.doc_id = %(doc)s "
+                "ORDER BY c.seq",
+                {**params, "doc": top.doc_id},
+            )
+            sections = [
+                Hit(cid, did, text, fab, dept, cl, top.score, {}, dtype)
+                for cid, did, text, fab, dept, cl, dtype in cur
+            ]
+        return merge_sections(hits, top.doc_id, sections)
 
     def search(self, query: str, scope: Scope) -> Retrieval:
         cfg, t = self.cfg, {}

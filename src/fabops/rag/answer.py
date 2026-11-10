@@ -87,6 +87,9 @@ class Answerer:
     def answer(self, question: str, scope: Scope) -> Answer:
         r = self.retriever.search(question, scope)
         hits = r.hits[: self.context_chunks]
+        expand = getattr(self.retriever, "expand_context", None)  # ADR-0010 revision
+        if expand is not None:
+            hits = expand(question, hits, scope)
         retrieved = r.doc_ids()
         latency = sum(r.timings_ms.values())
         self.tracer.event(
