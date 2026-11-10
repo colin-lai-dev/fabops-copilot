@@ -6,6 +6,9 @@
 
 ## 2026-11-10
 
+- **test eval 完成（Colin 同意先跑系統輸出）**：Haiku 5.5，110 題，回答正確率 0.752 vs dense 0.657（n=105）、
+  Recall@5 0.788 vs 0.682（n=99）、誤拒率 0.212 vs 0.313；open 5 題待 judge。ADR-0008 judge 候選改為 Gemini 3.6 Flash
+  （3.5 Flash 已轉給 3.6），Gemini 免費方案每天 20 次已用完、待付費；GPT-5.4 mini 待 OpenAI 額度。花費 Haiku US$0.151。
 - **交接指示 006（進行中，停在 judge）**：修正 Claude provider（新版 API 不接受 `temperature`）；Haiku 5.5 跑 dev：
   回答正確率 0.783（n=69，baseline dense 0.739）、open 要點命中率 0.933（n=15；校準 0.900，n=110）、升級條件 11/22，
   但誤拒率 0.200（n=65，qwen3 0.031），原因是檢索缺口。升級條件沒有低於一半，設定凍結。花費 US$0.063。
