@@ -23,6 +23,19 @@
 
 ## 紀錄
 
+### 2026-11-10：test eval 設定（執行前寫入，test 只跑這一次）
+
+- Colin 同意（2026-11-10，交接指示 004／006；先跑系統輸出、open 題等 judge 校準後再評，Colin 2026-11-10 決定）。預算 US$2。
+- 題目：`evals/test/`，凍結於 `6ebbb5d`（110 題：規則 91 + 手寫 19），之後未修改（`git diff 6ebbb5d -- evals/test/` 為空）。
+- 系統（設定凍結，git `97692c8` 之後只多本筆文件）：
+  - 主力：`rag-hybrid-bm25`＝權限 pre-filter → dense（bge-m3，精確搜尋）＋ BM25（jieba）→ RRF（k=60，各 50 個候選）→
+    處置類問題 SOP ×1.2（ADR-0010）→ 送前 8 個 chunk；rerank 關閉、章節展開關閉、排除舊版 SOP；出口檢查開啟。
+  - baseline：`rag-dense`＝只用 dense，不 boost、不 rerank（PLAN 的對照）。
+  - LLM：`claude-haiku-5-5`，`thinking: disabled`（`LLM_REASONING_EFFORT=none`），`max_tokens` 512，結構化 JSON 一次修正重試。
+- 評分：非 open 題依 `evals/score.py`（ADR-0005 規則 1～6）；open 題由 judge 評（ADR-0008 修訂：Gemini 3.6 Flash，GPT-5.4 mini 待補，
+  以 50 題校準一致率選定，不看 test 分數），另報 `rubric_match` 作為無 LLM 的參考。
+- 估算花費：dev 72 題實測 hybrid US$0.0247、dense US$0.0291 → test 110 題約 US$0.08。
+
 ### 2026-11-10：judge 選擇實驗——兩個候選模型都無法呼叫（未執行）
 
 - 交接指示 006 第 3 步。三個 key 都已放進 `.env`，各送一個極小的探測請求（不經 `LLMClient`，合計 < US$0.0001）：
