@@ -11,6 +11,14 @@
   新增 `evals/rubric_match.py`（與標註 125/125 點一致）。**judge 選擇與 test eval 因 `.env` 沒有 API key 跳過**，花費 $0。
   細節：`docs/experiments.md`、`docs/decisions/0010-*.md`、`docs/gates/phase-1.md`。
 
+## 2026-11-10
+
+- **人工標註完成**：Colin 以勾選版標完 50 題，字串比對交叉檢查 152 點全部一致；open 對 0／部分 5／錯 20。
+  發現 25 題處置題中 19 題回答引用異常報告摘要而非 SOP 步驟。
+- **ADR-0010**：處置類問題提高 SOP 權重，open 要點命中率 dev 0 → 0.600（n=15）、校準 0.155 → 0.591（n=110 點）。
+  「升級條件」仍 0/22，交接指示 005 先試 SOP 章節展開。
+- judge 實驗與 test eval 因 `.env` 沒有 API key 跳過；Colin 已同意兩者的花費（judge US$1、test US$2 以內）與 test 不必停下確認。
+
 ## 2026-11-09
 
 - **交接指示 003 完成**（Claude Code）：手寫題 31 題原樣定稿並切分；**test set 凍結於 `6ebbb5d`（110 題）**；洩漏測試補上無 pre-filter 與問題層快取兩個對照組，
