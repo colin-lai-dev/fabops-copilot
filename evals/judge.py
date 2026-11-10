@@ -265,6 +265,12 @@ def open_items(run_id: str, *, allow_test: bool = False, results_dir: Path = RES
     return summary, items
 
 
+def score_paths(results_dir: Path, run_id: str, name: str) -> tuple[Path, Path]:
+    """(summary .json, verdicts .jsonl). Model names contain dots, so no `with_suffix`."""
+    stem = f"{run_id}.judge-{name}"
+    return results_dir / f"{stem}.json", results_dir / f"{stem}.jsonl"
+
+
 def run_score(
     client, name: str, run_id: str, *, allow_test: bool = False, results_dir: Path = RESULTS
 ) -> dict:
@@ -307,14 +313,12 @@ def run_score(
         "rubric_match_strict_pass": rate(proxy.count("對"), len(proxy)),
         "cost_usd": round(sum(j.cost_usd for j in judged), 6),
     }
-    base = results_dir / f"{run_id}.judge-{name}"
-    base.with_suffix(".json").write_text(
-        json.dumps(out, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
-    )
-    with base.with_suffix(".jsonl").open("w", encoding="utf-8", newline="\n") as f:
+    summary_path, verdicts_path = score_paths(results_dir, run_id, name)
+    summary_path.write_text(json.dumps(out, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    with verdicts_path.open("w", encoding="utf-8", newline="\n") as f:
         for j in judged:
             f.write(json.dumps(vars(j), ensure_ascii=False) + "\n")
-    out["path"] = str(base.with_suffix(".json"))
+    out["path"] = str(summary_path)
     return out
 
 

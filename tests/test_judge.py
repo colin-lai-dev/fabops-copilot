@@ -110,3 +110,13 @@ def test_backoff_retries_rate_limits_only():
     assert with_backoff(flaky, sleep=waits.append) == "ok" and waits == [5.0, 10.0]
     with pytest.raises(ValueError):
         with_backoff(lambda: (_ for _ in ()).throw(ValueError()), sleep=waits.append)
+
+
+def test_score_paths_keep_dotted_model_names(tmp_path):
+    from evals.judge import score_paths
+
+    js, jl = score_paths(tmp_path, "run", "gemini-3.6-flash")
+    assert (js.name, jl.name) == (
+        "run.judge-gemini-3.6-flash.json",
+        "run.judge-gemini-3.6-flash.jsonl",
+    )
