@@ -21,14 +21,19 @@
       "Bash(git commit:*)"
     ],
     "deny": [
-      "Bash(git push:*)",
       "Bash(git reset --hard:*)",
       "Bash(git clean:*)",
       "Bash(rm -rf:*)",
       "Bash(docker compose down -v:*)",
       "Bash(docker volume rm:*)",
       "Read(./.env)",
-      "Edit(./.env)"
+      "Edit(./.env)",
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)"
+    ],
+    "ask": [
+      "Bash(git push:*)",
+      "Bash(gh repo create:*)"
     ]
   }
 }
