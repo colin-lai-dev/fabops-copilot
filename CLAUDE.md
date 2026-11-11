@@ -60,10 +60,11 @@
   `docs/experiments.md` 要照實記錄出處（Claude 起草、Colin 修改），不得寫成純手寫。你不要修改這份草稿。
 
 **只能由 Colin 親自完成（不得代做）：**
-- 人工標註 50 題（judge 校準）。你只能準備標註表；標註結果必須是 Colin 的判斷。
-- Agent loop 練習：`playground/agent_loop.py`，Phase 2 開頭的練習，不是交付物。
-- Prompt injection 測試集（Phase 2）：你可以建立格式與 schema，內容由 Colin 設計。
+- 人工判斷類標註（例如 judge 校準標註）。你只能準備標註表；標註結果必須是 Colin 的判斷。
 - 髒資料的類型清單（已列在 PLAN；要新增類型請提出）。
+
+**2026-11-11 調整**：agent loop 練習改由你撰寫（`playground/agent_loop.py`），Colin 以 `/quiz` 理解；
+prompt injection 測試集改由規劃者起草（`evals/injection/injection.draft.jsonl`），Colin 審閱後全部保留，出處照實記錄。
 
 若某任務被這些部分卡住，先做同階段其他任務，並在 gate 報告中標出。
 
