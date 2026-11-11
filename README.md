@@ -8,7 +8,8 @@ Everything runs on **synthetic data** for a fictional fab, *Fab-X* (two sites, g
 with a fixed seed). No real company, site, tool, process or system names are used.
 
 > **Status:** Phase 1 (permission-aware RAG + eval) is complete — gate passed, tagged `phase-1`.
-> Phase 2 (MCP tools + LangGraph agent with human approval) is in progress.
+> Phase 2 (MCP tools + LangGraph agent with human approval) has reached its gate and is under review
+> (branch `phase-2-agent`, report: [docs/gates/phase-2.md](docs/gates/phase-2.md)).
 > Plan: [docs/PLAN.md](docs/PLAN.md) · Phase 1 gate report: [docs/gates/phase-1.md](docs/gates/phase-1.md)
 
 ## Architecture
@@ -78,6 +79,26 @@ to show the test can detect a leak.
 **LLM judge calibration:** Gemini 3.6 Flash agreed with human labels on 50/50 questions (strict
 pass/fail); open questions point-by-point 124/125. The judge model family differs from the
 answering model (ADR-0008).
+
+**Agent workflow, three-way comparison** (frozen test set, 15 rule-generated scenarios:
+multi-step reasoning, contradictory data, requests that must be declined; Claude Haiku 5.5;
+all three share the same LLM, retriever, MCP tools and permission checks)
+
+| Metric | RAG only | Fixed workflow | Agent (LangGraph) |
+| --- | --- | --- | --- |
+| Success (n=15) | 4/15 | **15/15** | 13/15 |
+| Ungrounded ids in answer / citations / proposal | 0/15 | 0/15 | 0/15 |
+| Mean tool calls | 0 | 3.5 | 2.7 |
+| Cost / latency per scenario | US$0.0004 / 1.9 s | US$0.0009 / 4.1 s | US$0.0020 / 6.4 s |
+
+Tool use wins clearly over single-shot RAG on questions that need MES data. Fixed workflow vs
+agent is within noise at n=15 (and reversed on dev), with the agent costing about twice as much.
+
+**Agent-tool leak path:** 0/90 (control without the MES filter, retrieval pre-filter and tool exit
+check: 58/90). **Prompt injection** (11 test cases, attack text inside a retrieved report):
+permission attacks (privilege read, role spoofing, exfiltration) were blocked by all systems; strict
+string matching passes 9–10/11, and the remaining failures were answers that quoted the injected
+sentence in order to reject it.
 
 A local-model column (Qwen3 8B via Ollama) for the same test set is planned for Phase 3. Full
 experiment log: [docs/experiments.md](docs/experiments.md).

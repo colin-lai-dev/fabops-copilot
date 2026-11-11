@@ -6,6 +6,9 @@
 
 ## 2026-11-11
 
+- **交接指示 008 完成，Phase 2 到達 gate**（Claude Code）：代決 4 項落實（MES 改 public、核准者規則寫成 ADR-0006 修訂、開發 DB 測試資料清除）；
+  injection 集與隔離 DB runner、Langfuse 匯出（預設關閉）、FastAPI + React 前端、agent loop 練習。test（Haiku，只跑一次）：三組成功率 RAG 4/15、fixed 15/15、agent 13/15；
+  洩漏四路徑 0/180 vs 113/180；injection 嚴格 9/9/10 of 11、人工判讀 11/11。花費約 US$0.09。報告 `docs/gates/phase-2.md`。
 - **交接指示 007 完成**（Claude Code）：Phase 1 gate 報告改為已通過並補最終數字；`phase-1-rag` 合併回 main、tag `phase-1`；README 改寫（英文）。
 - **Phase 2（branch `phase-2-agent`）**：FastMCP 唯讀工具 5 個＋JWT 身分（ADR-0001）；LangGraph agent／固定 workflow（ADR-0006），核准 interrupt、
   Postgres checkpoint、audit log、冪等；工具路徑洩漏 0/101 vs 對照 69/101；情境集 24 題（test 15 凍結）；dev 三組對照 Haiku agent 9/9、fixed 8/9、RAG 2/9（n=9），
