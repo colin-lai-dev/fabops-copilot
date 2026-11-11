@@ -1,76 +1,57 @@
-// Replay backend for the static demo site (VITE_DEMO_MODE=replay).
-// Same interface as api.js, but every answer, trace, proposal, decision and audit entry comes
-// from web/public/replay/scenes.json, recorded from the real system (scripts/record_replay.py).
+// Replay backend for the static demo site (VITE_DEMO_MODE=replay). Same interface as api.js.
+// Every answer, trace, proposal, decision and audit entry comes from
+// public/replay/scenes.json, recorded from the real system (scripts/record_replay.py).
 // Nothing is generated here, and only recorded questions can be asked.
 
 let data = null;
 let me = null;
-let current = null; // scene id of the last answer
-const decided = {}; // proposal_id -> index of the last applied decision step
+let askedTriage = false;
+let lastDecision = null; // index into the triage scene's decision steps
 
 async function load() {
-  if (!data) {
-    const res = await fetch(`${import.meta.env.BASE_URL}replay/scenes.json`);
-    data = await res.json();
-  }
+  if (!data) data = await (await fetch(`${import.meta.env.BASE_URL}replay/scenes.json`)).json();
   return data;
 }
 
-function triageScene() {
-  return data.scenes.find((s) => s.approval_steps?.length);
-}
-
-function stepsOf(scene) {
-  return scene.approval_steps.filter((s) => s.kind === "decision");
-}
-
-export function setToken() {}
+const triage = () => data.scenes.find((s) => s.approval_steps?.length);
+const decisions = () => triage().approval_steps.filter((s) => s.kind === "decision");
 
 export const replay = {
-  meta: async () => {
-    const d = await load();
-    return { recorded_at: d.recorded_at, system: d.system };
-  },
+  replay: true,
   users: async () => (await load()).users,
   login: async (userId) => {
+    me = (await load()).users.find((u) => u.user_id === userId);
+    return me;
+  },
+  // Same shape as GET /api/docs: locked dies carry no metadata.
+  docs: async () => {
     const d = await load();
-    me = d.users.find((u) => u.user_id === userId);
-    return { token: "", user: me };
+    const seen = new Set(d.visible_by_user[me.user_id]);
+    return d.docs.map((doc, i) =>
+      seen.has(i) ? { ...doc, visible: true } : { visible: false, doc_type: null },
+    );
   },
   scenes: async () => (await load()).scenes,
-  results: async () => (await fetch(`${import.meta.env.BASE_URL}replay/results.json`)).json(),
-  sceneById: (id) => data?.scenes.find((s) => s.id === id),
-  currentScene: () => (current ? data.scenes.find((s) => s.id === current) : null),
-  ask: async (sceneId) => {
+  ask: async ({ sceneId }) => {
     const s = (await load()).scenes.find((x) => x.id === sceneId);
     if (!s || s.user !== me?.user_id) throw new Error("這個問題不是由目前身分錄製的");
-    current = s.id;
+    if (s.approval_steps?.length) askedTriage = true;
     return s.response;
   },
   pending: async () => {
-    const s = triageScene();
-    if (!s || !me) return [];
-    const pid = s.response.proposal?.proposal_id;
-    const last = decided[pid] ?? -1;
-    const executed = last >= 0 && stepsOf(s)[last].status_code === 200;
-    const asked = Object.prototype.hasOwnProperty.call(decided, pid) || current === s.id;
-    if (!asked || executed) return [];
-    const listed = s.approval_steps.find((x) => x.kind === "pending").by_user[me.user_id];
-    return listed ?? [];
+    const s = triage();
+    if (!s || !me || !askedTriage) return [];
+    if (lastDecision !== null && decisions()[lastDecision].status_code === 200) return [];
+    return s.approval_steps.find((x) => x.kind === "pending").by_user[me.user_id] ?? [];
   },
   decide: async (pid, approved) => {
-    const s = triageScene();
-    const steps = stepsOf(s);
-    const i = steps.findIndex((d) => d.user === me.user_id && d.approved === approved);
-    if (i < 0) throw new Error("這個決定沒有錄製（回放版只提供錄製過的操作）");
-    decided[pid] = i;
-    const d = steps[i];
+    const i = decisions().findIndex((d) => d.user === me.user_id && d.approved === approved);
+    if (i < 0) throw new Error("這個操作沒有錄製（回放版只重現錄製過的決定）");
+    lastDecision = i;
+    const d = decisions()[i];
     if (d.status_code !== 200) throw new Error(d.detail);
     return d.run;
   },
-  audit: async (pid) => {
-    const s = triageScene();
-    const i = decided[pid];
-    return i === undefined ? [] : stepsOf(s)[i].audit;
-  },
+  audit: async () => (lastDecision === null ? [] : decisions()[lastDecision].audit),
+  results: async () => (await fetch(`${import.meta.env.BASE_URL}replay/results.json`)).json(),
 };

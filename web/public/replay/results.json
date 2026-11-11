@@ -1,44 +1,58 @@
 {
-  "source": "Frozen test sets, each run once; numbers copied from README.md / docs/gates (synthetic data).",
-  "caption_zh": "結果都在凍結的 test 上只跑一次、附樣本數；固定 workflow 與 agent 差距在雜訊內，所以不宣稱 agent 比較好。RAG 可以地端跑，agent 分診要固定流程或雲端模型。",
-  "caption_en": "Frozen test sets, run once, with n. Fixed workflow vs agent is within noise, so no claim that the agent wins. RAG runs locally; triage needs the fixed workflow or a cloud model.",
-  "tables": [
+  "source": "Final gate numbers (docs/gates/phase-1..3.md): frozen test sets, each run once. Synthetic data.",
+  "caption_zh": "結果都在凍結的 test 上只跑一次、附樣本數與 baseline；固定 workflow 與 agent 差距在雜訊內，所以不宣稱 agent 比較好。",
+  "caption_en": "Frozen test sets, run once, with n and a baseline. Fixed workflow vs agent is within noise, so no claim that the agent wins.",
+  "charts": [
     {
-      "title": "RAG（凍結 test，Haiku 5.5）",
-      "columns": ["指標", "只用向量（baseline）", "權限 pre-filter + 混合檢索"],
+      "id": "rag",
+      "title": "RAG：權限 pre-filter + 混合檢索 vs 只用向量",
+      "note": "Claude Haiku 5.5，凍結 RAG test（110 題）",
+      "unit": "ratio",
+      "series": ["只用向量（baseline）", "本系統"],
       "rows": [
-        ["Recall@5（n=99）", "0.682", "0.788"],
-        ["回答正確率（n=105）", "0.657", "0.752"],
-        ["引用正確率（n=99）", "0.636", "0.747"]
+        { "label": "Recall@5", "n": 99, "values": [0.682, 0.788] },
+        { "label": "回答正確率", "n": 105, "values": [0.657, 0.752] },
+        { "label": "引用正確率", "n": 99, "values": [0.636, 0.747] }
       ]
     },
     {
-      "title": "三組對照（agent test，n=15，Haiku 5.5）",
-      "columns": ["", "只用 RAG", "固定 workflow", "Agent"],
+      "id": "three-way",
+      "title": "三組對照：agent 情境成功率",
+      "note": "Claude Haiku 5.5，凍結 agent test（n=15）；固定 workflow 與 agent 差距在雜訊內",
+      "unit": "count",
+      "total": 15,
+      "series": ["只用 RAG（baseline）", "固定 workflow", "Agent"],
       "rows": [
-        ["成功", "4/15", "15/15", "13/15"],
-        ["捏造 ID", "0/15", "0/15", "0/15"],
-        ["平均工具呼叫", "0", "3.5", "2.7"],
-        ["每題成本", "US$0.0004", "US$0.0009", "US$0.0020"]
+        { "label": "成功", "n": 15, "values": [4, 15, 13] },
+        { "label": "多步推理", "n": 6, "values": [0, 6, 4] },
+        { "label": "資料矛盾", "n": 4, "values": [0, 4, 4] },
+        { "label": "應拒絕給建議", "n": 5, "values": [4, 5, 5] }
+      ],
+      "extra": "捏造 ID 三組皆 0/15；每題成本 US$0.0004／0.0009／0.0020"
+    },
+    {
+      "id": "leak",
+      "title": "權限洩漏：正式系統 vs 拿掉該檢查的對照組",
+      "note": "規則產生的洩漏題，每題只違反一個權限條件；數字越小越好",
+      "unit": "count",
+      "lower_is_better": true,
+      "series": ["對照組（拿掉檢查）", "正式系統"],
+      "rows": [
+        { "label": "檢索", "n": 30, "values": [19, 0] },
+        { "label": "LLM 回應快取", "n": 30, "values": [23, 0] },
+        { "label": "trace 日誌", "n": 30, "values": [13, 0] },
+        { "label": "agent 工具（MCP + JWT）", "n": 90, "values": [58, 0] }
       ]
     },
     {
-      "title": "四條路徑洩漏（正式系統 vs 拿掉該檢查的對照組）",
-      "columns": ["路徑", "正式", "對照"],
-      "rows": [
-        ["檢索", "0/30", "19/30"],
-        ["LLM 回應快取", "0/30", "23/30"],
-        ["trace 日誌", "0/30", "13/30"],
-        ["agent 工具（MCP + JWT）", "0/90", "58/90"]
-      ]
-    },
-    {
+      "id": "models",
       "title": "雲端 vs 地端模型",
-      "columns": ["", "Haiku 5.5", "Sonnet 5.5", "Qwen3 8B（地端）"],
+      "note": "同一份凍結 test；RAG n=105、agent n=15；每題成本：US$0.0004／0.0072／$0（RAG）",
+      "unit": "ratio",
+      "series": ["Claude Haiku 5.5", "Claude Sonnet 5.5", "Qwen3 8B（地端）"],
       "rows": [
-        ["RAG 回答正確率（n=105）", "0.752", "0.743", "0.781"],
-        ["Agent 成功（n=15）", "13/15", "15/15", "4/15"],
-        ["RAG 每題成本", "US$0.0004", "US$0.0072", "$0"]
+        { "label": "RAG 回答正確率", "n": 105, "values": [0.752, 0.743, 0.781] },
+        { "label": "Agent 成功率", "n": 15, "values": [0.867, 1.0, 0.267], "display": ["13/15", "15/15", "4/15"] }
       ]
     }
   ]
