@@ -8,8 +8,8 @@ Everything runs on **synthetic data** for a fictional fab, *Fab-X* (two sites, g
 with a fixed seed). No real company, site, tool, process or system names are used.
 
 > **Status:** Phase 1 (permission-aware RAG + eval) is complete — gate passed, tagged `phase-1`.
-> Phase 2 (MCP tools + LangGraph agent with human approval) has reached its gate and is under review
-> (branch `phase-2-agent`, report: [docs/gates/phase-2.md](docs/gates/phase-2.md)).
+> Phase 2 (MCP tools + LangGraph agent with human approval) is complete — gate passed, tagged `phase-2`
+> (report: [docs/gates/phase-2.md](docs/gates/phase-2.md)). Phase 3 (local/cloud model comparison, CI) is in progress.
 > Plan: [docs/PLAN.md](docs/PLAN.md) · Phase 1 gate report: [docs/gates/phase-1.md](docs/gates/phase-1.md)
 
 ## Architecture
@@ -97,8 +97,9 @@ agent is within noise at n=15 (and reversed on dev), with the agent costing abou
 **Agent-tool leak path:** 0/90 (control without the MES filter, retrieval pre-filter and tool exit
 check: 58/90). **Prompt injection** (11 test cases, attack text inside a retrieved report):
 permission attacks (privilege read, role spoofing, exfiltration) were blocked by all systems; strict
-string matching passes 9–10/11, and the remaining failures were answers that quoted the injected
-sentence in order to reject it.
+string matching passes RAG 9/11, fixed 9/11, agent 10/11; read by hand, all 11/11 resisted (every strict
+failure quoted the injected sentence in order to reject it). Strict and manual numbers are reported side by side;
+the scoring rule was frozen before the test run and is not changed afterwards.
 
 A local-model column (Qwen3 8B via Ollama) for the same test set is planned for Phase 3. Full
 experiment log: [docs/experiments.md](docs/experiments.md).

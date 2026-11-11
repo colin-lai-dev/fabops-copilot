@@ -1,7 +1,7 @@
 # Phase 2 Gate 報告
 
-- Branch：`phase-2-agent`（從 `main` 的 `phase-1` 之後開出）
-- 狀態：**待 Colin review**。全部數字為合成資料（虛構 Fab-X）；test 只跑一次，設定在執行前 commit（`7baeda1`）。
+- Branch：`phase-2-agent`（已合併回 `main`，tag `phase-2`）
+- 狀態：**已通過（Colin，2026-11-11）**。全部數字為合成資料（虛構 Fab-X）；test 只跑一次，設定在執行前 commit（`7baeda1`）。
 
 ## 0. 最終數字（test，Claude Haiku 5.5）
 
@@ -94,7 +94,7 @@ Tracer：只寫遮罩欄位到 .cache/traces.jsonl；FABOPS_LANGFUSE=1 且有 ke
 `docs/experiments.md` 2026-11-11 各筆：dev 三組對照（Haiku agent 9/9、fixed 8/9、RAG 2/9；qwen3:8b 1/9、2/9、1/9；n=9）、工具洩漏、injection dev（qwen3）、test 設定與結果。
 Phase 2 的 Haiku 花費約 US$0.15（本日合計 US$0.146，含 dev 除錯；預算 US$5）。
 
-## 5. 待 Colin 決定（`docs/open-questions.md`）
+## 5. 待 Colin 決定（`docs/open-questions.md`；2026-11-11 規劃者已決定，見 log）
 
 2026-11-11 的 11 項已由規劃者代決或確認。本次新增、需要決定的：
 
