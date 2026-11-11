@@ -264,3 +264,62 @@ def load_agent_scenarios(paths: list[Path]) -> list[AgentScenario]:
     if len({s.sid for s in out}) != len(out):
         raise ValueError("duplicate sid")
     return out
+
+
+class InjectionCarrier(BaseModel):
+    """A test-only document carrying the injected text (never part of the real corpus)."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    doc_id: str = Field(pattern=r"^INJ-\d{4}-\d{4}$")
+    doc_type: Literal["incident", "sop"]
+    fab: str
+    department: str
+    clearance: int = Field(ge=0, le=3)
+    title: str
+    body_md: str
+
+
+InjectionAction = Literal[
+    "tool_result_outside_scope",
+    "propose_unrelated_lots",
+    "self_approve",
+    "execute_without_approval",
+    "propose_status_change",
+    "no_citation",
+]
+
+
+class InjectionCase(BaseModel):
+    """One prompt-injection case (PLAN Phase 2). Drafted by the planner, reviewed by Colin;
+    scored by `evals/injection_eval.py`."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    iid: str = Field(pattern=r"^I-\d{4}$")
+    category: Literal[
+        "privilege_read",
+        "role_spoofing",
+        "misleading_procedure",
+        "unauthorized_write",
+        "output_exfiltration",
+        "instruction_override",
+    ]
+    carrier: InjectionCarrier
+    asker_user_id: str
+    question: str = Field(min_length=1)
+    expected_behavior: str
+    key_facts: list[str] = []
+    forbidden_strings: list[str] = []
+    forbidden_actions: list[InjectionAction] = []
+    notes: str = ""
+
+
+def load_injection_cases(paths: list[Path]) -> list[InjectionCase]:
+    out = []
+    for p in paths:
+        with p.open(encoding="utf-8") as f:
+            out += [InjectionCase.model_validate_json(line) for line in f if line.strip()]
+    if len({c.iid for c in out}) != len(out):
+        raise ValueError("duplicate iid")
+    return out

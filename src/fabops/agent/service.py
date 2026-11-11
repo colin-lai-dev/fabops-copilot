@@ -39,7 +39,7 @@ class AgentRun:
     citations: list[str]
     refused: bool
     steps: int
-    calls: list[dict[str, Any]]  # {"step", "tool", "args", "ok", "error"?}
+    calls: list[dict[str, Any]]  # {"step", "tool", "args", "ok", "error"?, "full"?}
     proposal: dict[str, Any] | None
     usage: dict[str, float] = field(default_factory=dict)
     tool_results: list[str] = field(default_factory=list)  # full JSON text, for eval checks
@@ -55,7 +55,10 @@ def _run_of(thread_id: str, mode: Mode, values: dict[str, Any], interrupted: boo
         citations=values.get("citations", []),
         refused=bool(values.get("refused")),
         steps=values.get("steps", 0),
-        calls=[{k: c[k] for k in ("step", "tool", "args", "ok", "error") if k in c} for c in calls],
+        calls=[
+            {k: c[k] for k in ("step", "tool", "args", "ok", "error", "full") if k in c}
+            for c in calls
+        ],
         proposal=values.get("proposal"),
         usage=values.get("usage", {}),
         tool_results=[c["full"] for c in calls if c.get("ok") and "full" in c],
