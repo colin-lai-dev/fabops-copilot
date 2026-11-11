@@ -73,12 +73,12 @@ Eval 基礎先做，凍結後才開始調參。
 
 ## Phase 3：上線化（第 9–10 週）
 
-- [ ] Ollama 地端模式完整可用
-- [ ] 模型比較：同一個 test set，Haiku 5.5、Sonnet 5.5、Qwen3 8B 各一欄，一張表
-- [ ] GitHub Actions：lint、測試、小型 eval（mock 或地端模型）
+- [x] Ollama 地端模式完整可用（RAG、agent、固定 workflow、API 都以 qwen3:8b 跑過；agent 品質不足，見 phase-3 gate）
+- [x] 模型比較：同一個 test set，Haiku 5.5、Sonnet 5.5、Qwen3 8B 各一欄，一張表（RAG 110 題＋agent 15 題，見 experiments.md）
+- [x] GitHub Actions：lint、測試、DB 測試、小型 eval（不呼叫 LLM：MES 工具洩漏、產生器重現、`refuse_all` 底線）、前端建置（`.github/workflows/ci.yml`；repo 沒有 remote，尚未在 GitHub 上跑過）
 - [ ] （可選）交班摘要；若保留，納入權限測試
 
-**Gate：** 雲端 vs 地端比較表完成。
+**Gate：** 雲端 vs 地端比較表完成。**已通過（Colin，2026-11-11），見 `docs/gates/phase-3.md`。**
 
 ## Phase 4：包裝與求職（第 11 週）
 

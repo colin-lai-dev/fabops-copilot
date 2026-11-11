@@ -6,6 +6,10 @@
 
 ## 2026-11-11
 
+- **Phase 3 gate 通過（Colin）**：規劃者決定兩個評分抽取限制不修（維持凍結規則、並列人工判讀，寫進 README 已知限制）；交接指示 010 推上 GitHub、準備 Phase 4。
+- **交接指示 009 完成，Phase 3 到達 gate**（Claude Code）：Phase 2 merge 回 main、tag `phase-2`；模型比較（凍結 test）RAG 正確率 Haiku 0.752／Sonnet 0.743／qwen3 0.781、
+  agent 13/15／15/15／4/15；CI workflow（本機驗證）；強制送達 injection（agent 送達 11/11、嚴格 9/11、人工 10/11＋1 部分）。Sonnet 第一次 400 已修。花費 Sonnet US$1.14。
+  Langfuse 仍無 key。報告 `docs/gates/phase-3.md`。
 - **Phase 2 gate 通過（Colin）**：agent test 三組對照 RAG 4/15、固定 workflow 15/15、agent 13/15（差距在雜訊內，agent 成本約 2 倍）；
   四路徑洩漏 0/180 vs 對照 113/180；injection 嚴格 9–10/11、人工判讀 11/11。規劃者決定：injection 判定規則維持凍結；
   強制送達 injection 變體放到 Phase 3。交接指示 009 開始 Phase 3。

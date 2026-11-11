@@ -195,11 +195,13 @@ class Runner:
         self.docs = load_corpus()
         self._rag = None
 
-    async def graph(self, s: AgentScenario, mode: str) -> Observed:
+    async def graph(self, s: AgentScenario, mode: str, wrap=None) -> Observed:
+        """`wrap(gateway)` lets an eval sit between the agent and the MCP tools (injection)."""
         from fabops.agent.gateway import McpGateway
         from fabops.authz.token import issue_token
 
         async with McpGateway.in_process(self.app, issue_token(s.user_id, self.secret)) as gw:
+            gw = wrap(gw) if wrap else gw
             r = await self.service.ask(
                 s.question, user_id=s.user_id, scope=self.scopes[s.user_id], gateway=gw, mode=mode
             )

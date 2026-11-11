@@ -8,6 +8,8 @@ Systems:
 - `tools`: production — Postgres store with the scope filter, retriever pre-filter, tool exit check.
 - `tools-unfiltered`: control — no MES filter, no retrieval pre-filter, no exit check
   (`evals/baselines.py`); shows the test detects a leak.
+- `tools-jsonl`: CI — the MES tool cases only, on the in-memory JSONL store (no Postgres, no
+  retrieval models, no LLM). `--fail-on-leak` exits 1 if any case leaks.
 
     uv run python -m evals.leak_tools --system tools
     uv run python -m evals.leak_tools --system tools-unfiltered
@@ -32,7 +34,8 @@ from evals.schema import ToolLeakCase, load_tool_leak_cases
 
 ROOT = Path(__file__).resolve().parents[1]
 TOOL_CASES = ROOT / "evals" / "leak_tool_cases.jsonl"
-SYSTEMS = ("tools", "tools-unfiltered")
+SYSTEMS = ("tools", "tools-unfiltered", "tools-jsonl")
+MES_TOOLS = ("get_lot_history", "get_equipment_status", "get_dispatch_log")
 
 
 @dataclass
@@ -64,6 +67,14 @@ def build_tools(system: str):
 
     if system == "tools":
         return MesTools(PgMesStore(connect), make_retriever(), Tracer.from_env())
+    if system == "tools-jsonl":
+        from fabops.mcp_server.store import JsonlMesStore
+
+        return MesTools(
+            JsonlMesStore(),
+            None,
+            Tracer(Path(get_settings().fabops_cache_dir).parent / "traces.jsonl"),
+        )
     if system == "tools-unfiltered":
         from evals.baselines import UnfilteredMesStore
 
@@ -115,6 +126,8 @@ def summarize(results: list[ToolLeakResult]) -> dict[str, Any]:
 
 def run(system: str, cases_path: Path = TOOL_CASES) -> dict[str, Any]:
     cases = load_tool_leak_cases(cases_path)
+    if system == "tools-jsonl":
+        cases = [c for c in cases if c.tool in MES_TOOLS]
     results = asyncio.run(run_cases(build_tools(system), cases))
     run_id = f"{datetime.now(UTC):%Y%m%dT%H%M%SZ}-leak-{system}"
     RESULTS.mkdir(parents=True, exist_ok=True)
@@ -138,10 +151,14 @@ def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     p.add_argument("--system", required=True, choices=SYSTEMS)
     p.add_argument("--cases", type=Path, default=TOOL_CASES)
+    p.add_argument("--fail-on-leak", action="store_true", help="exit 1 if any case leaks")
     args = p.parse_args(argv)
     summary = run(args.system, args.cases)
     sys.stdout.reconfigure(encoding="utf-8")  # type: ignore[attr-defined]
     print(json.dumps({k: summary[k] for k in ("run_id", "by")}, indent=2, ensure_ascii=False))
+    total = summary["by"]["all"]
+    if args.fail_on_leak and (total["leaked"] or total["errors"]):
+        return 1
     return 0
 
 

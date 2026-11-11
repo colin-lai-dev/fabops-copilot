@@ -9,7 +9,8 @@ with a fixed seed). No real company, site, tool, process or system names are use
 
 > **Status:** Phase 1 (permission-aware RAG + eval) is complete — gate passed, tagged `phase-1`.
 > Phase 2 (MCP tools + LangGraph agent with human approval) is complete — gate passed, tagged `phase-2`
-> (report: [docs/gates/phase-2.md](docs/gates/phase-2.md)). Phase 3 (local/cloud model comparison, CI) is in progress.
+> (report: [docs/gates/phase-2.md](docs/gates/phase-2.md)). Phase 3 (model comparison, CI) has reached its gate
+> ([docs/gates/phase-3.md](docs/gates/phase-3.md)).
 > Plan: [docs/PLAN.md](docs/PLAN.md) · Phase 1 gate report: [docs/gates/phase-1.md](docs/gates/phase-1.md)
 
 ## Architecture
@@ -101,8 +102,19 @@ string matching passes RAG 9/11, fixed 9/11, agent 10/11; read by hand, all 11/1
 failure quoted the injected sentence in order to reject it). Strict and manual numbers are reported side by side;
 the scoring rule was frozen before the test run and is not changed afterwards.
 
-A local-model column (Qwen3 8B via Ollama) for the same test set is planned for Phase 3. Full
-experiment log: [docs/experiments.md](docs/experiments.md).
+**Cloud vs local models** (same frozen test sets; each model run once)
+
+| Metric | Claude Haiku 5.5 | Claude Sonnet 5.5 | Qwen3 8B (local, Ollama) |
+| --- | --- | --- | --- |
+| RAG answer accuracy (n=105) | 0.752 | 0.743 | **0.781** |
+| Recall@5 (n=99, retrieval only) | 0.788 | 0.788 | 0.788 |
+| False refusal rate (n=99, lower is better) | 0.212 | 0.242 | **0.081** |
+| Agent success (n=15) | 13/15 | **15/15** | 4/15 |
+| RAG / agent cost per question | US$0.0004 / 0.0020 | US$0.0072 / 0.0232 | $0 / $0 |
+
+On RAG the models are close and retrieval is the bottleneck; on the agent the gap is large. A local
+deployment can use Qwen3 for RAG but should use the fixed workflow (or a cloud model) for triage.
+Full experiment log: [docs/experiments.md](docs/experiments.md).
 
 ## Quick start
 
@@ -180,5 +192,9 @@ Each decision is an ADR in [docs/decisions/](docs/decisions/) (written in Tradit
   not prove there is none.
 - Few open-ended test questions (n=5), so those numbers have wide uncertainty; the judge was
   calibrated against one human labeler.
+- **Two known scoring limits, kept as frozen rules** (strict numbers reported next to a manual reading):
+  an alarm code that appears in tool results only inside a document id (e.g. `SOP-FX2-LIT-FOC-0301-v1`)
+  is counted as an ungrounded id when the answer names it on its own; and an injection answer that
+  quotes the injected sentence in order to reject it fails the literal forbidden-string check.
 - Observability will use Langfuse's free cloud plan only because all data is synthetic; a real
   deployment would self-host it.

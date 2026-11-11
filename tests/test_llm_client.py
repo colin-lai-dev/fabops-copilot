@@ -151,3 +151,13 @@ def test_thinking_tokens_are_billed_as_output():
     plain = SimpleNamespace(prompt_tokens=10, completion_tokens=5, total_tokens=15)
     assert billed_tokens(plain) == (10, 5)
     assert billed_tokens(None) == (0, 0)
+
+
+def test_sonnet_turns_thinking_off_with_between_tools():
+    from fabops.llm.client import AnthropicProvider
+
+    p = AnthropicProvider.__new__(AnthropicProvider)
+    p.reasoning_effort = "none"
+    msgs = [{"role": "user", "content": "hi"}]
+    assert p.request_kwargs(msgs, "claude-sonnet-5-5", 10)["thinking"] == {"type": "between_tools"}
+    assert p.request_kwargs(msgs, "claude-haiku-5-5", 10)["thinking"] == {"type": "disabled"}

@@ -90,6 +90,12 @@ def billed_tokens(u) -> tuple[int, int]:
     return prompt, max(completion, total - prompt)
 
 
+# How each model turns thinking off. Claude Sonnet 5.5 rejects `disabled` and asks for
+# `between_tools` (it then only thinks between tool calls; we never send tools, so it does not
+# think at all). Found on the first Phase 3 run, 2026-11-11 (400 before any output).
+THINKING_OFF: dict[str, dict] = {"claude-sonnet-5-5": {"type": "between_tools"}}
+
+
 class AnthropicProvider:
     """Claude via the official SDK.
 
@@ -114,7 +120,7 @@ class AnthropicProvider:
         if system:
             kwargs["system"] = system
         if self.reasoning_effort == "none":
-            kwargs["thinking"] = {"type": "disabled"}
+            kwargs["thinking"] = THINKING_OFF.get(model, {"type": "disabled"})
         return kwargs
 
     def complete(self, messages, model, temperature, max_tokens) -> Completion:
