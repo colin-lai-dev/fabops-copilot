@@ -2,6 +2,9 @@
 
 [![ci](https://github.com/colin-lai-dev/fabops-copilot/actions/workflows/ci.yml/badge.svg)](https://github.com/colin-lai-dev/fabops-copilot/actions/workflows/ci.yml)
 
+**▶ Live demo (recorded replay): https://colin-lai-dev.github.io/fabops-copilot/** — a static site that
+replays answers recorded from the real system (no backend, synthetic data only).
+
 **An AI assistant for semiconductor fab anomaly handling that never shows an engineer a document
 they are not cleared to see** — permission-aware RAG over SOPs and past incident reports, plus a
 triage agent that queries read-only MES tools and proposes actions a human must approve.
