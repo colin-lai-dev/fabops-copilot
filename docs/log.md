@@ -7,7 +7,8 @@
 ## 2026-11-11
 
 - **交接指示 014**（Claude Code）：已記錄範本 repo 公開（https://github.com/colin-lai-dev/cc-project-template，template）、Langfuse 改走 OpenTelemetry 並端到端驗證（12/12、無內文）。
-  demo 影片 release `demo-v1`：settings 已加允許規則，但仍被 auto 模式分類器以「Create Public Surface」擋下，未建立，待 Colin 手動執行。
+  demo 影片 release `demo-v1`：auto 模式下被分類器擋下；Colin 離開 auto 模式、逐次按同意後重試成功，
+  https://github.com/colin-lai-dev/fabops-copilot/releases/tag/demo-v1（`fabops-copilot-demo.webm`，16.9 MB，可下載）。
 - **交接指示 013**（Claude Code）：demo 橫幅捲動後收成 31px 單行；範本 repo https://github.com/colin-lai-dev/cc-project-template（public、template）；
   Langfuse 改走 OpenTelemetry（舊 ingestion API 已拒收、11-16 關閉），端到端驗證 12/12、違規 0（`experiments.md`）。demo-v1 release 被權限擋下，待 Colin 執行。
 - **交接指示 012**（Claude Code）：demo 網站重新設計（夜班 MES 主控台、權限晶圓圖、6 步導覽、agent 逐步時間軸、真的操作核准、injection 對照組、互動結果圖），
