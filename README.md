@@ -3,10 +3,12 @@
 [![ci](https://github.com/colin-lai-dev/fabops-copilot/actions/workflows/ci.yml/badge.svg)](https://github.com/colin-lai-dev/fabops-copilot/actions/workflows/ci.yml)
 
 **▶ Live demo (recorded replay): https://colin-lai-dev.github.io/fabops-copilot/** — a static site that
-replays answers recorded from the real system (no backend, synthetic data only).
+replays answers recorded from the real system (no backend, synthetic data only). A six-step guided tour
+shows a permission wafer map (192 documents; switch identity and watch what you may see), the agent's
+tool calls step by step, a real approval flow with an audit log, and an injection next to its no-filter control.
 3-minute video: [release `demo-v1`](https://github.com/colin-lai-dev/fabops-copilot/releases/tag/demo-v1).
 
-![30-second demo: cited SOP answer, operator refused, agent proposal, approval and audit log](docs/assets/demo.gif)
+![30-second demo: permission wafer map, cited SOP answer, operator refused, agent steps, refused then approved proposal, injection control](docs/assets/demo.gif)
 
 **An AI assistant for semiconductor fab anomaly handling that never shows an engineer a document
 they are not cleared to see** — permission-aware RAG over SOPs and past incident reports, plus a

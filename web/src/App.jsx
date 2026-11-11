@@ -1,382 +1,389 @@
-import React, { useEffect, useState } from "react";
-import { api as liveApi, setToken } from "./api.js";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { live } from "./api.js";
 import { replay } from "./replay.js";
+import { TOUR } from "./tour.js";
+import WaferMap from "./components/WaferMap.jsx";
+import Timeline from "./components/Timeline.jsx";
+import Approvals from "./components/Approvals.jsx";
+import Injection from "./components/Injection.jsx";
+import Results from "./components/Results.jsx";
 
-// VITE_DEMO_MODE=replay: the static demo site. No backend; recorded answers only.
-export const REPLAY = import.meta.env.VITE_DEMO_MODE === "replay";
-const api = REPLAY ? replay : liveApi;
+// VITE_DEMO_MODE=replay builds the static demo site: no backend, recorded answers only.
+const REPLAY = import.meta.env.VITE_DEMO_MODE === "replay";
+const api = REPLAY ? replay : live;
 
 const CLEARANCE = ["public", "internal", "confidential", "restricted"];
-const ACTION_LABEL = {
-  hold_lot: "hold 批號",
-  inhibit_chamber: "暫停腔體派貨",
-  request_pm: "開立保養工單",
-};
-const MODES = [
-  ["agent", "Agent（LLM 決定下一步）"],
-  ["fixed", "固定 workflow"],
-  ["rag", "只用 RAG"],
-];
-
-function UserPicker({ users, me, onPick }) {
-  return (
-    <div className="userpicker">
-      <label>
-        目前身分{" "}
-        <select value={me?.user_id || ""} onChange={(e) => onPick(e.target.value)}>
-          <option value="" disabled>
-            選擇 demo 使用者
-          </option>
-          {users.map((u) => (
-            <option key={u.user_id} value={u.user_id}>
-              {u.display_name}（{u.user_id}）
-            </option>
-          ))}
-        </select>
-      </label>
-      {me && (
-        <span className="scope">
-          廠區 {me.fabs.join(", ")} · 部門 {me.departments.join(", ")} · 等級{" "}
-          {CLEARANCE[me.clearance]}
-        </span>
-      )}
-    </div>
-  );
-}
-
-function Trace({ calls }) {
-  if (!calls?.length) return null;
-  return (
-    <section className="card">
-      <h3>Agent trace（{calls.length} 次工具呼叫）</h3>
-      <ol className="trace">
-        {calls.map((c) => (
-          <li key={c.step} className={c.ok ? "ok" : "err"}>
-            <div>
-              <b>{c.tool}</b> <code>{JSON.stringify(c.args)}</code>
-            </div>
-            {c.ok ? (
-              <pre>{c.preview}</pre>
-            ) : (
-              <div className="error">錯誤：{c.error}</div>
-            )}
-          </li>
-        ))}
-      </ol>
-    </section>
-  );
-}
-
-function Result({ run }) {
-  if (!run) return null;
-  const u = run.usage || {};
-  return (
-    <section className="card">
-      <h3>
-        回答 <span className={`badge ${run.status}`}>{run.status}</span>
-        {run.refused && <span className="badge refused">不給建議</span>}
-      </h3>
-      <p className="answer">{run.answer}</p>
-      {run.citations?.length > 0 && (
-        <p className="meta">引用：{run.citations.join("、")}</p>
-      )}
-      {run.proposal && (
-        <p className="meta">
-          建議：{ACTION_LABEL[run.proposal.action]} <code>{run.proposal.target_id}</code>（
-          {run.proposal.status}）
-        </p>
-      )}
-      <p className="meta">
-        模式 {run.mode} · 工具呼叫 {run.steps} · LLM 呼叫 {u.llm_calls ?? 0} · token{" "}
-        {(u.input_tokens || 0) + (u.output_tokens || 0)} · US$
-        {(u.cost_usd || 0).toFixed(5)}
-      </p>
-    </section>
-  );
-}
-
-function Approvals({ me, refreshKey }) {
-  const [items, setItems] = useState([]);
-  const [audit, setAudit] = useState({});
-  const [msg, setMsg] = useState("");
-
-  const load = () =>
-    api.pending().then(setItems).catch((e) => setMsg(e.message));
-
-  useEffect(() => {
-    if (me) load();
-  }, [me, refreshKey]);
-
-  async function decide(p, approved) {
-    setMsg("");
-    try {
-      const run = await api.decide(p.proposal_id, approved, "");
-      setMsg(`${p.proposal_id}：${run.status}`);
-    } catch (e) {
-      setMsg(`${p.proposal_id}：被拒絕（${e.message}）`);
-    }
-    setAudit({ ...audit, [p.proposal_id]: await api.audit(p.proposal_id) });
-    load();
-  }
-
-  return (
-    <section className="card">
-      <h3>
-        待核准的建議 <button onClick={load}>重新整理</button>
-      </h3>
-      <p className="hint">
-        規則：不能核准自己提出的建議；核准者等級需 ≥ confidential；必須看得到目標。
-        切換身分來核准。
-      </p>
-      {items.length === 0 && <p className="meta">沒有你看得到的待核准建議。</p>}
-      {items.map((p) => (
-        <div key={p.proposal_id} className="proposal">
-          <div>
-            <b>{ACTION_LABEL[p.action]}</b> <code>{p.target_id}</code> · 提出者 {p.requester}
-          </div>
-          <div className="meta">理由：{p.reason}</div>
-          <button disabled={!p.can_decide} onClick={() => decide(p, true)}>
-            核准
-          </button>
-          <button disabled={!p.can_decide} onClick={() => decide(p, false)}>
-            駁回
-          </button>
-          {!p.can_decide && <span className="error">不能決定：{p.why_not}</span>}
-        </div>
-      ))}
-      {msg && <p className="meta">{msg}</p>}
-      {Object.entries(audit).map(([id, rows]) => (
-        <div key={id} className="audit">
-          <b>Audit log {id}</b>
-          <ul>
-            {rows.map((a, i) => (
-              <li key={i}>
-                {a.ts.slice(0, 19)} · {a.event} · {a.actor}
-                {a.detail?.reason ? ` · ${a.detail.reason}` : ""}
-              </li>
-            ))}
-          </ul>
-        </div>
-      ))}
-    </section>
-  );
-}
-
-const INTRO_CAPTION = {
-  zh: "半夜 alarm 響了，夜班工程師要查 SOP、MES、過去的異常報告好幾個系統。",
-  en: "An alarm at night: the engineer has to check SOPs, MES and past incident reports.",
+const MODES = { rag: "只用 RAG", fixed: "固定 workflow", agent: "Agent" };
+const STATUS = {
+  done: "完成",
+  awaiting_approval: "等待核准",
+  executed: "已執行",
+  rejected: "已駁回",
+  incomplete: "未完成",
 };
 
 function Banner() {
   return (
     <div className="banner" role="note">
-      錄製的示範：回答為事先以真實系統產生，資料全部為虛構工廠的合成資料。
-      <br />
-      Recorded demo: answers were produced beforehand by the real system; all data is synthetic,
-      from a fictional fab.
+      <b>錄製的示範</b>：回答為事先以真實系統產生，資料全部為虛構工廠的合成資料。
+      <span className="banner-en">
+        Recorded demo: answers were produced beforehand by the real system; all data is synthetic,
+        from a fictional fab.
+      </span>
     </div>
   );
 }
 
-function Subtitles({ scene }) {
-  const c = scene ? { zh: scene.caption_zh, en: scene.caption_en } : INTRO_CAPTION;
-  return <SubtitleBox c={c} />;
-}
-
-function SubtitleBox({ c }) {
+function Badge({ u, active, onPick }) {
   return (
-    <div className="subtitles" data-testid="subtitles">
-      <div>{c.zh}</div>
-      <div className="en">{c.en}</div>
-    </div>
+    <button
+      type="button"
+      className={`badge ${active ? "badge-on" : ""}`}
+      aria-pressed={active}
+      onClick={() => onPick(u.user_id)}
+    >
+      <span className="badge-name">{u.display_name}</span>
+      <span className="code badge-id">{u.user_id}</span>
+      <span className="badge-scope">
+        {u.fabs.join("·")} · {u.departments.length > 2 ? `${u.departments.length} 部門` : u.departments.join("·")}
+      </span>
+      <span className={`clr clr-${u.clearance}`}>{CLEARANCE[u.clearance]}</span>
+    </button>
   );
 }
 
-function Injected({ doc }) {
-  if (!doc) return null;
-  const handling = doc.body_md.split("## 處理經過")[1]?.split("##")[0]?.trim();
+function Answer({ run, onCite }) {
+  if (!run) return null;
   return (
-    <section className="card injected">
-      <h3>這一題檢索到的報告藏有注入文字（測試用文件 {doc.doc_id}）</h3>
-      <p className="meta">處理經過欄位：</p>
-      <blockquote>{handling}</blockquote>
-    </section>
-  );
-}
-
-function ResultsPanel({ results }) {
-  if (!results) return null;
-  return (
-    <section className="card results" data-testid="results">
-      <h3>評估結果（凍結 test，只跑一次）</h3>
-      <p className="meta">{results.source}</p>
-      <div className="tables">
-        {results.tables.map((t) => (
-          <table key={t.title}>
-            <caption>{t.title}</caption>
-            <thead>
-              <tr>
-                {t.columns.map((c) => (
-                  <th key={c}>{c}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {t.rows.map((r) => (
-                <tr key={r[0]}>
-                  {r.map((v, i) => (
-                    <td key={i}>{v}</td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ))}
+    <section className="panel answer" aria-live="polite">
+      <div className="panel-head">
+        <h2>回答</h2>
+        <span className={`state state-${run.status}`}>{STATUS[run.status] || run.status}</span>
+        {run.refused && <span className="state state-refused">不給建議</span>}
       </div>
+      <p className="answer-text">{run.answer}</p>
+      <div className="cites">
+        <span className="fine">引用</span>
+        {run.citations?.length ? (
+          run.citations.map((c) => (
+            <button key={c} type="button" className="chip chip-cite code" onClick={() => onCite(c)}>
+              {c}
+            </button>
+          ))
+        ) : (
+          <span className="fine">無</span>
+        )}
+      </div>
+      <p className="fine meta-line">
+        {MODES[run.mode] || run.mode} · 工具呼叫 {run.steps} · LLM 呼叫 {run.usage?.llm_calls ?? 0} · token{" "}
+        {(run.usage?.input_tokens || 0) + (run.usage?.output_tokens || 0)}
+      </p>
     </section>
   );
 }
-
-const MODE_LABEL = Object.fromEntries(MODES);
 
 export default function App() {
   const [users, setUsers] = useState([]);
   const [me, setMe] = useState(null);
-  const [question, setQuestion] = useState("");
-  const [mode, setMode] = useState("agent");
+  const [docs, setDocs] = useState([]);
   const [scenes, setScenes] = useState([]);
-  const [sceneId, setSceneId] = useState("");
-  const [scene, setScene] = useState(null);
-  const [captionScene, setCaptionScene] = useState(null); // survives identity switches
+  const [tour, setTour] = useState(0); // index into TOUR, or null for free exploration
+  const [pick, setPick] = useState(""); // free mode: chosen scene id
+  const [question, setQuestion] = useState(""); // live mode
+  const [mode, setMode] = useState("agent"); // live mode
   const [run, setRun] = useState(null);
+  const [runScene, setRunScene] = useState(null);
+  const [focusId, setFocusId] = useState(null);
+  const [results, setResults] = useState(null);
+  const [showResults, setShowResults] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
-  const [results, setResults] = useState(null);
-  const [subs, setSubs] = useState(
-    () => new URLSearchParams(window.location.search).get("subs") === "1",
-  );
+  const [subs] = useState(() => new URLSearchParams(window.location.search).get("subs") === "1");
+  const approvalsRef = useRef(null);
 
   useEffect(() => {
     api.users().then(setUsers).catch((e) => setError(e.message));
-    if (REPLAY) replay.scenes().then(setScenes);
+    api.scenes().then(setScenes);
+    api.results().then(setResults).catch(() => {});
   }, []);
 
-  const mine = scenes.filter((s) => s.user === me?.user_id);
-  const chosen = mine.find((s) => s.id === sceneId);
+  useEffect(() => {
+    if (users.length && tour !== null) goTo(tour);
+  }, [users.length]);
 
-  async function pick(userId) {
-    const s = await api.login(userId); // switching identity re-issues the token
-    setToken(s.token);
-    setMe(s.user);
-    setRun(null);
-    setScene(null);
-    setError("");
-    if (REPLAY) setSceneId(scenes.find((x) => x.user === userId)?.id || "");
+  async function login(userId) {
+    const u = await api.login(userId);
+    setMe(u);
+    setDocs(await api.docs());
+    setFocusId(null);
+    return u;
   }
 
-  async function ask(e) {
-    e.preventDefault();
+  const step = tour !== null ? TOUR[tour] : null;
+  const mine = useMemo(() => scenes.filter((s) => s.user === me?.user_id), [scenes, me]);
+  const sceneId = step?.sceneId || pick;
+  const scene = scenes.find((s) => s.id === sceneId);
+
+  async function goTo(i) {
+    setTour(i);
+    setError("");
+    const s = TOUR[i];
+    if (s.results) {
+      setShowResults(true);
+      return;
+    }
+    setShowResults(false);
+    if (me?.user_id !== s.user) await login(s.user);
+    if (!REPLAY && s.question) {
+      setQuestion(s.question);
+      setMode(s.mode);
+    }
+    if (runScene !== s.sceneId) {
+      setRun(null);
+      setRunScene(null);
+    }
+    if (s.key === "approval" && runScene !== s.sceneId) await ask(s.sceneId, s);
+    if (s.key === "approval") {
+      setTimeout(() => approvalsRef.current?.scrollIntoView({ block: "center" }), 100);
+    }
+  }
+
+  async function switchUser(userId) {
+    await login(userId);
+    const keep = tour !== null && TOUR[tour].key === "approval"; // approving needs the run
+    if (!keep) {
+      setTour(null); // leaving the script: free exploration
+      setRun(null);
+      setRunScene(null);
+    }
+    setPick(scenes.find((s) => s.user === userId)?.id || "");
+  }
+
+  async function ask(id = sceneId, s = step) {
     setBusy(true);
     setError("");
     try {
+      let r;
       if (REPLAY) {
-        await new Promise((r) => setTimeout(r, 600)); // a short pause, like a real request
-        setRun(await replay.ask(sceneId));
-        setScene(replay.sceneById(sceneId));
-        setCaptionScene(replay.sceneById(sceneId));
+        await new Promise((res) => setTimeout(res, 500)); // a short pause, like a real request
+        r = await api.ask({ sceneId: id });
       } else {
-        setRun(await api.ask(question, mode));
+        r = await api.ask({ question: question || s?.question, mode });
       }
+      setRun(r);
+      setRunScene(id);
+      setFocusId(r.citations?.[0] || null);
       setRefreshKey((k) => k + 1);
-    } catch (err) {
-      setError(err.message);
+    } catch (e) {
+      setError(e.message);
     } finally {
       setBusy(false);
     }
   }
 
+  const caption = step
+    ? { zh: step.explain, en: step.caption_en }
+    : scene
+      ? { zh: scene.caption_zh, en: scene.caption_en }
+      : null;
+
   return (
-    <main className={subs ? "with-subs" : ""}>
-      {REPLAY && <Banner />}
-      <header>
-        <h1>FabOps Copilot</h1>
-        <span className="hint">虛構晶圓廠 Fab-X · 全部為合成資料</span>
-        {REPLAY && (
-          <span className="replay-buttons">
-            <button
-              type="button"
-              className="results-toggle"
-              onClick={async () => setResults(results ? null : await replay.results())}
-            >
-              {results ? "回到示範" : "評估結果"}
-            </button>
-            <button type="button" className="subs-toggle" onClick={() => setSubs(!subs)}>
-              {subs ? "隱藏字幕" : "顯示字幕"}
-            </button>
-          </span>
-        )}
-      </header>
-      {REPLAY && <ResultsPanel results={results} />}
-      {!results && <UserPicker users={users} me={me} onPick={pick} />}
-      {!results && me && (
-        <form className="card" onSubmit={ask}>
-          {REPLAY ? (
-            <>
-              <select
-                className="scene-select"
-                value={sceneId}
-                onChange={(e) => setSceneId(e.target.value)}
-              >
-                {mine.length === 0 && <option value="">這個身分沒有錄製的問題</option>}
-                {mine.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    [{MODE_LABEL[s.mode]}] {s.question}
-                  </option>
-                ))}
-              </select>
-              <div className="row">
-                <span className="meta">
-                  模式：{chosen ? MODE_LABEL[chosen.mode] : "—"}（回放版只能選錄製過的問題）
+    <div className={`app ${subs ? "app-subs" : ""}`}>
+      <div className="app-scroll">
+        {REPLAY && <Banner />}
+        <header className="top">
+          <div className="brand">
+            <span className="brand-mark" aria-hidden="true" />
+            <div>
+              <h1>FabOps Copilot</h1>
+              <p className="fine">夜班異常處理助理 · 虛構晶圓廠 Fab-X · 全部為合成資料</p>
+            </div>
+          </div>
+          <nav className="tour-nav" aria-label="導覽">
+            {tour === null ? (
+              <button type="button" className="primary" onClick={() => goTo(0)}>
+                開始導覽
+              </button>
+            ) : (
+              <>
+                <button type="button" onClick={() => goTo(Math.max(0, tour - 1))} disabled={tour === 0}>
+                  上一步
+                </button>
+                <span className="fine tour-pos">
+                  {tour + 1} / {TOUR.length}
                 </span>
-                <button disabled={busy || !sceneId}>{busy ? "查詢中…" : "送出"}</button>
-              </div>
-            </>
+                <button
+                  type="button"
+                  className="primary"
+                  onClick={() => goTo(Math.min(TOUR.length - 1, tour + 1))}
+                  disabled={tour === TOUR.length - 1}
+                >
+                  下一步
+                </button>
+                <button type="button" className="quiet" onClick={() => setTour(null)}>
+                  自由探索
+                </button>
+              </>
+            )}
+          </nav>
+        </header>
+
+        <section className="badges" aria-label="切換身分（demo 使用者）">
+          {users.map((u) => (
+            <Badge key={u.user_id} u={u} active={me?.user_id === u.user_id} onPick={switchUser} />
+          ))}
+        </section>
+
+        <div className="grid">
+          <nav className="rail" aria-label="情境">
+            <ol>
+              {TOUR.map((s, i) => (
+                <li key={s.key}>
+                  <button
+                    type="button"
+                    className={`rail-item ${tour === i ? "rail-on" : ""}`}
+                    aria-current={tour === i ? "step" : undefined}
+                    onClick={() => goTo(i)}
+                  >
+                    <span className="rail-n">{i + 1}</span>
+                    {s.title}
+                  </button>
+                </li>
+              ))}
+            </ol>
+            <p className="fine rail-note">也可以直接點上方的識別證切換身分，自由探索錄製過的問題。</p>
+          </nav>
+
+          {showResults ? (
+            <main className="main main-wide">
+              {step && (
+                <section className="panel step-card">
+                  <div className="panel-sub">情境 {tour + 1} · {step.title}</div>
+                  <p>{step.explain}</p>
+                </section>
+              )}
+              <Results results={results} />
+            </main>
           ) : (
             <>
-              <textarea
-                rows={3}
-                value={question}
-                placeholder="例如：FX1-ETCHER-02-CHA 剛發生 ETC-PRS-0412，請先確認腔體狀態，再依 SOP 處理。"
-                onChange={(e) => setQuestion(e.target.value)}
-              />
-              <div className="row">
-                <select value={mode} onChange={(e) => setMode(e.target.value)}>
-                  {MODES.map(([v, l]) => (
-                    <option key={v} value={v}>
-                      {l}
-                    </option>
-                  ))}
-                </select>
-                <button disabled={busy || !question.trim()}>{busy ? "查詢中…" : "送出"}</button>
-              </div>
+              <main className="main">
+                {step && (
+                  <section className="panel step-card">
+                    <div className="panel-sub">情境 {tour + 1} · {step.title}</div>
+                    <p>{step.explain}</p>
+                  </section>
+                )}
+                {me && (
+                  <section className="panel ask">
+                    <div className="panel-head">
+                      <h2>提問</h2>
+                      <span className="fine">身分：{me.display_name}</span>
+                    </div>
+                    {REPLAY ? (
+                      step?.sceneId ? (
+                        <p className="question">{scene?.question}</p>
+                      ) : (
+                        <select
+                          className="scene-select"
+                          value={pick}
+                          onChange={(e) => setPick(e.target.value)}
+                          aria-label="錄製過的問題"
+                        >
+                          {mine.length === 0 && <option value="">這個身分沒有錄製的問題</option>}
+                          {mine.map((s) => (
+                            <option key={s.id} value={s.id}>
+                              [{MODES[s.mode]}] {s.question}
+                            </option>
+                          ))}
+                        </select>
+                      )
+                    ) : (
+                      <textarea
+                        rows={3}
+                        value={question}
+                        onChange={(e) => setQuestion(e.target.value)}
+                        aria-label="問題"
+                      />
+                    )}
+                    <div className="row">
+                      {REPLAY ? (
+                        <span className="fine">模式：{MODES[scene?.mode] || "—"} · 回放版只能選錄製過的問題</span>
+                      ) : (
+                        <select value={mode} onChange={(e) => setMode(e.target.value)} aria-label="模式">
+                          {Object.entries(MODES).map(([v, l]) => (
+                            <option key={v} value={v}>
+                              {l}
+                            </option>
+                          ))}
+                        </select>
+                      )}
+                      {step?.key !== "approval" && (
+                        <button
+                          type="button"
+                          className="primary send"
+                          disabled={busy || (REPLAY ? !sceneId : !question.trim())}
+                          onClick={() => ask()}
+                        >
+                          {busy ? "查詢中…" : "送出問題"}
+                        </button>
+                      )}
+                    </div>
+                  </section>
+                )}
+                {error && <p className="msg-bad">{error}</p>}
+                <Answer run={run} onCite={setFocusId} />
+                {run && runScene === scene?.id && (
+                  <Injection
+                    scene={scene}
+                    run={run}
+                    cite={(c) => (
+                      <span key={c} className="code">
+                        {c}{" "}
+                      </span>
+                    )}
+                  />
+                )}
+              </main>
+
+              <aside className="evidence" aria-label="證據">
+                <details open className="ev-block">
+                  <summary>權限晶圓圖</summary>
+                  <WaferMap
+                    docs={docs}
+                    retrieved={run?.retrieved || []}
+                    cited={run?.citations || []}
+                    focusId={focusId}
+                    onFocus={setFocusId}
+                  />
+                </details>
+                <details open className="ev-block">
+                  <summary>Agent 步驟</summary>
+                  <Timeline
+                    calls={run?.calls}
+                    proposal={run?.proposal}
+                    runKey={`${runScene}-${refreshKey}`}
+                  />
+                </details>
+                <details open className="ev-block" ref={approvalsRef}>
+                  <summary>核准與 audit log</summary>
+                  {me && <Approvals api={api} me={me} refreshKey={refreshKey} />}
+                </details>
+              </aside>
             </>
           )}
-        </form>
+        </div>
+        <footer className="foot fine">
+          FabOps Copilot · 原始碼與評估方法：
+          <a href="https://github.com/colin-lai-dev/fabops-copilot">github.com/colin-lai-dev/fabops-copilot</a>
+        </footer>
+      </div>
+      {subs && caption && (
+        <div className="subtitles" data-testid="subtitles">
+          <div>{caption.zh}</div>
+          <div className="en">{caption.en}</div>
+        </div>
       )}
-      {!results && (
-        <>
-          {error && <p className="error">{error}</p>}
-          {REPLAY && <Injected doc={scene?.injected} />}
-          <Result run={run} />
-          <Trace calls={run?.calls} />
-          {me && <Approvals me={me} refreshKey={refreshKey} />}
-        </>
-      )}
-      {REPLAY && subs && results && (
-        <SubtitleBox c={{ zh: results.caption_zh, en: results.caption_en }} />
-      )}
-      {REPLAY && subs && !results && <Subtitles scene={captionScene} />}
-    </main>
+    </div>
   );
 }

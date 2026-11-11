@@ -50,3 +50,4 @@ Claude Code 遇到 ADR 沒涵蓋的問題時記錄於此，並採用暫定做法
 | 2026-11-11 | 模型比較中 Haiku 沿用既有 test 結果 | 不重跑（「每個模型只跑一次」）；RAG 回答路徑自 Phase 1 沒改，agent 結果是 Phase 2 gate 的同一份程式。 | 用現行程式重跑 Haiku（會是第二次 test）。 | 暫定 |
 | 2026-11-11 | 強制送達 injection 的切分 | 沿用原 injection 集的 dev/test（仍是每類 40/60），方便逐題對照；另存 `evals/injection/forced/`，test 凍結後只跑一次。 | 以新 seed 重新切分。 | 暫定 |
 | 2026-11-11 | CI 的小型 eval 內容 | 不需要模型與 API key 的三項：產生器重現、MES 工具洩漏（JSONL store）、`refuse_all` dev 底線。檢索指標需要 bge-m3 與索引，不放 CI。 | 在 CI 快取 bge-m3 並建索引（每次數分鐘、約 2 GB）。 | 暫定 |
+| 2026-11-11 | 晶圓圖會透露「有多少份文件看不到」 | 正式版 `/api/docs` 對看不到的文件只回「鎖」（沒有編號與屬性），但 die 的總數與排列位置（依廠區、部門排序）仍會透露大致分布；回放版的 fixture 含全部 192 份的屬性（合成資料，語料本來就在 repo）。demo 用途可接受。 | 正式環境不提供晶圓圖，或只顯示可見文件。 | 暫定 |

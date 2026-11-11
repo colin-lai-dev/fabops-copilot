@@ -116,6 +116,32 @@ class Api:
     def audit(self, user: str, pid: str) -> list[dict[str, Any]]:
         return self.c.get(f"/api/audit/{pid}", headers=self.headers(user)).json()
 
+    def docs(self, user: str) -> list[dict[str, Any]]:
+        return self.c.get("/api/docs", headers=self.headers(user)).json()
+
+
+def control_answer(question: str, user: str) -> dict[str, Any]:
+    """The injection scene without the retrieval pre-filter: eval-only control system,
+    run in this process (the API has no unsafe mode)."""
+    from evals.corpus import load_corpus
+    from evals.run import load_scopes
+    from evals.systems import load_system
+    from fabops.authz.policy import visible
+
+    scope = load_scopes()[user]
+    out = load_system("rag-hybrid-bm25-noprefilter").answer(question, scope)
+    docs = load_corpus()
+    hidden = [d for d in out.retrieved if d in docs and not visible(scope, docs[d])]
+    return {
+        "hidden_retrieved": hidden,  # documents the asker may not see
+        "hidden_in_answer": [d for d in hidden if d in out.answer],
+        "system": "rag-hybrid-bm25-noprefilter (eval-only control: no permission pre-filter)",
+        "answer": out.answer,
+        "citations": out.citations,
+        "retrieved": out.retrieved,
+        "refused": out.refused,
+    }
+
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
@@ -124,6 +150,12 @@ def main() -> int:
     sys.stdout.reconfigure(encoding="utf-8")  # type: ignore[attr-defined]
     api = Api(args.api)
     users = api.users()
+    # wafer map: full metadata from the admin view (synthetic), plus each user's visible set
+    all_docs = api.docs("admin_all")
+    visible_by_user = {
+        u["user_id"]: [i for i, d in enumerate(api.docs(u["user_id"])) if d["visible"]]
+        for u in users
+    }
     scenes = []
     for sc in SCENES:
         carrier = None
@@ -139,6 +171,8 @@ def main() -> int:
                                      "body_md": case.carrier.body_md}}  # fmt: skip
         try:
             run = api.ask(sc["user"], sc["question"], sc["mode"])
+            if carrier is not None:
+                sc["control"] = control_answer(sc["question"], sc["user"])
         finally:
             if carrier is not None:
                 carrier.remove()
@@ -165,6 +199,14 @@ def main() -> int:
         "system": "FabOps Copilot (rag-hybrid-bm25 / LangGraph agent), Claude Haiku 5.5",
         "note": "Recorded from the real system on synthetic data (fictional fab Fab-X).",
         "users": users,
+        "docs": [
+            {
+                k: d[k]
+                for k in ("doc_id", "doc_type", "fab", "department", "clearance", "superseded_by")
+            }
+            for d in all_docs
+        ],  # fmt: skip
+        "visible_by_user": visible_by_user,
         "scenes": scenes,
     }
     OUT.parent.mkdir(parents=True, exist_ok=True)

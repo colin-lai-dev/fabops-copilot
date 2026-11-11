@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import asyncio
 import contextlib
+import json
 import secrets
 import sys
 from dataclasses import asdict
@@ -32,7 +33,7 @@ from pydantic import BaseModel, Field
 from fabops.agent.gateway import McpGateway
 from fabops.agent.proposals import ApprovalDenied, ProposalStore, approval_problem, target_visible
 from fabops.agent.service import AgentService, postgres_checkpointer
-from fabops.authz.policy import scope_of_user
+from fabops.authz.policy import scope_of_user, visible
 from fabops.authz.scope import Scope
 from fabops.authz.token import issue_token, verify_token
 from fabops.authz.trace import Tracer
@@ -67,6 +68,32 @@ class State:
     mcp_app: Any
     answerer: Any
     mes: Any
+    doc_meta: list[dict[str, Any]]
+
+
+DOC_ORDER = ("fab", "department", "doc_type", "doc_id")
+
+
+def load_doc_meta(connect: Any) -> list[dict[str, Any]]:
+    """Document metadata for the wafer map (no text), ordered by fab, department, type."""
+    cols = ("doc_id", "doc_type", "fab", "department", "clearance", "superseded_by")
+    with connect() as conn, conn.cursor() as cur:
+        cur.execute(f"SELECT {', '.join(cols)} FROM documents")
+        rows = [dict(zip(cols, r, strict=True)) for r in cur]
+    return sorted(rows, key=lambda d: tuple(d[k] for k in DOC_ORDER))
+
+
+def searched_doc_ids(calls: list[dict[str, Any]]) -> list[str]:
+    """Doc ids returned by the search tools in an agent run (already permission-filtered)."""
+    out: list[str] = []
+    for c in calls:
+        if c.get("ok") and c["tool"] in ("search_sop", "search_similar_incidents"):
+            try:
+                docs = json.loads(c.get("full") or "{}").get("documents", [])
+            except ValueError:
+                continue
+            out += [d["doc_id"] for d in docs if d.get("doc_id") not in out]
+    return out
 
 
 def build_app(prebuilt: State | None = None) -> FastAPI:
@@ -103,6 +130,7 @@ def build_app(prebuilt: State | None = None) -> FastAPI:
             cur.execute("SELECT user_id, display_name, fabs, departments, clearance FROM users")
             cols = ("user_id", "display_name", "fabs", "departments", "clearance")
             st.users = {r[0]: dict(zip(cols, r, strict=True)) for r in cur}
+        st.doc_meta = load_doc_meta(connect)
         tracer = Tracer.from_env()
         retriever = Retriever(connect, default_encoder())
         st.mes = PgMesStore(connect)
@@ -160,6 +188,7 @@ def build_app(prebuilt: State | None = None) -> FastAPI:
             return {
                 "mode": "rag", "status": "done", "answer": a.text, "citations": a.citations,
                 "refused": a.refused, "steps": 0, "calls": [], "proposal": None,
+                "retrieved": a.retrieved,
                 "usage": {"input_tokens": a.input_tokens, "output_tokens": a.output_tokens,
                           "cost_usd": a.cost_usd, "llm_calls": 1},
             }  # fmt: skip
@@ -170,10 +199,28 @@ def build_app(prebuilt: State | None = None) -> FastAPI:
             )
         out = asdict(run)
         out.pop("tool_results", None)
+        out["retrieved"] = searched_doc_ids(out["calls"])
         for c in out["calls"]:
             full = c.pop("full", None)
             if full is not None:
                 c["preview"] = full[:PREVIEW_CHARS] + ("…" if len(full) > PREVIEW_CHARS else "")
+        return out
+
+    @app.get("/api/docs")
+    def docs(user_id: str = Depends(current_user)) -> list[dict[str, Any]]:
+        """Every document as one die of the permission wafer map, in a stable order.
+
+        Visible documents carry their metadata (never their text); a document the user may
+        not see is only a locked die, with no id or attributes.
+        """
+        scope = scope_of(user_id)
+        assert scope is not None
+        out = []
+        for d in st.doc_meta:
+            if visible(scope, d):
+                out.append({**d, "visible": True})
+            else:
+                out.append({"visible": False, "doc_type": None})
         return out
 
     @app.get("/api/proposals")
