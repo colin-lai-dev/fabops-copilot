@@ -6,6 +6,9 @@
 
 ## 2026-11-11
 
+- **交接指示 012**（Claude Code）：demo 網站重新設計（夜班 MES 主控台、權限晶圓圖、6 步導覽、agent 逐步時間軸、真的操作核准、injection 對照組、互動結果圖），
+  正式版與回放版共用元件；API 新增 `/api/docs` 與 `retrieved`；injection 對照組以 `rag-hybrid-bm25-noprefilter` 實跑（US$0.0005）。
+  新依賴：@fontsource/barlow、noto-sans-tc、jetbrains-mono（自帶字型，不用 CDN）。重錄影片（2:55，1080p，存 `private/demo/`）與 GIF（27.5 s，2.8 MB）。
 - **交接指示 011**（Claude Code）：回放 fixture（真實 API + Haiku，7 段，LLM 全命中快取，花費 US$0）、回放模式前端（橫幅、字幕、結果面板）、
   GitHub Pages 部署（https://colin-lai-dev.github.io/fabops-copilot/）、CI actions 升級；安裝 Playwright 1.49.1 + Chromium（約 88 MB）、gifenc、pngjs；
   自動錄製 3 分鐘影片（1080p WebM）與 30 秒 GIF（`docs/assets/demo.gif`）。上傳 release 被權限分類器擋下，待 Colin 執行。

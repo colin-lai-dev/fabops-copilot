@@ -1,10 +1,9 @@
-// Drive the replay site through docs/demo-script.md and record it (handoff 011 D).
+// Drive the replay site through the guided tour and record it (handoff 011 D / 012).
 //
 //   node scripts/record-demo.mjs video <url> <outDir>   # ~3 min, 1920x1080 webm, subtitles on
 //   node scripts/record-demo.mjs gif   <url> <outFile>  # ~30 s GIF for the README (960x540)
-//   node scripts/record-demo.mjs shots <url> <outDir>   # checkpoint screenshots for review
 //
-// <url> is the replay build, e.g. http://127.0.0.1:4173/fabops-copilot/ (vite preview --mode replay).
+// <url> is the replay build, e.g. http://localhost:4174/fabops-copilot/ (vite preview --mode replay).
 import { chromium } from "playwright";
 import fs from "node:fs";
 import path from "node:path";
@@ -12,172 +11,175 @@ import gifenc from "gifenc";
 import { PNG } from "pngjs";
 
 const { GIFEncoder, quantize, applyPalette } = gifenc;
-
 const [, , kind, url, out] = process.argv;
 if (!kind || !url || !out) {
-  console.error("usage: record-demo.mjs video|gif|shots <url> <out>");
+  console.error("usage: record-demo.mjs video|gif <url> <out>");
   process.exit(2);
 }
-
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-async function as(page, user) {
-  await page.selectOption(".userpicker select", user);
-  await sleep(700);
+const tourNext = (page) => page.locator(".tour-nav button.primary").click();
+async function send(page) {
+  await page.getByRole("button", { name: "送出問題" }).click();
+  await page.waitForFunction(() => !document.querySelector(".send")?.textContent.includes("查詢中"));
+  await page.waitForSelector(".answer-text");
+  await sleep(400);
 }
+const into = (page, sel) => page.locator(sel).first().scrollIntoViewIfNeeded();
+const toTop = (page) =>
+  page.evaluate(() => document.querySelector(".app-scroll")?.scrollTo({ top: 0, behavior: "smooth" }));
 
-async function ask(page, sceneId) {
-  await page.selectOption(".scene-select", sceneId);
-  await sleep(600);
-  await page.click("form button");
-  await page.waitForFunction(() => document.querySelector("form button")?.textContent === "送出");
-  await page.waitForSelector(".answer");
-  await sleep(500);
-}
-
-async function show(page, selector) {
-  const el = page.locator(selector).first();
-  if (await el.count()) await el.scrollIntoViewIfNeeded();
-}
-
-async function top(page) {
-  await page.evaluate(() => window.scrollTo({ top: 0, behavior: "smooth" }));
-}
-
-// One walk through the storyboard; `hold(ms)` lets the GIF pass shorten every pause.
-async function walk(page, hold, snap = async () => {}) {
-  await hold(9000); // 0:00 intro caption
-  await snap("00-intro");
-  // 0:20 SOP question, current version cited
-  await as(page, "eng_fx1_etch");
-  await ask(page, "sop-latest");
-  await snap("01-sop-latest");
-  await hold(20000);
-  // 0:50 same question, low privilege
-  await as(page, "op_fx1_etch");
-  await ask(page, "low-privilege");
-  await snap("02-low-privilege");
-  await hold(13000);
-  // 1:05 role spoofing and an injected report
-  await as(page, "eng_fx1_etch");
-  await ask(page, "role-spoofing");
-  await show(page, ".trace");
-  await snap("03-role-spoofing");
-  await hold(12000);
-  await top(page);
-  await ask(page, "injection-blocked");
-  await show(page, ".injected");
-  await snap("04-injection");
-  await hold(13000);
-  // 1:20 RAG vs agent on a question that needs MES data, then triage with approval
-  await top(page);
-  await as(page, "mgr_fx2_all");
-  await ask(page, "cross-doc-rag");
-  await snap("05-cross-doc-rag");
+// The storyboard; `hold(ms)` is the pause after each action.
+async function tour(page, hold) {
+  // 1 SOP question
   await hold(9000);
-  await top(page);
-  await ask(page, "cross-doc-agent");
-  await show(page, ".trace");
-  await snap("06-cross-doc-agent");
-  await hold(12000);
-  await top(page);
-  await ask(page, "triage-approval");
+  await send(page);
+  await hold(6000);
+  await page.locator(".chip-cite").first().click();
+  await hold(11000);
+  // 2 permission
+  await tourNext(page);
+  await hold(3500);
+  await send(page);
+  await hold(14000);
+  // 3 agent, step by step
+  await tourNext(page);
+  await hold(3000);
+  await send(page);
+  await hold(3000);
+  await into(page, ".timeline");
+  for (let i = 0; i < 7; i++) {
+    await page.getByRole("button", { name: "下一步", exact: true }).last().click();
+    await hold(2300);
+  }
+  await page.locator(".step-head").first().click();
   await hold(7000);
-  await show(page, ".trace");
+  // 4 approval: the requester is refused, the admin approves
+  await tourNext(page);
+  await hold(2500);
+  await into(page, ".proposal-card");
+  await hold(3000);
+  await page.locator(".proposal-card button.approve").click();
+  await page.waitForSelector(".msg-bad");
+  await into(page, ".audit");
   await hold(8000);
-  await show(page, ".proposal");
-  await snap("07-triage-pending");
-  await hold(9000);
-  await top(page);
-  await as(page, "admin_all");
-  await show(page, ".proposal");
+  await toTop(page);
+  await page.getByRole("button", { name: /系統管理員/ }).click();
+  await hold(2500);
+  await into(page, ".proposal-card");
+  await hold(1500);
+  await page.locator(".proposal-card button.approve").click();
+  await page.waitForSelector(".ev-executed");
+  await into(page, ".audit");
+  await hold(11000);
+  // 5 injection with the control
+  await toTop(page);
+  await tourNext(page);
+  await hold(3000);
+  await send(page);
+  await hold(3000);
+  await into(page, ".injection");
+  await hold(5000);
+  await page.getByRole("button", { name: "看對照組" }).click();
+  await into(page, ".compare");
+  await hold(18000);
+  // 6 results
+  await toTop(page);
+  await tourNext(page);
   await hold(4000);
-  await page.locator(".proposal button", { hasText: "核准" }).first().click();
-  await page.waitForSelector(".audit");
-  await show(page, ".audit");
-  await snap("08-approved-audit");
-  await hold(12000);
-  // 2:10 results
-  await top(page);
-  await page.click(".results-toggle");
-  await page.waitForSelector("[data-testid=results]");
-  await snap("09-results");
-  await hold(24000);
+  for (const c of [0, 1, 2, 3]) {
+    const chart = page.locator(".chart").nth(c);
+    await chart.scrollIntoViewIfNeeded();
+    await chart.locator(".bar-line").nth(1).hover();
+    await hold(c < 2 ? 5000 : 7000);
+  }
+  await hold(6000);
 }
 
-async function launch(viewport, recordDir) {
+async function open(viewport, extra = {}) {
   const browser = await chromium.launch();
-  const context = await browser.newContext({
-    viewport,
-    deviceScaleFactor: 1,
-    colorScheme: "light",
-    ...(recordDir ? { recordVideo: { dir: recordDir, size: viewport } } : {}),
-  });
+  const context = await browser.newContext({ viewport, colorScheme: "light", ...extra });
   const page = await context.newPage();
   await page.goto(`${url}?subs=1`);
-  if (viewport.width >= 1920) await page.addStyleTag({ content: "html { zoom: 1.25; }" });
-  await page.waitForSelector(".userpicker select option[value=eng_fx1_etch]", { state: "attached" });
+  await page.waitForSelector(".badge-on");
+  await sleep(1200);
   return { browser, context, page };
 }
 
 if (kind === "video") {
   fs.mkdirSync(out, { recursive: true });
   const t0 = Date.now();
-  const { browser, context, page } = await launch({ width: 1920, height: 1080 }, out);
-  await walk(page, sleep);
+  const size = { width: 1920, height: 1080 };
+  const { browser, context, page } = await open(size, { recordVideo: { dir: out, size } });
+  // larger text for a 1080p video: zoom the scrolling content, not the 100vh frame
+  await page.addStyleTag({ content: ".app-scroll > * { zoom: 1.25; } .subtitles { font-size: 23px; } .subtitles .en { font-size: 17px; }" });
+  await sleep(500);
+  await tour(page, sleep);
   const video = page.video();
   await context.close();
   await browser.close();
-  const file = await video.path();
   const target = path.join(out, "fabops-copilot-demo.webm");
-  fs.renameSync(file, target);
+  fs.renameSync(await video.path(), target);
   console.log(`video ${target} ${((Date.now() - t0) / 1000).toFixed(0)} s`);
-} else if (kind === "shots") {
-  fs.mkdirSync(out, { recursive: true });
-  const { browser, page } = await launch({ width: 1920, height: 1080 });
-  await walk(page, (ms) => sleep(Math.min(ms, 300)), (name) =>
-    page.screenshot({ path: path.join(out, `${name}.png`) }),
-  );
-  await browser.close();
-  console.log(`shots in ${out}`);
 } else if (kind === "gif") {
-  // ~30 s: SOP answer, operator refused, agent triage, approval. 2 frames per second, 960x540.
-  const viewport = { width: 960, height: 540 };
-  const { browser, page } = await launch(viewport);
+  // ~30 s at 2 fps: wafer re-light, agent steps, refused then approved, injection control.
+  const { browser, page } = await open({ width: 1280, height: 720 }, { deviceScaleFactor: 1.5 });
   const gif = GIFEncoder();
+  const W = 960;
+  const H = 540;
   const frame = async (n = 1) => {
-    for (let i = 0; i < n; i++) {
-      const png = PNG.sync.read(await page.screenshot({ clip: { x: 0, y: 0, ...viewport } }));
-      const rgba = new Uint8Array(png.data);
+    for (let k = 0; k < n; k++) {
+      const png = PNG.sync.read(await page.screenshot());
+      const sw = png.width; // 1920: average 2x2 blocks down to 960x540
+      const rgba = new Uint8Array(W * H * 4);
+      for (let y = 0; y < H; y++)
+        for (let x = 0; x < W; x++)
+          for (let c = 0; c < 4; c++) {
+            const a = (2 * y * sw + 2 * x) * 4 + c;
+            const b = ((2 * y + 1) * sw + 2 * x) * 4 + c;
+            rgba[(y * W + x) * 4 + c] =
+              (png.data[a] + png.data[a + 4] + png.data[b] + png.data[b + 4]) >> 2;
+          }
       const palette = quantize(rgba, 128);
-      gif.writeFrame(applyPalette(rgba, palette), viewport.width, viewport.height, {
-        palette,
-        delay: 500,
-      });
+      gif.writeFrame(applyPalette(rgba, palette), W, H, { palette, delay: 500 });
     }
   };
-  await frame(4);
-  await as(page, "eng_fx1_etch");
-  await ask(page, "sop-latest");
-  await frame(12);
-  await as(page, "op_fx1_etch");
-  await ask(page, "low-privilege");
+  await frame(5);
+  await send(page);
+  await frame(7);
+  await tourNext(page);
+  await frame(3);
+  await send(page);
+  await frame(7);
+  await tourNext(page);
+  await send(page);
+  await into(page, ".timeline");
+  for (let i = 0; i < 6; i++) {
+    await page.getByRole("button", { name: "下一步", exact: true }).last().click();
+    await frame(1);
+  }
+  await tourNext(page);
+  await into(page, ".proposal-card");
+  await page.locator(".proposal-card button.approve").click();
+  await page.waitForSelector(".msg-bad");
+  await into(page, ".audit");
+  await frame(5);
+  await toTop(page);
+  await page.getByRole("button", { name: /系統管理員/ }).click();
+  await into(page, ".proposal-card");
+  await page.locator(".proposal-card button.approve").click();
+  await page.waitForSelector(".ev-executed");
+  await into(page, ".audit");
+  await frame(7);
+  await toTop(page);
+  await tourNext(page);
+  await send(page);
+  await page.getByRole("button", { name: "看對照組" }).click();
+  await into(page, ".compare");
   await frame(10);
-  await as(page, "mgr_fx2_all");
-  await ask(page, "triage-approval");
-  await frame(6);
-  await show(page, ".trace");
-  await frame(6);
-  await show(page, ".proposal");
-  await frame(6);
-  await top(page);
-  await as(page, "admin_all");
-  await show(page, ".proposal");
-  await frame(2);
-  await page.locator(".proposal button", { hasText: "核准" }).first().click();
-  await page.waitForSelector(".audit");
-  await show(page, ".audit");
-  await frame(14);
+  await toTop(page);
+  await tourNext(page);
+  await frame(5);
   gif.finish();
   fs.mkdirSync(path.dirname(out), { recursive: true });
   fs.writeFileSync(out, gif.bytes());
