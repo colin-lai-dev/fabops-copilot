@@ -88,6 +88,10 @@ class ProposalStore(Protocol):
         """Audit a refused decision attempt; the proposal stays as it is."""
         ...
 
+    def pending(self) -> list[Proposal]:
+        """Proposals waiting for a decision, oldest first."""
+        ...
+
     def audit(self, proposal_id: str | None = None) -> list[AuditEntry]: ...
 
 
@@ -142,6 +146,9 @@ class InMemoryProposalStore:
             self._by_id[proposal_id] = p
             self._audit.append(AuditEntry(proposal_id, "executed", "system", {"simulated": True}))
             return p, True
+
+    def pending(self):
+        return [p for p in self._by_id.values() if p.status == "pending"]
 
     def deny(self, proposal_id, actor, reason):
         with self._lock:
@@ -234,6 +241,14 @@ class PgProposalStore:
         if p is None:
             raise KeyError(proposal_id)
         return p, False
+
+    def pending(self):
+        with self.connect() as conn, conn.cursor() as cur:
+            cur.execute(
+                f"SELECT {self._COLS} FROM agent_proposals WHERE status = 'pending' "
+                "ORDER BY created_at"
+            )
+            return [self._row(r) for r in cur]
 
     def deny(self, proposal_id, actor, reason):
         with self.connect() as conn, conn.cursor() as cur:

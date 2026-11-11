@@ -1,4 +1,4 @@
-.PHONY: up down install lint fmt test test-db generate polish seed index eval-dev eval-test
+.PHONY: up down install lint fmt test test-db generate polish seed index eval-dev eval-test mcp api web web-build
 
 up:
 	docker compose up -d
@@ -48,3 +48,16 @@ eval-dev:
 # Test split: only at a gate, with Colin's approval (CLAUDE.md, "Eval 規則").
 eval-test:
 	uv run python -m evals.run --split test --system $(SYSTEM) --allow-test
+
+# Phase 2: read-only MES tools over MCP (needs FABOPS_JWT_SECRET), API + UI, frontend dev server.
+mcp:
+	uv run python -m fabops.mcp_server.server
+
+api:
+	uv run python -m fabops.api.app
+
+web-build:
+	cd web && npm install && npm run build
+
+web:
+	cd web && npm run dev

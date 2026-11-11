@@ -117,6 +117,11 @@ uv run python -m evals.run --split dev --system rag-hybrid-bm25
 
 Synthetic data is already generated under `data/generated/`; `make generate` rebuilds it from rules.
 
+**Demo UI (Phase 2):** `make web-build` (Node 20+), then `make api` and open http://127.0.0.1:8000.
+Pick a demo user, ask in agent / fixed-workflow / RAG mode, inspect the tool trace, and switch users
+to approve a proposal (you cannot approve your own; approvers need `confidential` clearance and must
+see the target). Without `FABOPS_JWT_SECRET` the API uses an ephemeral secret.
+
 ## Repository layout
 
 ```
