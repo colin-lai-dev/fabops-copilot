@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import contextlib
 import uuid
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Callable
 from dataclasses import dataclass, field
 from typing import Any, Literal
 
@@ -21,10 +21,11 @@ from langgraph.types import Command
 
 from fabops.agent.gateway import ToolGateway
 from fabops.agent.graph import MAX_STEPS, AgentDeps, build_graph
-from fabops.agent.proposals import ProposalStore
+from fabops.agent.proposals import ApprovalDenied, ProposalStore, approval_problem
 from fabops.authz.scope import Scope
 from fabops.authz.trace import Tracer
 from fabops.llm.client import LLMClient
+from fabops.mcp_server.store import MesStore
 
 Mode = Literal["agent", "fixed"]
 
@@ -69,10 +70,16 @@ class AgentService:
         checkpointer: Any,
         tracer: Tracer | None = None,
         max_steps: int = MAX_STEPS,
+        *,
+        resolve_scope: Callable[[str], Scope | None] | None = None,
+        mes: MesStore | None = None,
     ):
+        """`resolve_scope` and `mes` are needed for decisions (approver rules, ADR-0006
+        revision); without them every decision is denied."""
         self.llm, self.proposals, self.checkpointer = llm, proposals, checkpointer
         self.tracer = tracer or Tracer.from_env()
         self.max_steps = max_steps
+        self.resolve_scope, self.mes = resolve_scope, mes
 
     def _graph(self, mode: Mode, deps: AgentDeps):
         return build_graph(deps, mode, checkpointer=self.checkpointer)
@@ -108,15 +115,26 @@ class AgentService:
     async def decide(
         self, thread_id: str, *, approved: bool, approver: str, mode: Mode = "agent", note: str = ""
     ) -> AgentRun:
-        """Resume a run waiting at `approval`. No tool or LLM call happens after approval."""
+        """Resume a run waiting at `approval`. No tool or LLM call happens after approval.
+
+        `approver` is the authenticated user (the API's session), never an LLM output. A
+        decision that breaks the approver rules is audited as `denied`, raises
+        `ApprovalDenied`, and leaves the run waiting.
+        """
+        scope = self.resolve_scope(approver) if self.resolve_scope else None
         deps = AgentDeps(
-            None, None, approver, None, self.proposals, self.tracer, [], self.max_steps
+            None, scope, approver, None, self.proposals, self.tracer, [], self.max_steps, self.mes
         )
         graph = self._graph(mode, deps)
         config = {"configurable": {"thread_id": thread_id}}
         snap = await graph.aget_state(config)
         if "approval" not in snap.next:
             raise ValueError(f"run {thread_id} is not waiting for approval")
+        prop = snap.values["proposal"]
+        problem = approval_problem(prop, approver, scope, self.mes)
+        if problem is not None:
+            self.proposals.deny(prop["proposal_id"], approver, problem)
+            raise ApprovalDenied(problem)
         cmd = Command(resume={"approved": approved, "approver": approver, "note": note})
         await graph.ainvoke(cmd, config)
         snap = await graph.aget_state(config)

@@ -83,22 +83,22 @@ uv run python -m evals.leak --system rag-hybrid-bm25-naivecache   # 對照：問
 
 ---
 
-# Phase 2：agent 工具路徑（**分類待 Colin 確認**）
+# Phase 2：agent 工具路徑（分類已採用：規劃者代決，2026-11-11）
 
 由 `evals/gen_tool_leak_cases.py` 依規則產生（seed `20261111`），寫入 `evals/leak_tool_cases.jsonl`（`ToolLeakCase`），
 以 `evals/leak_tools.py` 執行。Phase 1 的 `leak_cases.jsonl` 沒有改動。
 
-## 分類：邊界類型 × 工具，共 101 題
+## 分類：邊界類型 × 工具，共 90 題
 
 | 邊界類型 ＼ 工具 | `get_equipment_status` | `get_dispatch_log` | `get_lot_history` | `search_sop` | `search_similar_incidents` | 小計 |
 | --- | --- | --- | --- | --- | --- | --- |
 | `cross_fab` | 5 | 5 | 5 | 8 | 12 | 35 |
 | `cross_dept` | 5 | 5 | 5 | 10 | 10 | 35 |
-| `clearance` | 3 | 3 | 5 | 6 | 14 | 31 |
-| 小計 | 13 | 13 | 15 | 24 | 36 | **101** |
+| `clearance` | — | — | — | 6 | 14 | 20 |
+| 小計 | 10 | 10 | 10 | 24 | 36 | **90** |
 
-- MES 工具每格上限 5 題。`clearance` 的機台題只有 3 題：MES 資料列的等級固定為 `internal`（`authz/policy.py` 的 `MES_CLEARANCE`），
-  「同廠同部門、只差等級」只有 `op_fx1_etch`（等級 0）對 FX1 的 3 台蝕刻機台。
+- MES 工具每格上限 5 題。2026-11-11 起 MES 資料列的等級為 `public`（`authz/policy.py` 的 `MES_CLEARANCE = 0`，交接指示 008），
+  MES 工具沒有「等級不足」的邊界，所以那三格沒有題目（原本 11 題，見下方歷史）；文件仍有各自的等級。
 - 搜尋工具直接沿用 Phase 1 retrieval 與 cache 路徑的 60 題（asker 都看不到目標文件），依目標文件類型分到兩個工具。
 
 ## 產生規則
@@ -106,22 +106,23 @@ uv run python -m evals.leak --system rag-hybrid-bm25-naivecache   # 對照：問
 - 每題的 asker 對目標**只違反一個條件**（同 Phase 1）。MES 資料列的權限屬性：`fab` 取自資料列、`department` 取自所屬機台
   （批號是 `shared`）、`clearance` 固定 `internal`。
 - `get_lot_history` 的 `cross_dept`：批號本身是 shared、asker 看得到，目標是「這個批號在 asker 看不到的部門機台上的派貨與 alarm」。
-- 禁止字串（每題 1–2 個；80 題 2 個、21 題 1 個）：
+- 禁止字串（每題 1–2 個）：
   - 機台題：目標機台最近一筆 alarm 的量測值（例如 `endpoint delay = 42.0 s`）與腔體編號；批號題：看不到的派貨的腔體編號。
   - 都必須**不出現在 asker 看得到的任何 MES 資料列與文件中**，也不出現在題目中。
 - `target_ids`：工具層判定用（機台／批號編號、文件編號）；agent 層只看禁止字串，因為題目本身就含目標編號。
-- **發現**：Phase 1 有 9 個禁止字串（9 題）是異常報告的量測值，而它們也出現在 asker 看得到的 MES alarm 裡——異常報告的等級比它來源的 alarm 高，
-  同一個數字可以從 MES 合法查到。工具路徑的題目已排除這 9 個字串（每題仍至少留 1 個）；Phase 1 的 90 題沒有改，
+- **發現**：Phase 1 有 12 個禁止字串（12 題；`MES_CLEARANCE = 1` 時為 9 個）是異常報告的量測值，而它們也出現在 asker 看得到的 MES alarm 裡——異常報告的等級比它來源的 alarm 高，
+  同一個數字可以從 MES 合法查到。工具路徑的題目已排除這些字串（每題仍至少留 1 個）；Phase 1 的 90 題沒有改，
   因為 Phase 1 的系統查不到 MES，這些字串在 Phase 1 仍然有效。
 
-## 對照組與結果（2026-11-11，工具層，不呼叫 LLM）
+## 對照組與結果（2026-11-11，工具層，不呼叫 LLM；`MES_CLEARANCE = 0`）
 
 | 系統 | 拿掉什麼 | 洩漏 |
 | --- | --- | --- |
-| `tools` | 無（正式路徑：MES SQL 權限條件、檢索 pre-filter、工具出口檢查） | **0/101** |
-| `tools-unfiltered` | 三者全部（`evals/baselines.py` 的 `UnfilteredMesStore`、`UnfilteredRetriever`，`exit_checks=False`） | **69/101** |
+| `tools` | 無（正式路徑：MES SQL 權限條件、檢索 pre-filter、工具出口檢查） | **0/90** |
+| `tools-unfiltered` | 三者全部（`evals/baselines.py` 的 `UnfilteredMesStore`、`UnfilteredRetriever`，`exit_checks=False`） | **58/90** |
 
-- 對照組分項：`get_equipment_status` 13/13、`get_dispatch_log` 13/13、`get_lot_history` 15/15、`search_sop` 24/24、`search_similar_incidents` 4/36。
+- 對照組分項：`get_equipment_status` 10/10、`get_dispatch_log` 10/10、`get_lot_history` 10/10、`search_sop` 24/24、`search_similar_incidents` 4/36。
+- 歷史：`MES_CLEARANCE = 1` 時是 101 題，正式 0/101、對照 69/101（`20261110T234354Z`、`20261110T234436Z`）。
 - 異常報告搜尋只有 4/36：題目是「INC-2026-xxxx 這筆異常的量測值是多少？」，沒有權限過濾時目標報告也沒排進前 3 份（Phase 1 已知的單號檢索弱點），
   所以結果裡沒有可洩漏的內容。這 32 題在工具層無法證明檢查有效，只能證明沒有洩漏。
 - 身分冒用（工具參數帶 `user_id`）與 token 偽造的測試在 `tests/test_mcp_tools.py`；誘導冒用高權限角色的 prompt injection 測試集由 Colin 設計。

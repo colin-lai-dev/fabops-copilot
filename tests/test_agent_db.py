@@ -50,6 +50,13 @@ def store():
     return PgProposalStore(lambda: psycopg.connect(URL))
 
 
+def test_pg_store_audits_denied_decisions(store):
+    p, _ = store.create(uuid.uuid4().hex, "eng_fx1_etch", "hold_lot", "FX1L00003", "r")
+    store.deny(p.proposal_id, "eng_fx1_etch", "the requester cannot decide their own proposal")
+    assert [a.event for a in store.audit(p.proposal_id)] == ["proposed", "denied"]
+    assert store.get(p.proposal_id).status == "pending"
+
+
 def test_pg_store_idempotency_and_single_execution(store):
     thread = uuid.uuid4().hex
     p, created = store.create(thread, "eng_fx1_etch", "hold_lot", "FX1L00003", "測試")
@@ -115,7 +122,9 @@ def test_resume_from_postgres_checkpoint_in_a_new_service(store, tmp_path):
 
     async def first() -> str:
         async with postgres_checkpointer(URL) as saver:
-            svc = AgentService(llm, store, saver, tracer)
+            svc = AgentService(
+                llm, store, saver, tracer, resolve_scope=demo_scope_resolver(), mes=JsonlMesStore()
+            )
             async with McpGateway.in_process(app, issue_token("eng_fx1_etch", SECRET)) as gw:
                 r = await svc.ask(
                     f"{EQ} 壓力異常", user_id="eng_fx1_etch", scope=SCOPES["eng_fx1_etch"],
@@ -126,7 +135,9 @@ def test_resume_from_postgres_checkpoint_in_a_new_service(store, tmp_path):
 
     async def second(thread_id: str):
         async with AsyncPostgresSaver.from_conn_string(URL) as saver:  # a fresh connection
-            svc = AgentService(llm, store, saver, tracer)
+            svc = AgentService(
+                llm, store, saver, tracer, resolve_scope=demo_scope_resolver(), mes=JsonlMesStore()
+            )
             return await svc.decide(thread_id, approved=True, approver="lead_fx1_multi")
 
     thread_id = run(first())

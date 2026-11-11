@@ -26,3 +26,8 @@ CREATE TABLE IF NOT EXISTS agent_audit_log (
     actor       text NOT NULL,
     detail      jsonb NOT NULL DEFAULT '{}'
 );
+
+-- 2026-11-11 (ADR-0006 revision): refused decision attempts are audited as 'denied'.
+ALTER TABLE agent_audit_log DROP CONSTRAINT IF EXISTS agent_audit_log_event_check;
+ALTER TABLE agent_audit_log ADD CONSTRAINT agent_audit_log_event_check
+    CHECK (event IN ('proposed', 'approved', 'rejected', 'executed', 'denied'));

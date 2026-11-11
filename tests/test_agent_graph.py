@@ -14,7 +14,7 @@ from langgraph.checkpoint.memory import InMemorySaver
 
 from fabops.agent.gateway import McpGateway, ToolResult
 from fabops.agent.graph import FALLBACK_ANSWER, OLD_RESULT_CHARS, fixed_next_call
-from fabops.agent.proposals import InMemoryProposalStore
+from fabops.agent.proposals import ApprovalDenied, InMemoryProposalStore
 from fabops.agent.service import AgentService
 from fabops.authz.policy import scope_of_user
 from fabops.authz.token import issue_token
@@ -78,7 +78,10 @@ def env(tmp_path):
         provider = Scripted(replies)
         llm = LLMClient(provider, "fake-1", tmp_path / "cache", tmp_path / "usage.jsonl")
         proposals = InMemoryProposalStore()
-        svc = AgentService(llm, proposals, InMemorySaver(), tracer, max_steps=max_steps)
+        svc = AgentService(
+            llm, proposals, InMemorySaver(), tracer, max_steps=max_steps,
+            resolve_scope=demo_scope_resolver(), mes=STORE,
+        )  # fmt: skip
 
         async def ask(q=question or f"{EQ} 腔體壓力異常，現在該怎麼處理？"):
             async with McpGateway.in_process(app, issue_token(user, SECRET)) as gw:
@@ -176,6 +179,51 @@ def test_rejected_proposal_is_not_executed(env):
     done = run(svc.decide(r.thread_id, approved=False, approver="lead_fx1_multi", note="先重測"))
     assert done.status == "rejected" and "未獲核准" in done.answer
     assert [a.event for a in proposals.audit()] == ["proposed", "rejected"]
+
+
+@pytest.mark.parametrize(
+    ("approver", "reason"),
+    [
+        ("eng_fx1_etch", "requester"),  # own proposal
+        ("eng_fx2_litho", "clearance"),  # internal < confidential
+        ("mgr_fx2_all", "target"),  # confidential, but FX2 only
+        ("nobody", "unknown"),
+    ],
+)
+def test_approver_rules_are_enforced_and_audited(env, approver, reason):
+    svc, _, proposals, ask = env(
+        [call("get_equipment_status", equipment_id=EQ), _propose(f"{EQ}-CHA")]
+    )
+    r = run(ask())
+    pid = r.proposal["proposal_id"]
+    with pytest.raises(ApprovalDenied, match=reason):
+        run(svc.decide(r.thread_id, approved=True, approver=approver))
+    assert [a.event for a in proposals.audit(pid)] == ["proposed", "denied"]
+    assert proposals.get(pid).status == "pending"
+    # the run still waits; a valid approver can decide afterwards
+    done = run(svc.decide(r.thread_id, approved=True, approver="lead_fx1_multi"))
+    assert done.status == "executed"
+
+
+def test_approval_node_checks_rules_without_the_service(env):
+    """Defense in depth: resuming the graph directly with a bad approver is also refused."""
+    from langgraph.types import Command
+
+    from fabops.agent.graph import AgentDeps, build_graph
+
+    svc, _, proposals, ask = env(
+        [call("get_equipment_status", equipment_id=EQ), _propose(f"{EQ}-CHA")]
+    )
+    r = run(ask())
+    deps = AgentDeps(
+        None, SCOPES["eng_fx1_etch"], "eng_fx1_etch", None, proposals, svc.tracer, mes=STORE
+    )
+    graph = build_graph(deps, checkpointer=svc.checkpointer)
+    cfg = {"configurable": {"thread_id": r.thread_id}}
+    with pytest.raises(ApprovalDenied):
+        run(graph.ainvoke(Command(resume={"approved": True, "approver": "eng_fx1_etch"}), cfg))
+    assert proposals.audit()[-1].event == "denied"
+    assert proposals.get(r.proposal["proposal_id"]).status == "pending"
 
 
 def test_proposal_for_an_unseen_id_is_refused(env):

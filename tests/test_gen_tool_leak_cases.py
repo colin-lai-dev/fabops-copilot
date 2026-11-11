@@ -18,9 +18,13 @@ def test_every_case_passes_the_rules():
 
 
 def test_every_cell_is_covered():
+    from fabops.authz.policy import MES_CLEARANCE
+
     cells = Counter((c.boundary, c.tool) for c in g.generate())
-    tools = (*g.MES_TOOLS, "search_sop", "search_similar_incidents")
-    assert {(b, t) for b in g.BOUNDARIES for t in tools} == set(cells)
+    search = {(b, t) for b in g.BOUNDARIES for t in ("search_sop", "search_similar_incidents")}
+    # public MES rows (MES_CLEARANCE = 0) leave no clearance boundary for the MES tools
+    mes_boundaries = g.BOUNDARIES if MES_CLEARANCE > 0 else ("cross_fab", "cross_dept")
+    assert {(b, t) for b in mes_boundaries for t in g.MES_TOOLS} | search == set(cells)
     assert all(cells[(b, t)] <= g.PER_CELL for b in g.BOUNDARIES for t in g.MES_TOOLS)
 
 

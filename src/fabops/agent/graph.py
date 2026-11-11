@@ -39,10 +39,17 @@ from fabops.agent.prompts import (
     RETRY_NOTE,
     SYSTEM_PROMPT,
 )
-from fabops.agent.proposals import ACTIONS, ProposalStore, as_dict
+from fabops.agent.proposals import (
+    ACTIONS,
+    ApprovalDenied,
+    ProposalStore,
+    approval_problem,
+    as_dict,
+)
 from fabops.authz.scope import Scope
 from fabops.authz.trace import Tracer
 from fabops.llm.client import LLMClient, LLMResult
+from fabops.mcp_server.store import MesStore
 from fabops.mcp_server.tools import ID_PATTERN, TOOL_NAMES
 
 MAX_STEPS = 8
@@ -111,6 +118,7 @@ class AgentDeps:
     tracer: Tracer
     tools_spec: list[dict[str, Any]] = field(default_factory=list)
     max_steps: int = MAX_STEPS
+    mes: MesStore | None = None  # approval: is the target visible to the approver?
 
 
 # ---------------------------------------------------------------- helpers
@@ -330,6 +338,16 @@ def make_nodes(deps: AgentDeps) -> dict[str, Callable]:
         approver = str(decision.get("approver") or "").strip()
         if not approver:
             raise ValueError("an approval needs the approver's user id (set by the API)")
+        # deps.user_id / deps.scope are the approver's here (AgentService.decide).
+        problem = (
+            approval_problem(prop, approver, deps.scope, deps.mes)
+            if approver == deps.user_id
+            else "approver does not match the authenticated user"
+        )
+        if problem is not None:
+            deps.proposals.deny(prop["proposal_id"], approver, problem)
+            trace("approval", proposal_id=prop["proposal_id"], status="denied")
+            raise ApprovalDenied(problem)  # the run stays waiting at approval
         rec = deps.proposals.decide(
             prop["proposal_id"], approved, approver, str(decision.get("note", ""))
         )

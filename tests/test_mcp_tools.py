@@ -72,7 +72,6 @@ def test_equipment_visible_in_own_fab_and_department(tools):
     [
         ("eng_fx2_litho", "FX1", "etch"),  # cross-fab
         ("eng_fx1_etch", "FX1", "litho"),  # cross-department
-        ("op_fx1_etch", "FX1", "etch"),  # clearance 0 < MES_CLEARANCE
     ],
 )
 def test_invisible_equipment_looks_like_missing(tools, user, fab, dept):
@@ -86,6 +85,14 @@ def test_equipment_status_accepts_a_chamber_id(tools):
     eq = first("equipment", fab="FX1", department="etch")["equipment_id"]
     r = tools.get_equipment_status(SCOPES["eng_fx1_etch"], f"{eq}-CHA")
     assert r["found"] and r["equipment"]["equipment_id"] == eq
+
+
+def test_operators_see_their_own_mes_rows(tools):
+    """MES rows are public (MES_CLEARANCE = 0, handoff 008); documents keep their levels."""
+    eq = first("equipment", fab="FX1", department="etch")["equipment_id"]
+    assert tools.get_equipment_status(SCOPES["op_fx1_etch"], eq)["found"] is True
+    other = first("equipment", fab="FX1", department="litho")["equipment_id"]
+    assert tools.get_equipment_status(SCOPES["op_fx1_etch"], other)["found"] is False
 
 
 def test_lot_history_only_shows_visible_departments(tools):

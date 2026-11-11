@@ -26,6 +26,9 @@ from typing import Any, Literal, Protocol
 
 import psycopg
 
+from fabops.authz.scope import Scope
+from fabops.mcp_server.store import MesStore
+
 # action -> (what the target id names, Chinese label)
 ACTIONS: dict[str, tuple[str, str]] = {
     "hold_lot": ("lot_id", "hold 批號"),
@@ -53,7 +56,7 @@ class Proposal:
 @dataclass(frozen=True)
 class AuditEntry:
     proposal_id: str
-    event: str  # proposed | approved | rejected | executed
+    event: str  # proposed | approved | rejected | executed | denied
     actor: str
     detail: dict[str, Any] = field(default_factory=dict)
     ts: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
@@ -79,6 +82,10 @@ class ProposalStore(Protocol):
 
     def execute_once(self, proposal_id: str) -> tuple[Proposal, bool]:
         """approved -> executed. Returns (proposal, executed_now)."""
+        ...
+
+    def deny(self, proposal_id: str, actor: str, reason: str) -> None:
+        """Audit a refused decision attempt; the proposal stays as it is."""
         ...
 
     def audit(self, proposal_id: str | None = None) -> list[AuditEntry]: ...
@@ -135,6 +142,10 @@ class InMemoryProposalStore:
             self._by_id[proposal_id] = p
             self._audit.append(AuditEntry(proposal_id, "executed", "system", {"simulated": True}))
             return p, True
+
+    def deny(self, proposal_id, actor, reason):
+        with self._lock:
+            self._audit.append(AuditEntry(proposal_id, "denied", actor, {"reason": reason}))
 
     def audit(self, proposal_id=None):
         return [a for a in self._audit if proposal_id in (None, a.proposal_id)]
@@ -224,6 +235,10 @@ class PgProposalStore:
             raise KeyError(proposal_id)
         return p, False
 
+    def deny(self, proposal_id, actor, reason):
+        with self.connect() as conn, conn.cursor() as cur:
+            self._audit_row(cur, proposal_id, "denied", actor, {"reason": reason})
+
     def audit(self, proposal_id=None):
         sql = "SELECT proposal_id, event, actor, detail, ts FROM agent_audit_log"
         params: tuple = ()
@@ -237,3 +252,43 @@ class PgProposalStore:
 
 def as_dict(p: Proposal) -> dict[str, Any]:
     return asdict(p)
+
+
+# ---------------------------------------------------------------- who may decide
+
+APPROVER_MIN_CLEARANCE = 2  # confidential (planner decision 2026-11-11, ADR-0006 revision)
+
+
+class ApprovalDenied(PermissionError):
+    """A decision attempt that breaks the approver rules; it is audited and not applied."""
+
+
+def target_visible(mes: MesStore | None, scope: Scope, action: str, target_id: str) -> bool:
+    """Can `scope` see the proposal's target (a lot or a chamber) in MES?"""
+    if mes is None:
+        return False  # cannot verify -> not allowed
+    kind = ACTIONS[action][0]
+    view = "lots" if kind == "lot_id" else "chambers"
+    return bool(mes.select(view, scope, {kind: target_id}))
+
+
+def approval_problem(
+    proposal: Proposal | dict[str, Any],
+    approver: str,
+    approver_scope: Scope | None,
+    mes: MesStore | None,
+) -> str | None:
+    """None if `approver` may approve or reject `proposal`, else the reason (ADR-0006 revision).
+
+    Rules: not the requester; clearance >= confidential; the target is visible to the approver.
+    """
+    p = proposal if isinstance(proposal, dict) else asdict(proposal)
+    if not approver or approver_scope is None:
+        return "unknown approver"
+    if approver == p["requester"]:
+        return "the requester cannot decide their own proposal"
+    if approver_scope.clearance < APPROVER_MIN_CLEARANCE:
+        return "approver clearance below confidential"
+    if not target_visible(mes, approver_scope, p["action"], p["target_id"]):
+        return "approver cannot see the target"
+    return None
