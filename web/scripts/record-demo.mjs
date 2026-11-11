@@ -102,7 +102,7 @@ async function walk(page, hold, snap = async () => {}) {
   await page.click(".results-toggle");
   await page.waitForSelector("[data-testid=results]");
   await snap("09-results");
-  await hold(38000);
+  await hold(24000);
 }
 
 async function launch(viewport, recordDir) {
@@ -141,24 +141,19 @@ if (kind === "video") {
   await browser.close();
   console.log(`shots in ${out}`);
 } else if (kind === "gif") {
-  // ~30 s: SOP answer, operator refused, agent triage, approval. 2 frames per second.
-  const viewport = { width: 1280, height: 720 };
+  // ~30 s: SOP answer, operator refused, agent triage, approval. 2 frames per second, 960x540.
+  const viewport = { width: 960, height: 540 };
   const { browser, page } = await launch(viewport);
   const gif = GIFEncoder();
   const frame = async (n = 1) => {
     for (let i = 0; i < n; i++) {
       const png = PNG.sync.read(await page.screenshot({ clip: { x: 0, y: 0, ...viewport } }));
-      // downscale 2x to 640x360 by sampling, keeps the GIF small
-      const w = viewport.width / 2;
-      const h = viewport.height / 2;
-      const rgba = new Uint8Array(w * h * 4);
-      for (let y = 0; y < h; y++)
-        for (let x = 0; x < w; x++) {
-          const s = ((y * 2) * viewport.width + x * 2) * 4;
-          rgba.set(png.data.subarray(s, s + 4), (y * w + x) * 4);
-        }
+      const rgba = new Uint8Array(png.data);
       const palette = quantize(rgba, 128);
-      gif.writeFrame(applyPalette(rgba, palette), w, h, { palette, delay: 500 });
+      gif.writeFrame(applyPalette(rgba, palette), viewport.width, viewport.height, {
+        palette,
+        delay: 500,
+      });
     }
   };
   await frame(4);

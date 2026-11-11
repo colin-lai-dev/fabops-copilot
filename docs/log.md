@@ -6,6 +6,9 @@
 
 ## 2026-11-11
 
+- **交接指示 011**（Claude Code）：回放 fixture（真實 API + Haiku，7 段，LLM 全命中快取，花費 US$0）、回放模式前端（橫幅、字幕、結果面板）、
+  GitHub Pages 部署（https://colin-lai-dev.github.io/fabops-copilot/）、CI actions 升級；安裝 Playwright 1.49.1 + Chromium（約 88 MB）、gifenc、pngjs；
+  自動錄製 3 分鐘影片（1080p WebM）與 30 秒 GIF（`docs/assets/demo.gif`）。上傳 release 被權限分類器擋下，待 Colin 執行。
 - **交接指示 010 完成**（Claude Code）：Phase 3 結案、merge 回 main、tag `phase-3`；推上 GitHub（public，https://github.com/colin-lai-dev/fabops-copilot），
   第一次 CI 五個 job 全過；README 收尾（四路徑洩漏表、強制送達 injection、如何重現每個數字）；`docs/demo-script.md`（demo 問題都以 Haiku 實測過）。
 - **Phase 3 gate 通過（Colin）**：規劃者決定兩個評分抽取限制不修（維持凍結規則、並列人工判讀，寫進 README 已知限制）；交接指示 010 推上 GitHub、準備 Phase 4。

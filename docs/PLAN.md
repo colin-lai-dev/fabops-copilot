@@ -82,9 +82,9 @@ Eval 基礎先做，凍結後才開始調參。
 
 ## Phase 4：包裝與求職（第 11 週）
 
-- [ ] README：一句話、demo GIF、架構圖、eval 結果表、快速開始、已知限制
-      （含合成資料侷限、Langfuse 雲端方案前提）——除了 demo GIF 都已完成（含「如何重現每個數字」、CI badge）
-- [ ] 3 分鐘 demo 影片（腳本完成：`docs/demo-script.md`；錄製方式由 Colin 決定）
+- [x] README：一句話、demo GIF、架構圖、eval 結果表、快速開始、已知限制
+      （含合成資料侷限、Langfuse 雲端方案前提）（含 demo GIF、靜態回放網站連結、「如何重現每個數字」、CI badge）
+- [x] 3 分鐘 demo 影片（Playwright 自動錄製回放網站，release `demo-v1`；靜態回放網站 https://colin-lai-dev.github.io/fabops-copilot/）
 - [ ] **[Colin]** 履歷完整版、面試題自測（`/quiz`）
 
 **Gate：** 他人照 README，10 分鐘內跑起來。

@@ -1,5 +1,8 @@
 # 3 分鐘 Demo 腳本
 
+> 2026-11-11：已依本腳本做成靜態回放網站（https://colin-lai-dev.github.io/fabops-copilot/ ，回答事先以真實系統錄製），
+> 影片由 `web/scripts/record-demo.mjs` 自動錄製（`npm run build:replay` 後 `node scripts/record-demo.mjs video <網址> <輸出資料夾>`）。
+
 依企劃 v3 的分鏡。全部為合成資料（虛構 Fab-X）。影片怎麼錄由 Colin 決定；以下每段的問題都已在 2026-11-11 用 Haiku 5.5 實際跑過，
 「預期看到」是當時的實際輸出（模型回答的措辭每次可能略有不同）。
 
