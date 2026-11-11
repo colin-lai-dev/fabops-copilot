@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "build:replay": "vite build --mode replay",
+    "preview": "vite preview",
+    "preview:replay": "vite preview --mode replay"
   },
   "dependencies": {
     "react": "18.3.1",
@@ -14,6 +16,9 @@
   },
   "devDependencies": {
     "@vitejs/plugin-react": "4.3.4",
+    "gifenc": "1.0.3",
+    "playwright": "1.49.1",
+    "pngjs": "7.0.0",
     "vite": "5.4.11"
   }
 }

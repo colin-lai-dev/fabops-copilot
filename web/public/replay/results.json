@@ -1,0 +1,45 @@
+{
+  "source": "Frozen test sets, each run once; numbers copied from README.md / docs/gates (synthetic data).",
+  "caption_zh": "結果都在凍結的 test 上只跑一次、附樣本數；固定 workflow 與 agent 差距在雜訊內，所以不宣稱 agent 比較好。RAG 可以地端跑，agent 分診要固定流程或雲端模型。",
+  "caption_en": "Frozen test sets, run once, with n. Fixed workflow vs agent is within noise, so no claim that the agent wins. RAG runs locally; triage needs the fixed workflow or a cloud model.",
+  "tables": [
+    {
+      "title": "RAG（凍結 test，Haiku 5.5）",
+      "columns": ["指標", "只用向量（baseline）", "權限 pre-filter + 混合檢索"],
+      "rows": [
+        ["Recall@5（n=99）", "0.682", "0.788"],
+        ["回答正確率（n=105）", "0.657", "0.752"],
+        ["引用正確率（n=99）", "0.636", "0.747"]
+      ]
+    },
+    {
+      "title": "三組對照（agent test，n=15，Haiku 5.5）",
+      "columns": ["", "只用 RAG", "固定 workflow", "Agent"],
+      "rows": [
+        ["成功", "4/15", "15/15", "13/15"],
+        ["捏造 ID", "0/15", "0/15", "0/15"],
+        ["平均工具呼叫", "0", "3.5", "2.7"],
+        ["每題成本", "US$0.0004", "US$0.0009", "US$0.0020"]
+      ]
+    },
+    {
+      "title": "四條路徑洩漏（正式系統 vs 拿掉該檢查的對照組）",
+      "columns": ["路徑", "正式", "對照"],
+      "rows": [
+        ["檢索", "0/30", "19/30"],
+        ["LLM 回應快取", "0/30", "23/30"],
+        ["trace 日誌", "0/30", "13/30"],
+        ["agent 工具（MCP + JWT）", "0/90", "58/90"]
+      ]
+    },
+    {
+      "title": "雲端 vs 地端模型",
+      "columns": ["", "Haiku 5.5", "Sonnet 5.5", "Qwen3 8B（地端）"],
+      "rows": [
+        ["RAG 回答正確率（n=105）", "0.752", "0.743", "0.781"],
+        ["Agent 成功（n=15）", "13/15", "15/15", "4/15"],
+        ["RAG 每題成本", "US$0.0004", "US$0.0072", "$0"]
+      ]
+    }
+  ]
+}
