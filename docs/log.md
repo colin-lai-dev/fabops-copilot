@@ -9,7 +9,7 @@
 - **交接指示 007 完成**（Claude Code）：Phase 1 gate 報告改為已通過並補最終數字；`phase-1-rag` 合併回 main、tag `phase-1`；README 改寫（英文）。
 - **Phase 2（branch `phase-2-agent`）**：FastMCP 唯讀工具 5 個＋JWT 身分（ADR-0001）；LangGraph agent／固定 workflow（ADR-0006），核准 interrupt、
   Postgres checkpoint、audit log、冪等；工具路徑洩漏 0/101 vs 對照 69/101；情境集 24 題（test 15 凍結）；dev 三組對照 Haiku agent 9/9、fixed 8/9、RAG 2/9（n=9），
-  花費 US$0.055。新依賴：fastmcp、langgraph、langgraph-checkpoint-postgres、pyjwt。待決 9 項見 `open-questions.md`（2026-11-11），細節 `experiments.md`。
+  花費 US$0.055。新依賴：fastmcp、langgraph、langgraph-checkpoint-postgres、pyjwt。待決 11 項見 `open-questions.md`（2026-11-11），細節 `experiments.md`。
 - **Phase 1 gate 通過（Colin）**：test（110 題，Haiku 5.5）回答正確率 75.2% vs 65.7%、Recall@5 78.8% vs 68.2%；洩漏 0/90 vs 各路徑對照 55/90；
   judge Gemini 3.6 Flash 與人工標註整題一致 50/50。Phase 1 API 花費約 US$0.29。GPT-5.4 mini 未比較（Colin 決定先不加 OpenAI 額度）。
 - 交接指示 007：Phase 1 結案、README 更新（開始投履歷）、開始 Phase 2。
