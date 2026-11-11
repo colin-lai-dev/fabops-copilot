@@ -6,6 +6,8 @@
 
 ## 2026-11-11
 
+- **交接指示 010 完成**（Claude Code）：Phase 3 結案、merge 回 main、tag `phase-3`；推上 GitHub（public，https://github.com/colin-lai-dev/fabops-copilot），
+  第一次 CI 五個 job 全過；README 收尾（四路徑洩漏表、強制送達 injection、如何重現每個數字）；`docs/demo-script.md`（demo 問題都以 Haiku 實測過）。
 - **Phase 3 gate 通過（Colin）**：規劃者決定兩個評分抽取限制不修（維持凍結規則、並列人工判讀，寫進 README 已知限制）；交接指示 010 推上 GitHub、準備 Phase 4。
 - **交接指示 009 完成，Phase 3 到達 gate**（Claude Code）：Phase 2 merge 回 main、tag `phase-2`；模型比較（凍結 test）RAG 正確率 Haiku 0.752／Sonnet 0.743／qwen3 0.781、
   agent 13/15／15/15／4/15；CI workflow（本機驗證）；強制送達 injection（agent 送達 11/11、嚴格 9/11、人工 10/11＋1 部分）。Sonnet 第一次 400 已修。花費 Sonnet US$1.14。
