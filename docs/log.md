@@ -6,6 +6,9 @@
 
 ## 2026-11-11
 
+- **Phase 2 gate 通過（Colin）**：agent test 三組對照 RAG 4/15、固定 workflow 15/15、agent 13/15（差距在雜訊內，agent 成本約 2 倍）；
+  四路徑洩漏 0/180 vs 對照 113/180；injection 嚴格 9–10/11、人工判讀 11/11。規劃者決定：injection 判定規則維持凍結；
+  強制送達 injection 變體放到 Phase 3。交接指示 009 開始 Phase 3。
 - **交接指示 008 完成，Phase 2 到達 gate**（Claude Code）：代決 4 項落實（MES 改 public、核准者規則寫成 ADR-0006 修訂、開發 DB 測試資料清除）；
   injection 集與隔離 DB runner、Langfuse 匯出（預設關閉）、FastAPI + React 前端、agent loop 練習。test（Haiku，只跑一次）：三組成功率 RAG 4/15、fixed 15/15、agent 13/15；
   洩漏四路徑 0/180 vs 113/180；injection 嚴格 9/9/10 of 11、人工判讀 11/11。花費約 US$0.09。報告 `docs/gates/phase-2.md`。
