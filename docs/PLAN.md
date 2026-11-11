@@ -74,7 +74,7 @@ Eval 基礎先做，凍結後才開始調參。
 ## Phase 3：上線化（第 9–10 週）
 
 - [ ] Ollama 地端模式完整可用
-- [ ] 模型比較：同一個 test set，Haiku 5.5、Sonnet 5.5、Qwen3 8B 各一欄，一張表
+- [x] 模型比較：同一個 test set，Haiku 5.5、Sonnet 5.5、Qwen3 8B 各一欄，一張表（RAG 110 題＋agent 15 題，見 experiments.md）
 - [ ] GitHub Actions：lint、測試、小型 eval（mock 或地端模型）
 - [ ] （可選）交班摘要；若保留，納入權限測試
 
