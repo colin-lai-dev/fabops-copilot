@@ -23,6 +23,17 @@
 
 ## 紀錄
 
+### 2026-11-11：Phase 3 模型比較的 test 設定（執行前寫入，每個模型在 test 上只跑一次）
+
+- 交接指示 009 C-1，預算 US$5。系統：RAG 用預設 `rag-hybrid-bm25`（凍結 test 110 題，sha256 `fd8e1b1ed135fd61`）；agent 用 `agent`（凍結 agent test 15 題，sha256 `7db4976b0a2a8589`）。
+- 模型：
+  - Claude Haiku 5.5：**沿用既有 test 結果，不重跑**（RAG `20261110T151025Z-test-rag-hybrid-bm25`、agent `20261111T030701Z-agent-test-agent`）。RAG 回答路徑自 Phase 1 後沒有改動。
+  - Claude Sonnet 5.5（`claude-sonnet-5-5`，thinking 關閉，單價取 `llm/pricing.py`：US$2／US$10 per 1M）：估算 RAG US$0.83、agent US$0.59（以 Haiku 的 token 數乘單價），合計約 US$1.4（保守 ×1.5 = US$2.1）。
+  - Qwen3 8B（Ollama 地端，`LLM_REASONING_EFFORT=none`，$0）。
+- 指標：RAG 回答正確率（非 open，n=105；open 5 題不另外跑 judge）、Recall@5（n=99，只取決於檢索，三個模型應相同）、agent 成功率（n=15）、每題延遲與成本。
+- 中斷處理：LLM 回應有快取，中途中斷後重跑會直接用已付費的回答，不重複計費。
+- 程式：commit 於本筆（`phase-3-ops`）。不因 test 結果調整任何設定。
+
 ### 2026-11-11：Phase 2 gate 的 test 結果（Haiku 5.5，只跑一次；設定在執行前 commit `7baeda1`）
 
 - **agent 情境 test（n=15）**：
