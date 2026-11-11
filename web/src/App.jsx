@@ -22,14 +22,38 @@ const STATUS = {
   incomplete: "未完成",
 };
 
+// Two lines at the top of the page; once the page scrolls it shrinks to a slim one-line strip
+// (<= 32 px) so it never covers the question or the wafer map.
 function Banner() {
+  const [slim, setSlim] = useState(false);
+  useEffect(() => {
+    const scroller = document.querySelector(".app-scroll");
+    const onScroll = () => {
+      const y = Math.max(scroller?.scrollTop || 0, window.scrollY);
+      setSlim((was) => (was ? y > 10 : y > 80)); // hysteresis: no flicker when the height changes
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    scroller?.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      scroller?.removeEventListener("scroll", onScroll);
+    };
+  }, []);
   return (
-    <div className="banner" role="note">
-      <b>錄製的示範</b>：回答為事先以真實系統產生，資料全部為虛構工廠的合成資料。
-      <span className="banner-en">
-        Recorded demo: answers were produced beforehand by the real system; all data is synthetic,
-        from a fictional fab.
-      </span>
+    <div className={`banner ${slim ? "banner-slim" : ""}`} role="note">
+      {slim ? (
+        <span>
+          <b>錄製的示範</b>・回答事先以真實系統產生・合成資料
+        </span>
+      ) : (
+        <>
+          <b>錄製的示範</b>：回答為事先以真實系統產生，資料全部為虛構工廠的合成資料。
+          <span className="banner-en">
+            Recorded demo: answers were produced beforehand by the real system; all data is
+            synthetic, from a fictional fab.
+          </span>
+        </>
+      )}
     </div>
   );
 }

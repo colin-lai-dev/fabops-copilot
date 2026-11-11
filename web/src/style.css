@@ -138,6 +138,16 @@ textarea {
   display: block;
   color: #7a6430;
 }
+.banner-slim {
+  max-height: 32px;
+  padding: 4px 14px;
+  font-size: 12px;
+  line-height: 22px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-bottom-width: 1px;
+}
 .top {
   display: flex;
   align-items: center;
