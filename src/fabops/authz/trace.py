@@ -4,8 +4,8 @@ Allowed: ids, clearance levels, content hashes and lengths, step names, tokens, 
 cost. Every text — question, chunk, answer — is reduced to `{"sha256": …, "len": …}`.
 Fields outside the allowlist are dropped (their names are recorded so a mistake is visible).
 
-Until Langfuse arrives (Phase 2) the sink is `.cache/traces.jsonl`; the Langfuse exporter
-must send exactly what `mask()` returns. With `FABOPS_DEBUG_TRACE=1` the unmasked event is
+The sink is `.cache/traces.jsonl`; with Langfuse on (`authz/langfuse.py`), the exporter sends
+exactly what `mask()` returns. With `FABOPS_DEBUG_TRACE=1` the unmasked event is
 also written to `.cache/debug-traces/` (gitignored), which is never exported.
 """
 
@@ -50,11 +50,17 @@ class Tracer:
         debug_dir: str | Path | None = None,
         *,
         unsafe_unmasked: bool = False,
+        exporter: Any = None,
     ):
-        """`unsafe_unmasked=True` exists only for the "no exit checks" leak-test baseline."""
+        """`unsafe_unmasked=True` exists only for the "no exit checks" leak-test baseline.
+
+        `exporter` (e.g. `authz/langfuse.py`) receives the masked record only, and never in
+        unsafe mode.
+        """
         self.path = Path(path)
         self.debug_dir = Path(debug_dir) if debug_dir else None
         self.unsafe_unmasked = unsafe_unmasked
+        self.exporter = None if unsafe_unmasked else exporter
 
     @classmethod
     def from_env(cls) -> Tracer:
@@ -63,12 +69,16 @@ class Tracer:
         cfg = get_settings()
         cache = Path(cfg.fabops_cache_dir).parent
         debug = cache / "debug-traces" if cfg.fabops_debug_trace else None
-        return cls(cache / "traces.jsonl", debug)
+        from fabops.authz.langfuse import exporter_from_settings
+
+        return cls(cache / "traces.jsonl", debug, exporter=exporter_from_settings())
 
     def event(self, name: str, texts: dict[str, str] | None = None, **fields: Any) -> dict:
         fields = {"event": name, "ts": time.strftime("%Y-%m-%dT%H:%M:%S%z"), **fields}
         record = {**fields, **(texts or {})} if self.unsafe_unmasked else mask(fields, texts)
         self._append(self.path, record)
+        if self.exporter is not None:
+            self.exporter.export(record)
         if self.debug_dir is not None:
             self._append(self.debug_dir / "debug.jsonl", {**fields, **(texts or {})})
         return record

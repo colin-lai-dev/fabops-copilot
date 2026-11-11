@@ -199,7 +199,9 @@ def seen_doc_ids(calls: list[dict[str, Any]]) -> set[str]:
 
 
 def make_nodes(deps: AgentDeps) -> dict[str, Callable]:
-    def trace(event: str, **fields: Any) -> None:
+    def trace(event: str, state: AgentState | None = None, **fields: Any) -> None:
+        if state is not None:
+            fields["thread_id"] = state.get("thread_id")  # groups a run into one trace
         deps.tracer.event(event, scope=deps.scope.key() if deps.scope else None, **fields)
 
     async def decide(state: AgentState, note: str = "") -> dict[str, Any]:
@@ -230,13 +232,14 @@ def make_nodes(deps: AgentDeps) -> dict[str, Callable]:
             failures = state.get("llm_failures", 0) + 1
             trace(
                 "agent_step",
+                state,
                 step=state.get("steps", 0),
                 decision="invalid",
                 error_type=type(e).__name__,
             )
             kind = "limit" if failures >= MAX_LLM_FAILURES else "retry"
             return {"llm_failures": failures, "pending": {"kind": kind}}
-        trace("agent_step", step=state.get("steps", 0), decision=d.action, tool=d.tool)
+        trace("agent_step", state, step=state.get("steps", 0), decision=d.action, tool=d.tool)
         return {"pending": {"kind": d.action, **d.model_dump()}, "usage": _usage(state, results)}
 
     async def agent(state: AgentState) -> dict[str, Any]:
@@ -276,7 +279,7 @@ def make_nodes(deps: AgentDeps) -> dict[str, Callable]:
                 call.update(ok=True, result=text, full=text)
             else:
                 call.update(ok=False, error=r.error)
-        trace("tool_call", step=step, tool=name, status="ok" if call["ok"] else "error")
+        trace("tool_call", state, step=step, tool=name, status="ok" if call["ok"] else "error")
         return {"steps": step, "calls": [*state.get("calls", []), call], "pending": None}
 
     def trim_context(state: AgentState) -> dict[str, Any]:
@@ -315,12 +318,12 @@ def make_nodes(deps: AgentDeps) -> dict[str, Callable]:
         if problem is not None:
             step = state.get("steps", 0) + 1
             bad = {"step": step, "tool": "propose", "args": draft, "ok": False, "error": problem}
-            trace("proposal", step=step, status="invalid")
+            trace("proposal", state, step=step, status="invalid")
             return {"steps": step, "calls": [*state.get("calls", []), bad], "pending": None}
         rec, _ = deps.proposals.create(
             state["thread_id"], deps.user_id, action, target, str(draft.get("reason", ""))[:500]
         )
-        trace("proposal", proposal_id=rec.proposal_id, action=action, status=rec.status)
+        trace("proposal", state, proposal_id=rec.proposal_id, action=action, status=rec.status)
         return {
             "proposal": as_dict(rec),
             "answer": p.get("answer", ""),
@@ -346,19 +349,19 @@ def make_nodes(deps: AgentDeps) -> dict[str, Callable]:
         )
         if problem is not None:
             deps.proposals.deny(prop["proposal_id"], approver, problem)
-            trace("approval", proposal_id=prop["proposal_id"], status="denied")
+            trace("approval", state, proposal_id=prop["proposal_id"], status="denied")
             raise ApprovalDenied(problem)  # the run stays waiting at approval
         rec = deps.proposals.decide(
             prop["proposal_id"], approved, approver, str(decision.get("note", ""))
         )
-        trace("approval", proposal_id=rec.proposal_id, status=rec.status)
+        trace("approval", state, proposal_id=rec.proposal_id, status=rec.status)
         return {"proposal": as_dict(rec)}
 
     def execute(state: AgentState) -> dict[str, Any]:
         prop = state["proposal"] or {}
         if prop.get("status") == "approved":
             rec, now = deps.proposals.execute_once(prop["proposal_id"])
-            trace("execute", proposal_id=rec.proposal_id, status=rec.status, cached=not now)
+            trace("execute", state, proposal_id=rec.proposal_id, status=rec.status, cached=not now)
             prop = as_dict(rec)
         return {"proposal": prop}
 
@@ -390,7 +393,7 @@ def make_nodes(deps: AgentDeps) -> dict[str, Callable]:
         allowed = seen_doc_ids(state.get("calls", []))
         out["citations"] = [c for c in dict.fromkeys(citations) if c in allowed]
         trace(
-            "agent_done", steps=state.get("steps", 0), status=out.get("status"),
+            "agent_done", state, steps=state.get("steps", 0), status=out.get("status"),
             cited=out["citations"], texts={"answer": out.get("answer", "")},
         )  # fmt: skip
         return {**out, "pending": None}

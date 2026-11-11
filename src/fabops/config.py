@@ -39,6 +39,12 @@ class Settings(BaseSettings):
     fabops_jwt_secret: SecretStr | None = None
     fabops_mcp_url: str = "http://127.0.0.1:8765/mcp"
 
+    # Langfuse export of masked traces (ADR-0007). Off unless FABOPS_LANGFUSE=1 and keys are set.
+    fabops_langfuse: bool = False
+    langfuse_public_key: SecretStr | None = None
+    langfuse_secret_key: SecretStr | None = None
+    langfuse_host: str = "https://cloud.langfuse.com"
+
     def api_key(self, provider: str) -> str | None:
         secret = {
             "anthropic": self.anthropic_api_key,
