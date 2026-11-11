@@ -75,7 +75,7 @@ Eval 基礎先做，凍結後才開始調參。
 
 - [ ] Ollama 地端模式完整可用
 - [x] 模型比較：同一個 test set，Haiku 5.5、Sonnet 5.5、Qwen3 8B 各一欄，一張表（RAG 110 題＋agent 15 題，見 experiments.md）
-- [ ] GitHub Actions：lint、測試、小型 eval（mock 或地端模型）
+- [x] GitHub Actions：lint、測試、DB 測試、小型 eval（不呼叫 LLM：MES 工具洩漏、產生器重現、`refuse_all` 底線）、前端建置（`.github/workflows/ci.yml`；repo 沒有 remote，尚未在 GitHub 上跑過）
 - [ ] （可選）交班摘要；若保留，納入權限測試
 
 **Gate：** 雲端 vs 地端比較表完成。

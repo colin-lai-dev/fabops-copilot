@@ -1,0 +1,93 @@
+# CI (PLAN Phase 3): lint, unit tests, DB tests, a small eval that needs no LLM and no models.
+# Paid models and the test splits never run here (CLAUDE.md: test only at a gate).
+name: ci
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  # bge-m3 / torch are only needed to build the index; unit tests use fakes.
+  UV_SYNC: uv sync --frozen --no-install-package torch --no-install-package flagembedding
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+      - run: $UV_SYNC
+      - run: uv run --no-sync ruff check .
+      - run: uv run --no-sync ruff format --check .
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+      - run: $UV_SYNC
+      - run: uv run --no-sync pytest -q
+
+  test-db:
+    runs-on: ubuntu-latest
+    services:
+      db:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: fabops
+          POSTGRES_PASSWORD: fabops
+          POSTGRES_DB: fabops
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U fabops -d fabops"
+          --health-interval 5s --health-timeout 3s --health-retries 20
+    env:
+      DATABASE_URL: postgresql://fabops:fabops@localhost:5432/fabops
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+      - run: $UV_SYNC
+      - run: uv run --no-sync python -m fabops.data.seed
+      # chunk-level checks skip themselves without an index (no embedding model in CI)
+      - run: uv run --no-sync pytest -q -m db
+
+  eval-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+      - run: $UV_SYNC
+      - name: Generators reproduce the committed sets
+        run: |
+          uv run --no-sync python -m evals.gen_tool_leak_cases --check
+          uv run --no-sync python -m evals.gen_agent_scenarios --check
+      - name: MES tool leak cases through the MCP server (JWT), no DB, no LLM
+        run: uv run --no-sync python -m evals.leak_tools --system tools-jsonl --fail-on-leak
+      - name: Floor baseline on dev (always refuses; checks the harness and scorer)
+        run: uv run --no-sync python -m evals.run --split dev --system refuse_all
+
+  web:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+      - run: npm run build
