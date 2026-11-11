@@ -8,7 +8,8 @@ Everything runs on **synthetic data** for a fictional fab, *Fab-X* (two sites, g
 with a fixed seed). No real company, site, tool, process or system names are used.
 
 > **Status:** Phase 1 (permission-aware RAG + eval) is complete — gate passed, tagged `phase-1`.
-> Phase 2 (MCP tools + LangGraph agent with human approval) is in progress.
+> Phase 2 (MCP tools + LangGraph agent with human approval) is complete — gate passed, tagged `phase-2`
+> (report: [docs/gates/phase-2.md](docs/gates/phase-2.md)). Phase 3 (local/cloud model comparison, CI) is in progress.
 > Plan: [docs/PLAN.md](docs/PLAN.md) · Phase 1 gate report: [docs/gates/phase-1.md](docs/gates/phase-1.md)
 
 ## Architecture
@@ -79,6 +80,27 @@ to show the test can detect a leak.
 pass/fail); open questions point-by-point 124/125. The judge model family differs from the
 answering model (ADR-0008).
 
+**Agent workflow, three-way comparison** (frozen test set, 15 rule-generated scenarios:
+multi-step reasoning, contradictory data, requests that must be declined; Claude Haiku 5.5;
+all three share the same LLM, retriever, MCP tools and permission checks)
+
+| Metric | RAG only | Fixed workflow | Agent (LangGraph) |
+| --- | --- | --- | --- |
+| Success (n=15) | 4/15 | **15/15** | 13/15 |
+| Ungrounded ids in answer / citations / proposal | 0/15 | 0/15 | 0/15 |
+| Mean tool calls | 0 | 3.5 | 2.7 |
+| Cost / latency per scenario | US$0.0004 / 1.9 s | US$0.0009 / 4.1 s | US$0.0020 / 6.4 s |
+
+Tool use wins clearly over single-shot RAG on questions that need MES data. Fixed workflow vs
+agent is within noise at n=15 (and reversed on dev), with the agent costing about twice as much.
+
+**Agent-tool leak path:** 0/90 (control without the MES filter, retrieval pre-filter and tool exit
+check: 58/90). **Prompt injection** (11 test cases, attack text inside a retrieved report):
+permission attacks (privilege read, role spoofing, exfiltration) were blocked by all systems; strict
+string matching passes RAG 9/11, fixed 9/11, agent 10/11; read by hand, all 11/11 resisted (every strict
+failure quoted the injected sentence in order to reject it). Strict and manual numbers are reported side by side;
+the scoring rule was frozen before the test run and is not changed afterwards.
+
 A local-model column (Qwen3 8B via Ollama) for the same test set is planned for Phase 3. Full
 experiment log: [docs/experiments.md](docs/experiments.md).
 
@@ -116,6 +138,11 @@ uv run python -m evals.run --split dev --system rag-hybrid-bm25
 ```
 
 Synthetic data is already generated under `data/generated/`; `make generate` rebuilds it from rules.
+
+**Demo UI (Phase 2):** `make web-build` (Node 20+), then `make api` and open http://127.0.0.1:8000.
+Pick a demo user, ask in agent / fixed-workflow / RAG mode, inspect the tool trace, and switch users
+to approve a proposal (you cannot approve your own; approvers need `confidential` clearance and must
+see the target). Without `FABOPS_JWT_SECRET` the API uses an ephemeral secret.
 
 ## Repository layout
 

@@ -18,6 +18,12 @@ from typing import Any
 from fabops.authz.scope import Scope
 from fabops.data.world import SHARED_DEPARTMENT
 
+# MES rows (ADR-0002, 後果) carry the same three attributes so agent tools use this rule too:
+# fab from the row, department from the row's equipment (lots: shared, a lot crosses
+# departments), clearance fixed at `public` (planner decision 2026-11-11, handoff 008:
+# operators see their own fab/department's equipment and lots; documents keep their levels).
+MES_CLEARANCE = 0
+
 
 def can_see(scope: Scope, *, fab: str, department: str, clearance: int) -> bool:
     # Wildcards are never honoured here: SYSTEM_SCOPE (offline jobs) sees no user data.

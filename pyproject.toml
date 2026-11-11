@@ -13,6 +13,12 @@ dependencies = [
     "anthropic>=0.40",
     "flagembedding>=1.4.2",
     "jieba>=0.42.1",
+    "fastmcp>=4.1.8",
+    "langgraph>=1.2.20",
+    "langgraph-checkpoint-postgres>=3.2.0",
+    "pyjwt>=2.15.1",
+    "fastapi>=0.162.4",
+    "uvicorn>=0.54.0",
 ]
 
 [dependency-groups]
@@ -34,6 +40,9 @@ target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "SIM"]
+
+[tool.ruff.lint.per-file-ignores]
+"src/fabops/agent/prompts.py" = ["E501"]  # prompt text: one rule per line
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

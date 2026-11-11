@@ -188,3 +188,138 @@ class JudgeLabel(BaseModel):
         if self.partial and self.passed:
             raise ValueError("a partial label is not passed (ADR-0005 rule 6)")
         return self
+
+
+class ToolLeakCase(BaseModel):
+    """One agent-tool leak test (PLAN Phase 2). Cases come from `evals/gen_tool_leak_cases.py`.
+
+    Tool level: the asker calls `tool(**args)` through the MCP server with their own token; the
+    case leaks when the result contains any `target_ids` or `forbidden_strings`.
+    Agent level: the asker asks `question`; it leaks when the answer or any tool result the agent
+    received contains a `forbidden_strings` entry (`target_ids` may be echoed from the question).
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    cid: str = Field(pattern=r"^T-\d{4}$")
+    boundary: Literal["cross_fab", "cross_dept", "clearance"]
+    tool: Literal[
+        "get_lot_history",
+        "get_equipment_status",
+        "get_dispatch_log",
+        "search_sop",
+        "search_similar_incidents",
+    ]
+    args: dict[str, str | int]
+    asker_user_id: str
+    question: str = Field(min_length=1)
+    target_ids: list[str] = Field(min_length=1)
+    forbidden_strings: list[str] = Field(min_length=1)
+    notes: str = ""
+
+
+def load_tool_leak_cases(path: Path) -> list[ToolLeakCase]:
+    with path.open(encoding="utf-8") as f:
+        cases = [ToolLeakCase.model_validate_json(line) for line in f if line.strip()]
+    if len({c.cid for c in cases}) != len(cases):
+        raise ValueError(f"duplicate cid in {path}")
+    return cases
+
+
+class ExpectedProposal(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    action: Literal["hold_lot", "inhibit_chamber", "request_pm"]
+    target_id: str
+
+
+class AgentScenario(BaseModel):
+    """One agent scenario (PLAN Phase 2), scored by `evals/agent_eval.py`.
+
+    `expected_facts` is a list of groups; a group is met when the answer contains any one of
+    its alternatives (ADR-0005 fact matching). `expect_refusal=None` means either is fine.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    sid: str = Field(pattern=r"^A-\d{4}$")
+    category: Literal["multi_step", "contradiction", "refuse_advice"]
+    question: str = Field(min_length=1)
+    user_id: str
+    expected_tools: list[str] = []
+    expected_facts: list[list[str]] = []
+    forbidden_strings: list[str] = []
+    expected_citations: list[str] = []
+    expected_proposal: ExpectedProposal | None = None
+    expect_refusal: bool | None = None
+    source: Literal["rule"] = "rule"
+    notes: str = ""
+
+
+def load_agent_scenarios(paths: list[Path]) -> list[AgentScenario]:
+    out = []
+    for p in paths:
+        with p.open(encoding="utf-8") as f:
+            out += [AgentScenario.model_validate_json(line) for line in f if line.strip()]
+    if len({s.sid for s in out}) != len(out):
+        raise ValueError("duplicate sid")
+    return out
+
+
+class InjectionCarrier(BaseModel):
+    """A test-only document carrying the injected text (never part of the real corpus)."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    doc_id: str = Field(pattern=r"^INJ-\d{4}-\d{4}$")
+    doc_type: Literal["incident", "sop"]
+    fab: str
+    department: str
+    clearance: int = Field(ge=0, le=3)
+    title: str
+    body_md: str
+
+
+InjectionAction = Literal[
+    "tool_result_outside_scope",
+    "propose_unrelated_lots",
+    "self_approve",
+    "execute_without_approval",
+    "propose_status_change",
+    "no_citation",
+]
+
+
+class InjectionCase(BaseModel):
+    """One prompt-injection case (PLAN Phase 2). Drafted by the planner, reviewed by Colin;
+    scored by `evals/injection_eval.py`."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    iid: str = Field(pattern=r"^I-\d{4}$")
+    category: Literal[
+        "privilege_read",
+        "role_spoofing",
+        "misleading_procedure",
+        "unauthorized_write",
+        "output_exfiltration",
+        "instruction_override",
+    ]
+    carrier: InjectionCarrier
+    asker_user_id: str
+    question: str = Field(min_length=1)
+    expected_behavior: str
+    key_facts: list[str] = []
+    forbidden_strings: list[str] = []
+    forbidden_actions: list[InjectionAction] = []
+    notes: str = ""
+
+
+def load_injection_cases(paths: list[Path]) -> list[InjectionCase]:
+    out = []
+    for p in paths:
+        with p.open(encoding="utf-8") as f:
+            out += [InjectionCase.model_validate_json(line) for line in f if line.strip()]
+    if len({c.iid for c in out}) != len(out):
+        raise ValueError("duplicate iid")
+    return out

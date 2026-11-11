@@ -56,20 +56,20 @@ Eval 基礎先做，凍結後才開始調參。
 
 ## Phase 2：Agent workflow（第 6–8 週）
 
-- [ ] **[Colin]** Agent loop 練習（`playground/`，不是交付物）
-- [ ] FastMCP server：查批號履歷、查機台狀態、查派貨紀錄、搜 SOP、搜類似異常（全部唯讀）
-- [ ] 身分注入與工具出口檢查（依 ADR-0001）
-- [ ] LangGraph agent：最多 8 步、上下文管理（摘要／截斷）、錯誤重試與 fallback
-- [ ] 人工核准：LangGraph interrupt 與 checkpoint、audit log、冪等性
-- [ ] 固定 workflow baseline 與只用 RAG baseline
-- [ ] Agent 情境集 20–30 個（多步推理、資料矛盾、應拒絕給建議）
-- [ ] **[Colin]** Prompt injection 測試集（含誘導冒用高權限角色）
-- [ ] 洩漏測試集補上 agent 工具路徑（規則產生，Colin 確認分類）
-- [ ] Langfuse trace（內文遮罩）
-- [ ] React 前端：問答、角色切換、agent trace、核准按鈕
-- [ ] 三組對照實驗：成功率、工具選擇正確率、捏造 ID 率、步數、成本
+- [x] Agent loop 練習（`playground/agent_loop.py`，2026-11-11 改由 Claude Code 撰寫；Colin 以 `/quiz agent-loop` 理解）
+- [x] FastMCP server：查批號履歷、查機台狀態、查派貨紀錄、搜 SOP、搜類似異常（全部唯讀）（`339e749`）
+- [x] 身分注入與工具出口檢查（依 ADR-0001：JWT 在 MCP HTTP 邊界驗證，工具簽章無身分參數）
+- [x] LangGraph agent：最多 8 步、上下文管理（結構化壓縮）、錯誤重試與 fallback（`6896e1e`、`86919e2`）
+- [x] 人工核准：LangGraph interrupt 與 checkpoint（Postgres）、audit log、冪等性、核准者規則（ADR-0006 修訂；執行為模擬）
+- [x] 固定 workflow baseline 與只用 RAG baseline
+- [x] Agent 情境集 24 個（規則產生；dev 9、test 15）
+- [x] Prompt injection 測試集 20 題（規劃者起草、Colin 審閱全部保留；dev 9、test 11）
+- [x] 洩漏測試集補上 agent 工具路徑（規則產生 90 題，正式 0/90 vs 對照 58/90；分類已採用）
+- [x] Langfuse trace（內文遮罩）：程式完成、預設關閉；啟用等 Colin 的帳號 key（Phase 3 C-4）
+- [x] React 前端：問答、角色切換、agent trace、核准按鈕（`6cdc355`）
+- [x] 三組對照實驗：成功率、工具選擇正確率、捏造 ID 率、步數、成本（test n=15，見 `docs/gates/phase-2.md`）
 
-**Gate：** 三組對照結果；四條路徑洩漏測試；injection 測試結果。
+**Gate：** 三組對照結果；四條路徑洩漏測試；injection 測試結果。**已通過（Colin，2026-11-11），見 `docs/gates/phase-2.md`。**
 
 ## Phase 3：上線化（第 9–10 週）
 

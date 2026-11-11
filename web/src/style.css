@@ -1,0 +1,155 @@
+:root {
+  --bg: #f6f7f9;
+  --card: #ffffff;
+  --text: #1d2330;
+  --muted: #5f6b7a;
+  --line: #dde2e8;
+  --accent: #2f5fd0;
+  --ok: #1f7a4d;
+  --err: #b3261e;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14171c;
+    --card: #1d2128;
+    --text: #e6e9ee;
+    --muted: #9aa4b2;
+    --line: #2d333d;
+    --accent: #7ea2ff;
+    --ok: #5fcf97;
+    --err: #ff8a80;
+  }
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 15px/1.6 system-ui, "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+}
+main {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 16px;
+}
+header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+h1 {
+  margin: 8px 0;
+  font-size: 22px;
+}
+h3 {
+  margin: 0 0 8px;
+  font-size: 16px;
+}
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+  margin: 12px 0;
+}
+.userpicker {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.scope,
+.hint,
+.meta {
+  color: var(--muted);
+  font-size: 13px;
+}
+textarea,
+select,
+button {
+  font: inherit;
+  color: var(--text);
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 6px 10px;
+}
+textarea {
+  width: 100%;
+}
+button {
+  cursor: pointer;
+  margin-right: 6px;
+}
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.row {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+.answer {
+  white-space: pre-wrap;
+}
+.badge {
+  font-size: 12px;
+  padding: 1px 8px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  margin-left: 6px;
+  color: var(--muted);
+}
+.badge.awaiting_approval {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.badge.executed,
+.badge.done {
+  color: var(--ok);
+  border-color: var(--ok);
+}
+.badge.rejected,
+.badge.refused,
+.badge.incomplete {
+  color: var(--err);
+  border-color: var(--err);
+}
+.trace {
+  padding-left: 20px;
+}
+.trace li {
+  margin-bottom: 8px;
+}
+.trace pre {
+  white-space: pre-wrap;
+  word-break: break-all;
+  font-size: 12px;
+  background: var(--bg);
+  padding: 6px;
+  border-radius: 4px;
+  max-height: 160px;
+  overflow: auto;
+}
+code {
+  font-size: 12px;
+  word-break: break-all;
+}
+.error {
+  color: var(--err);
+  font-size: 13px;
+  margin-left: 6px;
+}
+.proposal {
+  border-top: 1px solid var(--line);
+  padding: 8px 0;
+}
+.audit ul {
+  margin: 4px 0 8px;
+  font-size: 13px;
+}

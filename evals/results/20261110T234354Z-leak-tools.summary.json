@@ -1,0 +1,56 @@
+{
+  "run_id": "20261110T234354Z-leak-tools",
+  "system": "tools",
+  "cases_sha256": "73c09fca702c8c38",
+  "git": {
+    "commit": "339e749",
+    "dirty": true
+  },
+  "by": {
+    "all": {
+      "leaked": 0,
+      "n": 101,
+      "errors": 0
+    },
+    "boundary:clearance": {
+      "leaked": 0,
+      "n": 31,
+      "errors": 0
+    },
+    "boundary:cross_dept": {
+      "leaked": 0,
+      "n": 35,
+      "errors": 0
+    },
+    "boundary:cross_fab": {
+      "leaked": 0,
+      "n": 35,
+      "errors": 0
+    },
+    "tool:get_dispatch_log": {
+      "leaked": 0,
+      "n": 13,
+      "errors": 0
+    },
+    "tool:get_equipment_status": {
+      "leaked": 0,
+      "n": 13,
+      "errors": 0
+    },
+    "tool:get_lot_history": {
+      "leaked": 0,
+      "n": 15,
+      "errors": 0
+    },
+    "tool:search_similar_incidents": {
+      "leaked": 0,
+      "n": 36,
+      "errors": 0
+    },
+    "tool:search_sop": {
+      "leaked": 0,
+      "n": 24,
+      "errors": 0
+    }
+  }
+}

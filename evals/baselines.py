@@ -9,6 +9,9 @@
 - `NaiveQuestionCache`：在整個 RAG 前面加一層只以「問題文字」當 key 的快取，
   不含權限範圍、也不含檢索內容，模擬常見的問題層快取。命中時直接回傳上一位提問者的輸出。
 
+- `UnfilteredMesStore`（Phase 2）：MES 查詢不套權限條件；搭配 `MesTools(exit_checks=False)`
+  當 agent 工具路徑的對照組（`evals/leak_tools.py --system tools-unfiltered`）。
+
 系統名稱（`evals/systems.py`）：`rag-<preset>-noprefilter`、`rag-<preset>-naivecache`。
 """
 
@@ -18,6 +21,7 @@ from typing import Any
 
 from evals.schema import SystemOutput
 from fabops.authz.scope import Scope
+from fabops.mcp_server.store import PgMesStore
 from fabops.rag.retrieve import Retriever
 
 UNSAFE_SUFFIXES = ("-noprefilter", "-naivecache")
@@ -26,11 +30,14 @@ UNSAFE_SUFFIXES = ("-noprefilter", "-naivecache")
 class UnfilteredRetriever(Retriever):
     """⚠️ eval 專用：權限條件換成 TRUE，任何人都檢索得到所有文件。"""
 
-    def _where(self, scope: Scope) -> tuple[str, dict[str, Any]]:
-        cond = "TRUE"
+    def _where(self, scope: Scope, doc_type: str | None = None) -> tuple[str, dict[str, Any]]:
+        cond, params = "TRUE", {}
         if not self.cfg.include_superseded:
             cond += " AND d.superseded_by IS NULL"
-        return cond, {}
+        if doc_type is not None:
+            cond += " AND d.doc_type = %(doc_type)s"
+            params["doc_type"] = doc_type
+        return cond, params
 
 
 class NaiveQuestionCache:
@@ -51,3 +58,10 @@ class NaiveQuestionCache:
         if out.error is None:
             self._cache[key] = out
         return out
+
+
+class UnfilteredMesStore(PgMesStore):
+    """⚠️ eval 專用：MES 查詢的權限條件換成 TRUE。"""
+
+    def _scope_condition(self, scope: Scope) -> tuple[str, dict[str, Any]]:
+        return "TRUE", {}

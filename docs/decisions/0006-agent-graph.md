@@ -33,3 +33,17 @@ Agent 要能多步查詢唯讀工具、產生寫入建議並等待人工核准�
 - Checkpoint 存放在既有的 Postgres。
 - Proposal 存入資料表（狀態、核准者、時間），以 idempotency key 確保同一建議只執行一次；
   執行結果寫入 audit log。
+
+## 修訂（2026-11-11）：誰可以核准
+
+規劃者代決（交接指示 008），Colin 可推翻。
+
+- 核准或駁回一個 proposal 的人必須同時符合：
+  1. 不是提出者（`requester`）本人；
+  2. 機密等級 ≥ confidential（2）；
+  3. 看得到 proposal 的目標（批號或腔體，依 ADR-0002 與 `MES_CLEARANCE`）。
+- 核准者身分一律由呼叫端（API 的登入使用者）提供，不得來自 LLM；範圍由伺服器端從 `users` 資料表查出。
+- 檢查做兩次：`AgentService.decide()`（API 呼叫的入口）在恢復 graph 前檢查；`approval` 節點恢復後再檢查一次（縱深防禦，
+  且核准者必須等於這次已驗證的使用者）。規則寫在 `agent/proposals.py` 的 `approval_problem()`，兩處共用。
+- 違反時：寫一筆 `denied` 到 audit log（含原因），proposal 維持 `pending`，run 繼續停在 approval，可由符合資格的人再決定。
+- 執行仍是模擬（只寫 audit log，不改 MES 資料表）。
