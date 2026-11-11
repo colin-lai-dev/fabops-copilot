@@ -21,6 +21,16 @@ def capture():
     return sent, httpx.Client(transport=httpx.MockTransport(handler))
 
 
+def attrs(span):
+    out = {}
+    for a in span["attributes"]:
+        v = a["value"]
+        out[a["key"].removeprefix("fabops.")] = (
+            int(v["intValue"]) if "intValue" in v else next(iter(v.values()))
+        )
+    return out
+
+
 def test_payload_is_exactly_the_masked_record(tmp_path):
     sent, client = capture()
     exp = LangfuseExporter("https://lf.example", "pk", "sk", client=client, batch=1)
@@ -29,14 +39,33 @@ def test_payload_is_exactly_the_masked_record(tmp_path):
         "answer", texts={"answer": SECRET_TEXT, "query": "壓力怎麼處理"}, scope="abc",
         doc_ids=["SOP-1"], thread_id="th1", user_id="eng_fx1_etch", body=SECRET_TEXT,
     )  # fmt: skip
-    assert len(sent) == 1 and sent[0]["url"] == "https://lf.example/api/public/ingestion"
-    event = sent[0]["body"]["batch"][0]
-    assert event["type"] == "event-create" and event["body"]["traceId"] == "th1"
-    assert event["body"]["metadata"] == record  # nothing beyond the masked record
+    assert len(sent) == 1 and sent[0]["url"] == "https://lf.example/api/public/otel/v1/traces"
+    span = sent[0]["body"]["resourceSpans"][0]["scopeSpans"][0]["spans"][0]
+    assert span["name"] == "answer" and len(span["traceId"]) == 32
+    got = attrs(span)
+    assert set(got) == set(record)  # nothing beyond the masked record
+    assert json.loads(got["doc_ids"]) == ["SOP-1"] and got["scope"] == "abc"
     raw = json.dumps(sent, ensure_ascii=False)
     for text in (SECRET_TEXT, "壓力怎麼處理", "eng_fx1_etch", "+9%"):
         assert text not in raw
-    assert "dropped_fields" in event["body"]["metadata"]  # user_id/body were dropped, visibly
+    assert "dropped_fields" in got  # user_id/body were dropped, visibly
+
+
+def test_events_of_one_run_share_a_trace():
+    a = LangfuseExporter.to_span({"event": "tool", "thread_id": "t1"})
+    b = LangfuseExporter.to_span({"event": "agent_done", "thread_id": "t1"})
+    c = LangfuseExporter.to_span({"event": "tool", "thread_id": "t2"})
+    assert a["traceId"] == b["traceId"] != c["traceId"]
+
+
+def test_http_errors_count_as_failures(tmp_path):
+    def reject(request):
+        return httpx.Response(400, json={"error": "bad"})
+
+    client = httpx.Client(transport=httpx.MockTransport(reject))
+    exp = LangfuseExporter("https://lf.example", "pk", "sk", client=client, batch=1)
+    Tracer(tmp_path / "t.jsonl", exporter=exp).event("x")
+    assert (exp.sent, exp.failures) == (0, 1)
 
 
 def test_unsafe_tracer_never_exports(tmp_path):

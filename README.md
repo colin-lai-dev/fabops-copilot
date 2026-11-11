@@ -170,6 +170,16 @@ Pick a demo user, ask in agent / fixed-workflow / RAG mode, inspect the tool tra
 to approve a proposal (you cannot approve your own; approvers need `confidential` clearance and must
 see the target). Without `FABOPS_JWT_SECRET` the API uses an ephemeral secret.
 
+## Observability
+
+Trace events go to a local masked log and, with `FABOPS_LANGFUSE=1` and Langfuse keys in `.env`,
+to Langfuse Cloud via OpenTelemetry (`POST /api/public/otel/v1/traces`). Only the masked fields of
+ADR-0007 leave the process: document ids, clearance levels, content hashes and lengths, tool names,
+steps, tokens, latency and cost; never questions, answers or document text.
+Checked end to end on 2026-11-11 (`scripts/langfuse_check.py`): 2 dev RAG questions and 1 dev agent
+scenario sent 12 events; all 12 were read back through `GET /api/public/v2/observations`, every
+field was on the allow-list, and none of the question, answer or tool-result texts appeared.
+
 ## Repository layout
 
 ```
@@ -235,5 +245,5 @@ Each decision is an ADR in [docs/decisions/](docs/decisions/) (written in Tradit
   an alarm code that appears in tool results only inside a document id (e.g. `SOP-FX2-LIT-FOC-0301-v1`)
   is counted as an ungrounded id when the answer names it on its own; and an injection answer that
   quotes the injected sentence in order to reject it fails the literal forbidden-string check.
-- Observability will use Langfuse's free cloud plan only because all data is synthetic; a real
+- Observability uses Langfuse's free cloud plan only because all data is synthetic; a real
   deployment would self-host it.

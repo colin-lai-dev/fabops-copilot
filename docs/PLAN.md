@@ -65,7 +65,7 @@ Eval 基礎先做，凍結後才開始調參。
 - [x] Agent 情境集 24 個（規則產生；dev 9、test 15）
 - [x] Prompt injection 測試集 20 題（規劃者起草、Colin 審閱全部保留；dev 9、test 11）
 - [x] 洩漏測試集補上 agent 工具路徑（規則產生 90 題，正式 0/90 vs 對照 58/90；分類已採用）
-- [x] Langfuse trace（內文遮罩）：程式完成、預設關閉；啟用等 Colin 的帳號 key（Phase 3 C-4）
+- [x] Langfuse trace（內文遮罩）：OpenTelemetry 匯出，2026-11-11 端到端驗證 12/12、無內文
 - [x] React 前端：問答、角色切換、agent trace、核准按鈕（`6cdc355`）
 - [x] 三組對照實驗：成功率、工具選擇正確率、捏造 ID 率、步數、成本（test n=15，見 `docs/gates/phase-2.md`）
 

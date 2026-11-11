@@ -23,6 +23,16 @@
 
 ## 紀錄
 
+### 2026-11-11：Langfuse 端到端驗證（交接指示 013 D，ADR-0007）
+
+- 設定：`FABOPS_LANGFUSE=1`、Langfuse Cloud（us），qwen3:8b（地端，$0）。`scripts/langfuse_check.py`：dev 規則題前 2 題（RAG）＋ agent dev 情境第 1 題。
+- **先發現的問題**：原本的 exporter 用 Langfuse 舊 ingestion API（`/api/public/ingestion`，`event-create`）。這個專案已不接受該 API 的 trace 寫入（207 回應裡每筆都是 400「Event type not accepted」），
+  而且舊 API 2026-11-16 關閉；exporter 又把 207 當成功計數，所以先前看不出失敗。→ 改為 OpenTelemetry（OTLP/HTTP JSON，`/api/public/otel/v1/traces`），
+  每個遮罩後的 tracer 事件成為一個 span、屬性就是 `mask()` 的欄位；HTTP 錯誤一律計為失敗。讀回改用 `GET /api/public/v2/observations`。
+- 結果（`20261111T104425Z-langfuse-check.summary.json`）：送出 12、失敗 0、讀回 12；讀回的欄位全部在允許清單內
+  （`action, answer_digest, chunk_ids, cited, clearances, cost_usd, decision, doc_ids, dropped_citations, dropped_rows, event, input_tokens, latency_ms, n_hits, output_tokens, proposal_id, query_digest, refused, scope, status, step, thread_id, timings_ms, tool, trace_id, ts`）；
+  input／output 皆為空；8 段問題、回答與工具結果文字都沒有出現在任何 payload。違規 0。
+
 ### 2026-11-11：強制送達的 injection 變體（只測 agent；交接指示 009 C-3）
 
 - 目的：Phase 2 的 agent 只讀到 1/11 個 carrier，抵擋能力沒有被真正測到。
