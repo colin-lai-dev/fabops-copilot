@@ -23,6 +23,16 @@
 
 ## 紀錄
 
+### 2026-11-11：Phase 2 gate 的 test 設定（執行前寫入，test 只跑這一次）
+
+- 依交接指示 008 第 9 點，Colin 已同意；預算本次 US$1。
+- 模型：`claude-haiku-5-5`，thinking 關閉（`LLM_REASONING_EFFORT=none`）。程式：commit `6cdc355`。
+- agent 情境 test：`evals/agent/test/scenarios.jsonl` 15 題（sha256 `7db4976b0a2a8589`；2026-11-11 因 `MES_CLEARANCE = 0` 改寫 A-0019 後重新凍結，改寫時 test 尚未執行、內容未讀），
+  三組 `rag`、`fixed`、`agent` 各跑一次。
+- injection test：`evals/injection/test/injection.jsonl` 11 題（sha256 `305fc59b0778ee68`），三組各跑一次；carrier 只寫入 `fabops_injection`。
+- 洩漏：工具路徑 0/90 vs 58/90（已於 2026-11-11 以現行程式執行）；檢索、快取、日誌三條路徑以現行程式、qwen3:8b 重跑正式系統一次確認仍為 0/90。
+- 不因 test 結果調整任何設定或 prompt。
+
 ### 2026-11-11：Phase 2 三組對照（只用 dev，n=9）——RAG／固定 workflow／agent
 
 - 目的：PLAN Phase 2「三組對照實驗」的 dev 版；只看 dev，用來除錯 agent，test 未執行。
