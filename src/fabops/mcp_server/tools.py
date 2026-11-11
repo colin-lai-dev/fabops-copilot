@@ -24,6 +24,7 @@ from fabops.mcp_server.store import MesStore
 from fabops.rag.retrieve import Retrieval
 
 ID_PATTERN = re.compile(r"^[A-Za-z0-9-]{1,40}$")
+CHAMBER_SUFFIX = re.compile(r"-CH[A-D]$")
 MAX_QUERY_CHARS = 300
 MAX_LIMIT = 20
 NOT_FOUND = "查無此資料，或你沒有權限查看。"
@@ -125,6 +126,7 @@ class MesTools:
 
     def get_equipment_status(self, scope: Scope, equipment_id: str, limit: int = 5) -> dict:
         eq_id, limit, dropped = _id(equipment_id, "equipment_id"), _limit(limit), [0]
+        eq_id = CHAMBER_SUFFIX.sub("", eq_id)  # a chamber id names its equipment
         w = {"equipment_id": eq_id}
         eq = self._out(scope, self.store.select("equipment", scope, w), dropped)
         if not eq:

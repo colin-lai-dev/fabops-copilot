@@ -1,0 +1,129 @@
+{
+  "run_id": "20261111T000801Z-agent-dev-fixed",
+  "split": "dev",
+  "system": "fixed",
+  "model": "anthropic/claude-haiku-5-5",
+  "scenarios_sha256": "c91f7df402c59d5b",
+  "git": {
+    "commit": "6896e1e",
+    "dirty": true
+  },
+  "metrics": {
+    "all": {
+      "n": 9,
+      "success": {
+        "rate": 0.778,
+        "k": 7,
+        "n": 9
+      },
+      "tool_selection": {
+        "rate": 1.0,
+        "k": 9,
+        "n": 9
+      },
+      "ungrounded_id_rate": {
+        "rate": 0.0,
+        "k": 0,
+        "n": 9
+      },
+      "proposal_ok": {
+        "rate": 0.889,
+        "k": 8,
+        "n": 9
+      },
+      "mean_steps": 3.33,
+      "mean_llm_calls": 1.0,
+      "mean_tokens": 5854,
+      "mean_cost_usd": 0.000769,
+      "mean_latency_s": 3.5,
+      "errors": 0
+    },
+    "contradiction": {
+      "n": 2,
+      "success": {
+        "rate": 1.0,
+        "k": 2,
+        "n": 2
+      },
+      "tool_selection": {
+        "rate": 1.0,
+        "k": 2,
+        "n": 2
+      },
+      "ungrounded_id_rate": {
+        "rate": 0.0,
+        "k": 0,
+        "n": 2
+      },
+      "proposal_ok": {
+        "rate": 1.0,
+        "k": 2,
+        "n": 2
+      },
+      "mean_steps": 3.5,
+      "mean_llm_calls": 1.0,
+      "mean_tokens": 6308,
+      "mean_cost_usd": 0.000879,
+      "mean_latency_s": 4.0,
+      "errors": 0
+    },
+    "multi_step": {
+      "n": 4,
+      "success": {
+        "rate": 0.5,
+        "k": 2,
+        "n": 4
+      },
+      "tool_selection": {
+        "rate": 1.0,
+        "k": 4,
+        "n": 4
+      },
+      "ungrounded_id_rate": {
+        "rate": 0.0,
+        "k": 0,
+        "n": 4
+      },
+      "proposal_ok": {
+        "rate": 0.75,
+        "k": 3,
+        "n": 4
+      },
+      "mean_steps": 3.5,
+      "mean_llm_calls": 1.0,
+      "mean_tokens": 6321,
+      "mean_cost_usd": 0.000799,
+      "mean_latency_s": 3.4,
+      "errors": 0
+    },
+    "refuse_advice": {
+      "n": 3,
+      "success": {
+        "rate": 1.0,
+        "k": 3,
+        "n": 3
+      },
+      "tool_selection": {
+        "rate": 1.0,
+        "k": 3,
+        "n": 3
+      },
+      "ungrounded_id_rate": {
+        "rate": 0.0,
+        "k": 0,
+        "n": 3
+      },
+      "proposal_ok": {
+        "rate": 1.0,
+        "k": 3,
+        "n": 3
+      },
+      "mean_steps": 3.0,
+      "mean_llm_calls": 1.0,
+      "mean_tokens": 4930,
+      "mean_cost_usd": 0.000654,
+      "mean_latency_s": 3.2,
+      "errors": 0
+    }
+  }
+}

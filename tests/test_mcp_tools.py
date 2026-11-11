@@ -82,6 +82,12 @@ def test_invisible_equipment_looks_like_missing(tools, user, fab, dept):
     assert hidden == missing == {"found": False, "message": NOT_FOUND, "n": 0}
 
 
+def test_equipment_status_accepts_a_chamber_id(tools):
+    eq = first("equipment", fab="FX1", department="etch")["equipment_id"]
+    r = tools.get_equipment_status(SCOPES["eng_fx1_etch"], f"{eq}-CHA")
+    assert r["found"] and r["equipment"]["equipment_id"] == eq
+
+
 def test_lot_history_only_shows_visible_departments(tools):
     scope = SCOPES["lead_fx1_multi"]  # FX1; etch, thinfilm, cmp
     eq_dept = {e["equipment_id"]: e["department"] for e in STORE.views["equipment"]}

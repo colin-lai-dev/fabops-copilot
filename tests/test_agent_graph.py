@@ -208,17 +208,46 @@ def test_permissions_hold_inside_the_agent(env):
     assert json.loads(r.tool_results[0])["found"] is False
 
 
-def test_old_results_are_trimmed_in_the_prompt(env):
+def body(block: str) -> str:
+    return block.split(">" + chr(10), 1)[1]
+
+
+def test_old_results_are_compacted_but_keep_ids(env):
     eqs = ["FX1-ETCHER-01", "FX1-ETCHER-02", "FX1-ETCHER-03", "FX1-CVD-01", "FX1-CVD-02"]
     _, provider, _, ask = env(
         [call("get_equipment_status", equipment_id=e) for e in eqs] + [finish("ok")],
         user="lead_fx1_multi",
     )
-    run(ask())
-    last = provider.prompts[-1][-1]["content"]
-    assert last.count("已截斷") >= 2  # the oldest results; the last KEEP_FULL stay in full
-    first_block = last.split("</工具結果>")[0]
-    assert len(first_block) < OLD_RESULT_CHARS + 300
+    r = run(ask())
+    blocks = provider.prompts[-1][-1]["content"].split("</工具結果>")[:-1]
+    assert len(blocks) == 5
+    full = json.loads(r.tool_results[0])
+    for c in full["chambers"]:  # chambers come first in the result, so they survive compaction
+        row = {"chamber_id": c["chamber_id"], "equipment_id": eqs[0], "status": c["status"]}
+        assert json.dumps(row, ensure_ascii=False)[1:-1] in blocks[0]
+    assert len(blocks[0]) < OLD_RESULT_CHARS + 300
+    assert body(blocks[-1]).strip() == r.tool_results[-1]  # recent: in full
+
+
+def test_compact_shortens_strings_and_lists():
+    from fabops.agent.graph import COMPACT_LIST, compact
+
+    text = json.dumps({"a": "x" * 500, "rows": [{"id": i} for i in range(20)]})
+    out = json.loads(compact(text))
+    assert len(out["a"]) <= 61 and len(out["rows"]) == COMPACT_LIST + 1
+
+
+def test_proposal_target_must_match_the_action(env):
+    _, _, proposals, ask = env(
+        [
+            call("get_equipment_status", equipment_id=EQ),
+            _propose(f"{EQ}-CHA", "hold_lot"),  # a chamber is not a lot
+            finish("改為不提出建議"),
+        ]
+    )
+    r = run(ask())
+    assert r.proposal is None and proposals.audit() == []
+    assert "lot_id" in r.calls[-1]["error"]
 
 
 def test_transient_tool_error_is_retried_once():

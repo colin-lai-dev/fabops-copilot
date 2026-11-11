@@ -23,6 +23,51 @@
 
 ## 紀錄
 
+### 2026-11-11：Phase 2 三組對照（只用 dev，n=9）——RAG／固定 workflow／agent
+
+- 目的：PLAN Phase 2「三組對照實驗」的 dev 版；只看 dev，用來除錯 agent，test 未執行。
+- 題目集：agent 情境集 24 題，**由 Claude Code 依規則產生**（`evals/gen_agent_scenarios.py`，seed `20261111`，規劃者事後抽查；不是手寫），
+  每類 40/60 分層切分：dev 9 題（`evals/agent/dev/scenarios.jsonl`，sha256 `c91f7df402c59d5b`；多步推理 4、資料矛盾 2、應拒絕給建議 3）、
+  **test 15 題凍結**（`evals/agent/test/scenarios.jsonl`，sha256 `d5a548799d6f7137`；多步推理 6、資料矛盾 4、應拒絕給建議 5，內容未讀）。
+- 設定：三組共用同一個 LLM、同一個檢索（`rag-hybrid-bm25` 預設）、同一組 MCP 工具與權限檢查。`rag` = Phase 1 預設 RAG（不能呼叫工具、不會提建議）；
+  `fixed` = 固定流程（批號 → 機台 → SOP → 類似異常，最後一次 LLM 決定 propose／finish）；`agent` = LangGraph agent（最多 8 次工具呼叫）。
+  核准一律停在 approval，不執行。評分：`evals/agent_eval.py`（成功 = 關鍵事實全中、沒有禁止字串、拒答符合預期、建議完全符合或預期沒有建議時沒有建議）。
+- 除錯過程（都只看 dev）：
+  1. qwen3 第一輪：9 題中 8 題都提出 `hold_lot`，還把腔體編號當批號。→ 程式加「建議類型與目標編號種類必須相符」；prompt 規則 4 改成「只有被要求處理、且查到的 SOP 步驟要求時才提出」。
+  2. Haiku 第一輪：agent 7/9、fixed 7/9。失敗原因都是**上下文截斷**：舊的工具結果被砍到 300 字，腔體清單不見（agent 回答「步驟 1 已截斷，無法確認」）。
+     → 改成結構化壓縮（保留所有鍵、編號與狀態，只截短長字串與長清單；最近 3 筆完整、上限 6000 字；較舊的壓縮後上限 1500 字）；`get_equipment_status` 也接受腔體編號。
+  3. 以下為修正後的結果；程式即 commit 於本筆之後的 `feat(evals)` commit（執行時工作目錄未提交，git 欄位記為 `6896e1e`+dirty）。
+- 結果（dev，n=9）：
+
+  | 系統 | 模型 | 成功 | 多步推理（n=4） | 資料矛盾（n=2） | 應拒絕（n=3） | 工具選擇正確 | 捏造 ID | 建議正確 | 平均步數 | 平均 LLM 呼叫 | 平均 token | 每題成本 | 平均延遲 |
+  | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+  | `rag` | Haiku 5.5 | 2/9 | 0/4 | 0/2 | 2/3 | — | 0/9 | 7/9 | 0 | 1.0 | 3,796 | US$0.00049 | 2.3 s |
+  | `fixed` | Haiku 5.5 | 8/9 | 3/4 | 2/2 | 3/3 | 9/9 | 0/9 | 8/9 | 3.33 | 1.0 | 6,605 | US$0.00091 | 4.3 s |
+  | `agent` | Haiku 5.5 | **9/9** | 4/4 | 2/2 | 3/3 | 8/9 | 0/9 | 9/9 | 3.0 | 4.0 | 17,532 | US$0.00208 | 6.8 s |
+  | `rag` | qwen3:8b | 1/9 | 0/4 | 0/2 | 1/3 | — | 0/9 | 7/9 | 0 | 1.0 | 2,485 | $0 | 2.9 s |
+  | `fixed` | qwen3:8b | 2/9 | 0/4 | 0/2 | 2/3 | 9/9 | 0/9 | 7/9 | 3.33 | 1.89 | 2,996 | $0 | 3.7 s |
+  | `agent` | qwen3:8b | 1/9 | 0/4 | 0/2 | 1/3 | 5/9 | 0/9 | 4/9 | 2.33 | 3.89 | 8,961 | $0 | 19.3 s |
+
+  run_id：Haiku `20261111T000841Z-agent-dev-rag`、`20261111T001203Z-agent-dev-fixed`、`20261111T001101Z-agent-dev-agent`；
+  qwen3 `20261111T000538Z-agent-dev-rag`、`20261111T001615Z-agent-dev-fixed`、`20261111T001521Z-agent-dev-agent`。
+- 觀察：
+  - n=9，一題就是 11 個百分點；fixed 8/9 與 agent 9/9 的差距在雜訊內。能說的是：**RAG 單次檢索在需要 MES 資料的題目上幾乎全錯**（多步推理與矛盾 0/6），兩種工具流程都大幅勝出。
+  - agent 的成本約是 fixed 的 2.3 倍（token 17.5k vs 6.6k、LLM 呼叫 4 vs 1），每題仍只要 US$0.002。
+  - fixed 唯一的失敗（A-0008）：題目要它「依 SOP 處理」，它查到 SOP 卻說「沒有本次量測值，不提出建議」——固定流程只有最後一次 LLM 呼叫，沒機會補查。
+  - qwen3:8b 不適合當 agent：仍常提出不該提的建議（建議正確 4/9），結構化輸出失敗較多（fixed 平均 1.89 次 LLM 呼叫，代表有修正重試）。地端模式要用固定 workflow 或更大的模型，Phase 3 再比較。
+  - 捏造 ID 0/9（六組皆是）：proposal 目標必須出現在工具結果中，引用必須是搜尋工具回傳的文件，這兩道檢查擋在輸出前。回答文字本身也沒有出現未依據的編號。
+- 花費：Haiku 本日合計 US$0.055（含修正前的兩輪；`.cache/usage.jsonl`）。
+- 下一步：test 15 題留到 Phase 2 gate、經 Colin 同意後執行（三組 × Haiku，估計 < US$0.10）。
+
+### 2026-11-11：agent 工具路徑洩漏測試（工具層，不呼叫 LLM）
+
+- 設定：`evals/leak_tool_cases.jsonl`（規則產生 101 題，sha256 `73c09fca702c8c38`，分類見 `evals/leak/README.md`，**分類待 Colin 確認**）；
+  每題以 asker 的 JWT 經 in-process FastMCP server 呼叫工具（HTTP + JWT 驗證），PgMesStore + `rag-hybrid-bm25` 檢索。git `339e749`（dirty：本筆的新檔案）。
+- 結果：正式路徑 `tools` **0/101**（`20261110T234354Z-leak-tools`）；對照組 `tools-unfiltered` **69/101**（`20261110T234436Z-leak-tools-unfiltered`）。
+  對照組分項：機台狀態 13/13、派貨紀錄 13/13、批號履歷 15/15、搜 SOP 24/24、搜類似異常 4/36。
+- 觀察：搜類似異常的對照組只有 4/36，因為「INC-xxxx 的量測值」這類題目在不過濾時目標報告也排不進前 3 份，結果中沒有可洩漏的內容；這 32 題只能說明沒洩漏，不能證明檢查有效。
+  另發現 Phase 1 有 9 個禁止字串也出現在等級較低的 MES alarm 中，工具路徑已排除（見 README）。
+
 ### 2026-11-10：judge 校準（Gemini 3.6 Flash）與 test open 題評分
 
 - 設定：`gemini-3.6-flash`（ADR-0008 修訂），OpenAI 相容端點，thinking 用模型預設，`max_tokens` 4096，結構化 JSON；

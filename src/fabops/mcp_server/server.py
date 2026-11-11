@@ -70,7 +70,7 @@ def build_server(tools: MesTools, resolve_scope: ResolveScope, secret: str) -> F
 
     @mcp.tool(annotations=READ_ONLY)
     def get_equipment_status(equipment_id: EquipmentId, limit: int = 5) -> dict:
-        """查機台狀態：機台與各腔體目前狀態、最近的 alarm、最近的保養紀錄。"""
+        """查機台狀態：機台與各腔體目前狀態、最近的 alarm、最近的保養紀錄（也接受腔體編號）。"""
         return call(tools.get_equipment_status, equipment_id=equipment_id, limit=limit)
 
     @mcp.tool(annotations=READ_ONLY)

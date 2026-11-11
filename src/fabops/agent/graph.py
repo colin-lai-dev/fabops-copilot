@@ -47,9 +47,16 @@ from fabops.mcp_server.tools import ID_PATTERN, TOOL_NAMES
 
 MAX_STEPS = 8
 KEEP_FULL = 3  # most recent tool results kept in full
-MAX_RESULT_CHARS = 2500  # cap for a result kept in full
-OLD_RESULT_CHARS = 300  # older results are cut to this
+MAX_RESULT_CHARS = 6000  # cap for a result kept in full (a typical MES result is ~3,000)
+OLD_RESULT_CHARS = 1500  # cap for an older result after compaction
+COMPACT_STR = 60  # older results: long strings (excerpts, alarm messages) are cut to this
+COMPACT_LIST = 5  # older results: lists keep their first items (tools return newest first)
 MAX_LLM_FAILURES = 2
+# what a proposal's target id must look like, per ACTIONS[action][0]
+TARGET_PATTERNS = {
+    "lot_id": re.compile(r"^FX\dL\d{5}$"),
+    "chamber_id": re.compile(r"^FX\d-[A-Z]+-\d{2}-CH[A-D]$"),
+}
 
 # ---------------------------------------------------------------- state and LLM schemas
 
@@ -145,6 +152,26 @@ def format_calls(calls: list[dict[str, Any]]) -> str:
             f'<工具結果 step="{c["step"]}" tool="{c["tool"]}" args=\'{args}\'>\n{body}\n</工具結果>'
         )
     return "\n\n".join(out)
+
+
+def compact(text: str) -> str:
+    """Shorten long strings and lists inside a JSON tool result, keeping its structure."""
+    try:
+        data = json.loads(text)
+    except ValueError:
+        return text[:OLD_RESULT_CHARS]
+
+    def walk(x: Any) -> Any:
+        if isinstance(x, dict):
+            return {k: walk(v) for k, v in x.items()}
+        if isinstance(x, list):
+            head = [walk(v) for v in x[:COMPACT_LIST]]
+            return head + ([f"…另 {len(x) - COMPACT_LIST} 筆"] if len(x) > COMPACT_LIST else [])
+        if isinstance(x, str) and len(x) > COMPACT_STR:
+            return x[:COMPACT_STR] + "…"
+        return x
+
+    return json.dumps(walk(data), ensure_ascii=False)
 
 
 def seen_text(calls: list[dict[str, Any]]) -> str:
@@ -245,15 +272,23 @@ def make_nodes(deps: AgentDeps) -> dict[str, Callable]:
         return {"steps": step, "calls": [*state.get("calls", []), call], "pending": None}
 
     def trim_context(state: AgentState) -> dict[str, Any]:
+        """Keep the last KEEP_FULL results whole; compact older ones without losing ids.
+
+        Compaction keeps the JSON structure (every key, id and status) and only shortens long
+        strings and long lists, so the agent can still read, e.g., a chamber's status from an
+        older result. Hard cuts apply only beyond MAX_RESULT_CHARS / OLD_RESULT_CHARS.
+        """
         calls = [dict(c) for c in state.get("calls", [])]
         ok_idx = [i for i, c in enumerate(calls) if c["ok"]]
         recent = set(ok_idx[-KEEP_FULL:])
         for i in ok_idx:
-            limit = MAX_RESULT_CHARS if i in recent else OLD_RESULT_CHARS
             full = calls[i]["full"]
-            if len(full) > limit:
-                calls[i]["result"] = full[:limit] + f"…（已截斷，原長 {len(full)} 字）"
-                calls[i]["trimmed"] = True
+            text, limit = (
+                (full, MAX_RESULT_CHARS) if i in recent else (compact(full), OLD_RESULT_CHARS)
+            )
+            if len(text) > limit:
+                text = text[:limit] + f"…（已截斷，原長 {len(full)} 字）"
+            calls[i]["result"], calls[i]["trimmed"] = text, text != full
         return {"calls": calls}
 
     def propose(state: AgentState) -> dict[str, Any]:
@@ -265,6 +300,8 @@ def make_nodes(deps: AgentDeps) -> dict[str, Callable]:
             problem = f"不支援的建議類型：{action}"
         elif not ID_PATTERN.match(target):
             problem = "建議的目標編號格式不正確"
+        elif not TARGET_PATTERNS[ACTIONS[action][0]].match(target):
+            problem = f"{action} 的 target_id 必須是{ACTIONS[action][0]}"
         elif target not in seen_text(state.get("calls", [])):
             problem = f"{target} 沒有出現在任何工具結果中，請先查詢確認"
         if problem is not None:

@@ -224,3 +224,43 @@ def load_tool_leak_cases(path: Path) -> list[ToolLeakCase]:
     if len({c.cid for c in cases}) != len(cases):
         raise ValueError(f"duplicate cid in {path}")
     return cases
+
+
+class ExpectedProposal(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    action: Literal["hold_lot", "inhibit_chamber", "request_pm"]
+    target_id: str
+
+
+class AgentScenario(BaseModel):
+    """One agent scenario (PLAN Phase 2), scored by `evals/agent_eval.py`.
+
+    `expected_facts` is a list of groups; a group is met when the answer contains any one of
+    its alternatives (ADR-0005 fact matching). `expect_refusal=None` means either is fine.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    sid: str = Field(pattern=r"^A-\d{4}$")
+    category: Literal["multi_step", "contradiction", "refuse_advice"]
+    question: str = Field(min_length=1)
+    user_id: str
+    expected_tools: list[str] = []
+    expected_facts: list[list[str]] = []
+    forbidden_strings: list[str] = []
+    expected_citations: list[str] = []
+    expected_proposal: ExpectedProposal | None = None
+    expect_refusal: bool | None = None
+    source: Literal["rule"] = "rule"
+    notes: str = ""
+
+
+def load_agent_scenarios(paths: list[Path]) -> list[AgentScenario]:
+    out = []
+    for p in paths:
+        with p.open(encoding="utf-8") as f:
+            out += [AgentScenario.model_validate_json(line) for line in f if line.strip()]
+    if len({s.sid for s in out}) != len(out):
+        raise ValueError("duplicate sid")
+    return out

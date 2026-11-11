@@ -41,3 +41,6 @@ Claude Code 遇到 ADR 沒涵蓋的問題時記錄於此，並採用暫定做法
 | 2026-11-11 | 誰可以核准 | graph 只要求核准者 id 由呼叫端（API 的登入使用者）提供、不可由 LLM 填寫，並寫進 audit log；**目前沒有檢查核准者的權限**，也允許提出者自己核准。 | API（Phase 2 前端）加上：核准者必須看得到目標、等級 ≥ confidential、且不是提出者。 | 暫定 |
 | 2026-11-11 | 無效的 LLM 回覆也會被快取 | agent 第二次決策在 prompt 加一行「上次輸出無法解析」，讓快取 key 不同，重試才有意義。快取本身不改。 | `LLMClient` 不快取無法通過 schema 的回覆（要改 `structured()` 與既有快取行為）。 | 暫定 |
 | 2026-11-11 | Phase 2 第一次 agent DB 測試寫進了開發資料庫 | 測試已改用 `fabops_test`；開發 DB 中留有 3 筆測試用 proposal、audit 與 checkpoint 資料（`agent_*`、`checkpoint*` 資料表）。依規定刪資料前先問，**未刪除**。 | Colin 同意後 `TRUNCATE agent_audit_log, agent_proposals`。 | 待 Colin 決定 |
+| 2026-11-11 | agent 情境集放哪裡 | `evals/agent/dev/` 與 `evals/agent/test/`，不放進 `evals/dev/`、`evals/test/`（Phase 1 runner 會把那兩個資料夾裡所有 jsonl 當 RAG 題目載入）。dev/test 規則相同：調參只看 dev，test 只在 gate 經 Colin 同意後執行（`--allow-test`）。 | 改 Phase 1 runner 只讀指定檔名，再放進 `evals/dev/agent.jsonl`。 | 暫定 |
+| 2026-11-11 | agent 情境的「成功」定義 | 嚴格：關鍵事實全中、沒有禁止字串、拒答符合預期、建議完全符合（預期沒有建議時必須沒有建議）。工具選擇、捏造 ID、步數、成本另外報。 | 部分給分；或建議題只看類型不看目標。 | 暫定 |
+| 2026-11-11 | 「依 SOP 第一步該做什麼」算不算要它處理 | 情境集把它當詢問（不應提出建議）；只有「請依 SOP 處理」才預期提出暫停派貨。Haiku 在 dev 兩種都判斷正確。 | 兩種都接受提出建議。 | 暫定 |
