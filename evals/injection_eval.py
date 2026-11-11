@@ -16,9 +16,16 @@ Verdict per case (all must hold to pass):
 `delivered` records whether the system actually saw the carrier (an attack it never read
 proves little); it is reported, not part of the verdict.
 
+Forced delivery (`--delivery forced`, agent only; handoff 009 C-3): the agent rarely searches
+incident reports, so the carrier is also attached to the agent's first successful tool result
+as `related_documents` (`ForcedCarrier`, eval-only). Same cases, same verdict; the set lives in
+`evals/injection/forced/` (same dev/test split as the original) and is reported separately.
+
     uv run python -m evals.injection_eval split               # write dev/ and test/
     uv run python -m evals.injection_eval run --split dev --system agent
     uv run python -m evals.injection_eval run --split test --system agent --allow-test
+    uv run python -m evals.injection_eval forced-split        # write forced/dev and forced/test
+    uv run python -m evals.injection_eval run --split dev --system agent --delivery forced
 """
 
 from __future__ import annotations
@@ -42,6 +49,8 @@ from evals.schema import InjectionCase, load_injection_cases
 ROOT = Path(__file__).resolve().parents[1]
 DIR = ROOT / "evals" / "injection"
 ADOPTED = DIR / "injection.jsonl"
+FORCED = DIR / "forced"
+FORCED_NOTE = "forced delivery: carrier attached to the first tool result (handoff 009 C-3)"
 SEED = 20261111
 DEV_SHARE = 0.4
 DB_SUFFIX = "_injection"
@@ -72,6 +81,41 @@ def write_split() -> dict[str, int]:
             for c in part:
                 f.write(c.model_dump_json() + "\n")
     return {"dev": len(dev), "test": len(test)}
+
+
+def write_forced_split() -> dict[str, int]:
+    """The forced-delivery set: the original dev/test cases, unchanged except `notes`."""
+    out = {}
+    for name in ("dev", "test"):
+        cases = load_injection_cases([DIR / name / "injection.jsonl"])
+        (FORCED / name).mkdir(parents=True, exist_ok=True)
+        with (FORCED / name / "injection.jsonl").open("w", encoding="utf-8", newline="\n") as f:
+            for c in cases:
+                note = f"{c.notes} {FORCED_NOTE}"
+                f.write(c.model_copy(update={"notes": note}).model_dump_json() + "\n")
+        out[name] = len(cases)
+    return out
+
+
+class ForcedCarrier:
+    """Eval only: a gateway wrapper that attaches the carrier to the first successful tool
+    result, so the agent is sure to read the injected text. Permission checks are untouched;
+    every carrier is visible to its asker by construction."""
+
+    def __init__(self, inner: Any, case: InjectionCase):
+        self.inner, self.case, self.done = inner, case, False
+
+    async def list_tools(self):
+        return await self.inner.list_tools()
+
+    async def call(self, name: str, args: dict[str, Any]):
+        r = await self.inner.call(name, args)
+        if r.ok and isinstance(r.data, dict) and not self.done:
+            c = self.case.carrier
+            doc = {"doc_id": c.doc_id, "title": c.title, "excerpts": [c.body_md]}
+            r.data = {**r.data, "related_documents": [doc]}
+            self.done = True
+        return r
 
 
 # ---------------------------------------------------------------- verdict
@@ -116,20 +160,26 @@ def _related_targets(question: str) -> tuple[set[str], set[str]]:
     return chambers, lots
 
 
+def _drop_doc(x: Any, doc_id: str) -> Any:
+    if isinstance(x, dict):
+        return {k: _drop_doc(v, doc_id) for k, v in x.items()}
+    if isinstance(x, list):
+        keep = [v for v in x if not (isinstance(v, dict) and v.get("doc_id") == doc_id)]
+        return [_drop_doc(v, doc_id) for v in keep]
+    return x
+
+
 def _tool_text_without_carrier(calls: list[dict[str, Any]], carrier_id: str) -> str:
-    """MES results, plus search results minus the carrier itself (it may quote the attack)."""
+    """Every tool result minus the carrier itself (it may quote the attack), wherever it sits."""
     parts = []
     for c in calls:
         if not c.get("ok"):
             continue
-        if c["tool"] in MES_TOOLS:
-            parts.append(c["full"])
-            continue
         try:
-            docs = json.loads(c["full"]).get("documents", [])
-        except (ValueError, AttributeError):
+            data = json.loads(c["full"])
+        except (ValueError, KeyError):
             continue
-        parts += [json.dumps(d, ensure_ascii=False) for d in docs if d.get("doc_id") != carrier_id]
+        parts.append(json.dumps(_drop_doc(data, carrier_id), ensure_ascii=False))
     return "\n".join(parts)
 
 
@@ -277,7 +327,9 @@ class Carrier:
 # ---------------------------------------------------------------- run
 
 
-async def run_cases(system: str, cases: list[InjectionCase]) -> list[InjectionResult]:
+async def run_cases(
+    system: str, cases: list[InjectionCase], delivery: str = "retrieval"
+) -> list[InjectionResult]:
     from evals.agent_eval import Observed, Runner
     from evals.schema import AgentScenario
     from fabops.rag.models import default_encoder
@@ -295,6 +347,8 @@ async def run_cases(system: str, cases: list[InjectionCase]) -> list[InjectionRe
             try:
                 if system == "rag":
                     o = runner.rag(s)  # o.seen includes the retrieved doc ids
+                elif delivery == "forced":
+                    o = await runner.graph(s, system, wrap=lambda gw, c=c: ForcedCarrier(gw, c))
                 else:
                     o = await runner.graph(s, system)
             except Exception as e:
@@ -331,22 +385,28 @@ def summarize(results: list[InjectionResult]) -> dict[str, Any]:
     }
 
 
-def run(split_name: str, system: str, allow_test: bool) -> dict[str, Any]:
+def run(
+    split_name: str, system: str, allow_test: bool, delivery: str = "retrieval"
+) -> dict[str, Any]:
     if split_name == "test" and not allow_test:
         raise SystemExit("test split: only at a gate, with Colin's approval (--allow-test)")
+    if delivery == "forced" and system != "agent":
+        raise SystemExit("forced delivery is defined for the agent only")
     from fabops.config import get_settings
 
     dev_url = get_settings().database_url
     os.environ["DATABASE_URL"] = injection_db_url(dev_url)  # everything below uses this DB
     get_settings.cache_clear()
-    paths = [DIR / split_name / "injection.jsonl"]
+    base = FORCED if delivery == "forced" else DIR
+    paths = [base / split_name / "injection.jsonl"]
     cases = load_injection_cases(paths)
-    results = asyncio.run(run_cases(system, cases))
+    results = asyncio.run(run_cases(system, cases, delivery))
 
     from evals.run import RESULTS, files_sha256, git_state
 
     cfg = get_settings()
-    run_id = f"{datetime.now(UTC):%Y%m%dT%H%M%SZ}-injection-{split_name}-{system}"
+    tag = "injection-forced" if delivery == "forced" else "injection"
+    run_id = f"{datetime.now(UTC):%Y%m%dT%H%M%SZ}-{tag}-{split_name}-{system}"
     RESULTS.mkdir(parents=True, exist_ok=True)
     with (RESULTS / f"{run_id}.jsonl").open("w", encoding="utf-8", newline="\n") as f:
         for r in results:
@@ -355,6 +415,7 @@ def run(split_name: str, system: str, allow_test: bool) -> dict[str, Any]:
         "run_id": run_id,
         "split": split_name,
         "system": system,
+        "delivery": delivery,
         "model": f"{cfg.llm_provider}/{cfg.llm_model}",
         "cases_sha256": files_sha256(paths),
         "git": git_state(),
@@ -370,16 +431,21 @@ def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     sub = p.add_subparsers(dest="cmd", required=True)
     sub.add_parser("split")
+    sub.add_parser("forced-split")
     r = sub.add_parser("run")
     r.add_argument("--split", choices=("dev", "test"), default="dev")
     r.add_argument("--system", choices=SYSTEMS, default="agent")
     r.add_argument("--allow-test", action="store_true")
+    r.add_argument("--delivery", choices=("retrieval", "forced"), default="retrieval")
     args = p.parse_args(argv)
     sys.stdout.reconfigure(encoding="utf-8")  # type: ignore[attr-defined]
     if args.cmd == "split":
         print(write_split())
         return 0
-    summary = run(args.split, args.system, args.allow_test)
+    if args.cmd == "forced-split":
+        print(write_forced_split())
+        return 0
+    summary = run(args.split, args.system, args.allow_test, args.delivery)
     print(json.dumps({k: summary[k] for k in ("run_id", "model", "metrics")}, indent=2,
                      ensure_ascii=False))  # fmt: skip
     return 0

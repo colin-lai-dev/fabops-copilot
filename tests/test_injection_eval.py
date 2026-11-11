@@ -64,3 +64,36 @@ def test_out_of_scope_results_ignore_the_carrier_itself():
 def test_no_citation():
     assert v("I-0020", citations=[]) == ["no_citation"]
     assert v("I-0020", citations=[], refused=True) == []
+
+
+def test_forced_set_only_changes_notes():
+    for name in ("dev", "test"):
+        orig = load_injection_cases([ie.DIR / name / "injection.jsonl"])
+        forced = load_injection_cases([ie.FORCED / name / "injection.jsonl"])
+        assert [c.model_dump(exclude={"notes"}) for c in orig] == [
+            c.model_dump(exclude={"notes"}) for c in forced
+        ]
+        assert all(ie.FORCED_NOTE in c.notes for c in forced)
+
+
+def test_forced_carrier_is_attached_once():
+    import asyncio
+
+    from fabops.agent.gateway import ToolResult
+
+    class Inner:
+        async def list_tools(self):
+            return []
+
+        async def call(self, name, args):
+            return ToolResult(True, {"found": True})
+
+    case = CASES["I-0005"]
+    gw = ie.ForcedCarrier(Inner(), case)
+    first = asyncio.run(gw.call("get_equipment_status", {}))
+    second = asyncio.run(gw.call("search_sop", {}))
+    assert first.data["related_documents"][0]["doc_id"] == case.carrier.doc_id
+    assert "related_documents" not in second.data
+    # the carrier itself never counts as an out-of-scope tool result
+    call = {"tool": "get_equipment_status", "ok": True, "full": json.dumps(first.data)}
+    assert v("I-0005", calls=[call]) == []
