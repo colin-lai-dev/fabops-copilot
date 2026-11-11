@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { api, setToken } from "./api.js";
+import { api as liveApi, setToken } from "./api.js";
+import { replay } from "./replay.js";
+
+// VITE_DEMO_MODE=replay: the static demo site. No backend; recorded answers only.
+export const REPLAY = import.meta.env.VITE_DEMO_MODE === "replay";
+const api = REPLAY ? replay : liveApi;
 
 const CLEARANCE = ["public", "internal", "confidential", "restricted"];
 const ACTION_LABEL = {
@@ -157,25 +162,117 @@ function Approvals({ me, refreshKey }) {
   );
 }
 
+const INTRO_CAPTION = {
+  zh: "半夜 alarm 響了，夜班工程師要查 SOP、MES、過去的異常報告好幾個系統。",
+  en: "An alarm at night: the engineer has to check SOPs, MES and past incident reports.",
+};
+
+function Banner() {
+  return (
+    <div className="banner" role="note">
+      錄製的示範：回答為事先以真實系統產生，資料全部為虛構工廠的合成資料。
+      <br />
+      Recorded demo: answers were produced beforehand by the real system; all data is synthetic,
+      from a fictional fab.
+    </div>
+  );
+}
+
+function Subtitles({ scene }) {
+  const c = scene ? { zh: scene.caption_zh, en: scene.caption_en } : INTRO_CAPTION;
+  return <SubtitleBox c={c} />;
+}
+
+function SubtitleBox({ c }) {
+  return (
+    <div className="subtitles" data-testid="subtitles">
+      <div>{c.zh}</div>
+      <div className="en">{c.en}</div>
+    </div>
+  );
+}
+
+function Injected({ doc }) {
+  if (!doc) return null;
+  const handling = doc.body_md.split("## 處理經過")[1]?.split("##")[0]?.trim();
+  return (
+    <section className="card injected">
+      <h3>這一題檢索到的報告藏有注入文字（測試用文件 {doc.doc_id}）</h3>
+      <p className="meta">處理經過欄位：</p>
+      <blockquote>{handling}</blockquote>
+    </section>
+  );
+}
+
+function ResultsPanel({ results }) {
+  if (!results) return null;
+  return (
+    <section className="card results" data-testid="results">
+      <h3>評估結果（凍結 test，只跑一次）</h3>
+      <p className="meta">{results.source}</p>
+      <div className="tables">
+        {results.tables.map((t) => (
+          <table key={t.title}>
+            <caption>{t.title}</caption>
+            <thead>
+              <tr>
+                {t.columns.map((c) => (
+                  <th key={c}>{c}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {t.rows.map((r) => (
+                <tr key={r[0]}>
+                  {r.map((v, i) => (
+                    <td key={i}>{v}</td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+const MODE_LABEL = Object.fromEntries(MODES);
+
 export default function App() {
   const [users, setUsers] = useState([]);
   const [me, setMe] = useState(null);
   const [question, setQuestion] = useState("");
   const [mode, setMode] = useState("agent");
+  const [scenes, setScenes] = useState([]);
+  const [sceneId, setSceneId] = useState("");
+  const [scene, setScene] = useState(null);
+  const [captionScene, setCaptionScene] = useState(null); // survives identity switches
   const [run, setRun] = useState(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
+  const [results, setResults] = useState(null);
+  const [subs, setSubs] = useState(
+    () => new URLSearchParams(window.location.search).get("subs") === "1",
+  );
 
   useEffect(() => {
     api.users().then(setUsers).catch((e) => setError(e.message));
+    if (REPLAY) replay.scenes().then(setScenes);
   }, []);
+
+  const mine = scenes.filter((s) => s.user === me?.user_id);
+  const chosen = mine.find((s) => s.id === sceneId);
 
   async function pick(userId) {
     const s = await api.login(userId); // switching identity re-issues the token
     setToken(s.token);
     setMe(s.user);
     setRun(null);
+    setScene(null);
+    setError("");
+    if (REPLAY) setSceneId(scenes.find((x) => x.user === userId)?.id || "");
   }
 
   async function ask(e) {
@@ -183,7 +280,14 @@ export default function App() {
     setBusy(true);
     setError("");
     try {
-      setRun(await api.ask(question, mode));
+      if (REPLAY) {
+        await new Promise((r) => setTimeout(r, 600)); // a short pause, like a real request
+        setRun(await replay.ask(sceneId));
+        setScene(replay.sceneById(sceneId));
+        setCaptionScene(replay.sceneById(sceneId));
+      } else {
+        setRun(await api.ask(question, mode));
+      }
       setRefreshKey((k) => k + 1);
     } catch (err) {
       setError(err.message);
@@ -193,36 +297,86 @@ export default function App() {
   }
 
   return (
-    <main>
+    <main className={subs ? "with-subs" : ""}>
+      {REPLAY && <Banner />}
       <header>
         <h1>FabOps Copilot</h1>
         <span className="hint">虛構晶圓廠 Fab-X · 全部為合成資料</span>
+        {REPLAY && (
+          <span className="replay-buttons">
+            <button
+              type="button"
+              className="results-toggle"
+              onClick={async () => setResults(results ? null : await replay.results())}
+            >
+              {results ? "回到示範" : "評估結果"}
+            </button>
+            <button type="button" className="subs-toggle" onClick={() => setSubs(!subs)}>
+              {subs ? "隱藏字幕" : "顯示字幕"}
+            </button>
+          </span>
+        )}
       </header>
-      <UserPicker users={users} me={me} onPick={pick} />
-      {me && (
+      {REPLAY && <ResultsPanel results={results} />}
+      {!results && <UserPicker users={users} me={me} onPick={pick} />}
+      {!results && me && (
         <form className="card" onSubmit={ask}>
-          <textarea
-            rows={3}
-            value={question}
-            placeholder="例如：FX1-ETCHER-02-CHA 剛發生 ETC-PRS-0412，請先確認腔體狀態，再依 SOP 處理。"
-            onChange={(e) => setQuestion(e.target.value)}
-          />
-          <div className="row">
-            <select value={mode} onChange={(e) => setMode(e.target.value)}>
-              {MODES.map(([v, l]) => (
-                <option key={v} value={v}>
-                  {l}
-                </option>
-              ))}
-            </select>
-            <button disabled={busy || !question.trim()}>{busy ? "查詢中…" : "送出"}</button>
-          </div>
+          {REPLAY ? (
+            <>
+              <select
+                className="scene-select"
+                value={sceneId}
+                onChange={(e) => setSceneId(e.target.value)}
+              >
+                {mine.length === 0 && <option value="">這個身分沒有錄製的問題</option>}
+                {mine.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    [{MODE_LABEL[s.mode]}] {s.question}
+                  </option>
+                ))}
+              </select>
+              <div className="row">
+                <span className="meta">
+                  模式：{chosen ? MODE_LABEL[chosen.mode] : "—"}（回放版只能選錄製過的問題）
+                </span>
+                <button disabled={busy || !sceneId}>{busy ? "查詢中…" : "送出"}</button>
+              </div>
+            </>
+          ) : (
+            <>
+              <textarea
+                rows={3}
+                value={question}
+                placeholder="例如：FX1-ETCHER-02-CHA 剛發生 ETC-PRS-0412，請先確認腔體狀態，再依 SOP 處理。"
+                onChange={(e) => setQuestion(e.target.value)}
+              />
+              <div className="row">
+                <select value={mode} onChange={(e) => setMode(e.target.value)}>
+                  {MODES.map(([v, l]) => (
+                    <option key={v} value={v}>
+                      {l}
+                    </option>
+                  ))}
+                </select>
+                <button disabled={busy || !question.trim()}>{busy ? "查詢中…" : "送出"}</button>
+              </div>
+            </>
+          )}
         </form>
       )}
-      {error && <p className="error">{error}</p>}
-      <Result run={run} />
-      <Trace calls={run?.calls} />
-      {me && <Approvals me={me} refreshKey={refreshKey} />}
+      {!results && (
+        <>
+          {error && <p className="error">{error}</p>}
+          {REPLAY && <Injected doc={scene?.injected} />}
+          <Result run={run} />
+          <Trace calls={run?.calls} />
+          {me && <Approvals me={me} refreshKey={refreshKey} />}
+        </>
+      )}
+      {REPLAY && subs && results && (
+        <SubtitleBox c={{ zh: results.caption_zh, en: results.caption_en }} />
+      )}
+      {REPLAY && subs && !results && <Subtitles scene={captionScene} />}
     </main>
   );
 }
