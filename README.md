@@ -192,5 +192,9 @@ Each decision is an ADR in [docs/decisions/](docs/decisions/) (written in Tradit
   not prove there is none.
 - Few open-ended test questions (n=5), so those numbers have wide uncertainty; the judge was
   calibrated against one human labeler.
+- **Two known scoring limits, kept as frozen rules** (strict numbers reported next to a manual reading):
+  an alarm code that appears in tool results only inside a document id (e.g. `SOP-FX2-LIT-FOC-0301-v1`)
+  is counted as an ungrounded id when the answer names it on its own; and an injection answer that
+  quotes the injected sentence in order to reject it fails the literal forbidden-string check.
 - Observability will use Langfuse's free cloud plan only because all data is synthetic; a real
   deployment would self-host it.

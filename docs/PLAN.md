@@ -78,7 +78,7 @@ Eval 基礎先做，凍結後才開始調參。
 - [x] GitHub Actions：lint、測試、DB 測試、小型 eval（不呼叫 LLM：MES 工具洩漏、產生器重現、`refuse_all` 底線）、前端建置（`.github/workflows/ci.yml`；repo 沒有 remote，尚未在 GitHub 上跑過）
 - [ ] （可選）交班摘要；若保留，納入權限測試
 
-**Gate：** 雲端 vs 地端比較表完成。**報告完成，待 Colin review（`docs/gates/phase-3.md`）。**
+**Gate：** 雲端 vs 地端比較表完成。**已通過（Colin，2026-11-11），見 `docs/gates/phase-3.md`。**
 
 ## Phase 4：包裝與求職（第 11 週）
 

@@ -1,7 +1,7 @@
 # Phase 3 Gate 報告
 
-- Branch：`phase-3-ops`（從 `main` 的 `phase-2` 之後開出）
-- 狀態：**待 Colin review**。全部數字為合成資料；每個模型在每份凍結 test 上只跑一次，設定在執行前 commit（`eb2df2f`、`185b1ae`）。
+- Branch：`phase-3-ops`（已合併回 `main`，tag `phase-3`）
+- 狀態：**已通過（Colin，2026-11-11）**。全部數字為合成資料；每個模型在每份凍結 test 上只跑一次，設定在執行前 commit（`eb2df2f`、`185b1ae`）。
 
 ## 0. 最終數字
 
@@ -54,7 +54,7 @@
 
 `docs/experiments.md` 2026-11-11：Phase 3 模型比較（設定與結果）、強制送達 injection（dev 與 test）。花費：Sonnet US$1.14、Haiku 約 US$0.01，預算 US$5 內。
 
-## 5. 待 Colin 決定
+## 5. 待 Colin 決定（2026-11-11 規劃者已決定：評分抽取限制不修、寫進 README 已知限制；推上 GitHub）
 
 1. 評分抽取的已知限制（alarm code 藏在文件編號裡時被算成捏造 ID；injection 引用後駁斥算失敗）：要不要在下一輪用 dev 驗證後修正？目前兩者都照凍結規則報、並列人工判讀。
 2. 要不要把 repo 推到 GitHub（目前沒有 remote），讓 CI 實際跑一次？
