@@ -12,13 +12,17 @@ const inView = (el) => {
   return r.top < window.innerHeight && r.bottom > 0;
 };
 
-export default function Approvals({ api, me, refreshKey, onDecided, onAttempt }) {
+// `view` ({ audit, msg }) lives in the parent: the block can be re-mounted when it moves between
+// the evidence column and the main column (a resize across 760 px, or a full-page screenshot that
+// briefly flips the media query), and a decision's result must survive that (handoff 019).
+export default function Approvals({ api, me, refreshKey, onDecided, onAttempt, view, setView }) {
   const t = useT();
   const why = (r) => t(`why.${r}`);
   const [blind, setBlind] = useState([]);
   const [items, setItems] = useState([]);
-  const [audit, setAudit] = useState(null); // { id, rows, fresh: number of newest rows to mark }
-  const [msg, setMsg] = useState(null); // { id, ok, text }: shown in place of that proposal's buttons
+  const { audit, msg } = view; // audit: { id, rows, fresh }; msg: { id, ok, text } in place of the buttons
+  const setAudit = (audit) => setView((v) => ({ ...v, audit }));
+  const setMsg = (msg) => setView((v) => ({ ...v, msg }));
   const [hint, setHint] = useState(false);
   const auditRef = useRef(null);
 
@@ -27,23 +31,18 @@ export default function Approvals({ api, me, refreshKey, onDecided, onAttempt })
     Promise.resolve(api.blindAttempts?.() ?? []).then(setBlind);
   };
   useEffect(() => {
-    setMsg(null);
     load();
   }, [me?.user_id, refreshKey]);
-  // An audit log belongs to the identity that fetched it: never carry it over to another one
-  // (the API answers 404 to someone who cannot see the target).
-  useEffect(() => {
-    setAudit(null);
-    setHint(false);
-  }, [me?.user_id]);
 
+  // the off-screen hint only right after a decision, never on a re-mount
+  const [hintAt, setHintAt] = useState(0);
   useEffect(() => {
-    if (!audit) return undefined;
+    if (!hintAt) return undefined;
     if (inView(auditRef.current)) return undefined;
     setHint(true);
     const timer = setTimeout(() => setHint(false), 8000);
     return () => clearTimeout(timer);
-  }, [audit]);
+  }, [hintAt]);
 
   async function decide(p, approved) {
     let ok = false;
@@ -60,6 +59,7 @@ export default function Approvals({ api, me, refreshKey, onDecided, onAttempt })
     const rows = await api.audit(p.proposal_id);
     // a refusal adds one row; an approval adds "approved" and "executed"
     setAudit({ id: p.proposal_id, rows, fresh: ok && approved ? 2 : 1 });
+    setHintAt(Date.now());
     load();
   }
 

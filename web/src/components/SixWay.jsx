@@ -28,7 +28,7 @@ function Column({ col }) {
   const long = (run?.answer || "").length > 160;
   return (
     <article className={`six-col six-tone-${v.tone}`}>
-      <header className="six-head">
+      <header className={`six-head lvl-${user.clearance}`}>
         <b>{t.user(user)}</b>
         <span className="code fine">{user.user_id}</span>
         <Clearance level={user.clearance} />
@@ -82,7 +82,7 @@ function Column({ col }) {
 export default function SixWay({ data, onClose }) {
   const t = useT();
   if (!data) return <p className="fine">{t("doc.loading")}</p>;
-  if (data.unavailable) return <p className="fine six-unavailable">{t("six.unavailable")}</p>;
+  if (data.unavailable) return <p className="fine">{t("six.none")}</p>;
   if (!data.columns?.length) return <p className="fine">{t("six.none")}</p>;
   const answered = data.columns.filter((c) => ["good", "violet"].includes(verdict(c).tone)).length;
   return (

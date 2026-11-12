@@ -46,6 +46,10 @@
   --clr-2-ink: #ffffff;
   --clr-3-bg: #a5332d;
   --clr-3-ink: #ffffff;
+  --clr-0-tint: #eef1f5;
+  --clr-1-tint: #e7eff9;
+  --clr-2-tint: #fbefdf;
+  --clr-3-tint: #f9e6e4;
   --focus-ring: #5b5bd6;
   --scrim: rgba(31, 42, 58, 0.28);
   --shadow: rgba(31, 42, 58, 0.12);
@@ -107,6 +111,10 @@
     --clr-2-ink: #1c1204;
     --clr-3-bg: #f27a72;
     --clr-3-ink: #1f0807;
+    --clr-0-tint: #1f2732;
+    --clr-1-tint: #172739;
+    --clr-2-tint: #2c2213;
+    --clr-3-tint: #301b1b;
     --focus-ring: #9d9ff7;
     --scrim: rgba(0, 0, 0, 0.55);
     --shadow: rgba(0, 0, 0, 0.45);
@@ -162,6 +170,10 @@
   --clr-2-ink: #1c1204;
   --clr-3-bg: #f27a72;
   --clr-3-ink: #1f0807;
+  --clr-0-tint: #1f2732;
+  --clr-1-tint: #172739;
+  --clr-2-tint: #2c2213;
+  --clr-3-tint: #301b1b;
   --focus-ring: #9d9ff7;
   --scrim: rgba(0, 0, 0, 0.55);
   --shadow: rgba(0, 0, 0, 0.45);
@@ -323,21 +335,6 @@ textarea {
 .brand p {
   margin: 0;
 }
-.brand-mark {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background:
-    radial-gradient(circle at 50% 50%, transparent 0 9px, var(--ink) 9px 10px, transparent 10px),
-    repeating-linear-gradient(0deg, transparent 0 5px, rgba(255, 255, 255, 0.5) 5px 6px),
-    repeating-linear-gradient(90deg, transparent 0 5px, rgba(255, 255, 255, 0.5) 5px 6px),
-    var(--litho-amber);
-  border: 2px solid var(--ink);
-}
-.tour-pos {
-  min-width: 42px;
-  text-align: center;
-}
 
 /* ------------------------------------------------------------ identity badges */
 .badges {
@@ -347,30 +344,88 @@ textarea {
   margin-bottom: 14px;
 }
 .badge {
+  --lvl-band: var(--line);
+  --lvl-tint: var(--panel);
   text-align: left;
   display: grid;
   gap: 1px;
-  padding: 8px 10px 8px 14px;
+  padding: 10px 12px 8px;
   border-radius: 6px;
   position: relative;
-  background: var(--panel);
+  background: var(--panel-dim);
+  border-color: var(--line-2);
+  overflow: hidden;
+}
+/* each card knows its clearance colour; only the current identity shows it */
+.lvl-0 {
+  --lvl-band: var(--clr-0-bg);
+  --lvl-tint: var(--clr-0-tint);
+}
+.lvl-1 {
+  --lvl-band: var(--clr-1-bg);
+  --lvl-tint: var(--clr-1-tint);
+}
+.lvl-2 {
+  --lvl-band: var(--clr-2-bg);
+  --lvl-tint: var(--clr-2-tint);
+}
+.lvl-3 {
+  --lvl-band: var(--clr-3-bg);
+  --lvl-tint: var(--clr-3-tint);
 }
 .badge::before {
   content: "";
   position: absolute;
   left: 0;
+  right: 0;
   top: 0;
-  bottom: 0;
-  width: 5px;
-  border-radius: 6px 0 0 6px;
-  background: var(--line);
+  height: 4px;
+  background: transparent;
+}
+.badge .badge-name {
+  color: var(--slate-2);
 }
 .badge-on {
-  border-color: var(--ink);
-  box-shadow: inset 0 0 0 1px var(--ink);
+  background: var(--lvl-tint);
+  border-color: var(--lvl-band);
 }
 .badge-on::before {
-  background: var(--litho-amber);
+  background: var(--lvl-band);
+}
+.badge-on .badge-name {
+  color: var(--ink);
+}
+.badge-now {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--lvl-band);
+  color: var(--panel);
+}
+.lvl-0 .badge-now {
+  color: var(--clr-0-ink);
+}
+.lvl-1 .badge-now {
+  color: var(--clr-1-ink);
+}
+.lvl-2 .badge-now {
+  color: var(--clr-2-ink);
+}
+.lvl-3 .badge-now {
+  color: var(--clr-3-ink);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .badge,
+  .badge::before {
+    transition:
+      background-color 0.18s ease,
+      border-color 0.18s ease;
+  }
 }
 .badge-name {
   font-weight: 600;
@@ -1090,9 +1145,6 @@ mark.malicious {
 }
 
 /* ------------------------------------------------------------ v2: language, notes */
-.lang-switch {
-  min-width: 64px;
-}
 .zh-note {
   margin: 2px 0 6px;
   font-style: italic;
@@ -1365,10 +1417,6 @@ mark.malicious {
   stroke-width: 1;
   stroke-dasharray: 2 2;
 }
-.theme-switch {
-  min-width: 72px;
-  white-space: nowrap;
-}
 
 /* ------------------------------------------------------------ v4: rail-only navigation */
 .top-tools {
@@ -1608,4 +1656,166 @@ mark.malicious {
 /* recordings with subtitles: the drawer stops above the subtitle bar instead of covering it */
 .app-subs .drawer-wrap {
   bottom: var(--subs-h);
+}
+
+/* ------------------------------------------------------------ v6: header tools, stable language */
+.top-tools {
+  gap: 8px;
+}
+.tool-btn,
+.lang-seg {
+  height: 40px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+.tool-btn {
+  width: 40px;
+  padding: 0;
+  display: inline-grid;
+  place-items: center;
+  color: var(--slate-2);
+}
+.tool-btn:hover:not(:disabled) {
+  color: var(--ink);
+  border-color: var(--slate-3);
+}
+.lang-seg {
+  display: inline-flex;
+  padding: 3px;
+  gap: 2px;
+}
+.lang-seg button {
+  min-width: 40px;
+  height: 32px;
+  padding: 0 10px;
+  border: none;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--slate-2);
+  font-family: var(--mono);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+}
+.lang-seg button[aria-pressed="true"] {
+  background: var(--console);
+  color: var(--on-console);
+}
+.lang-seg button:hover:not(:disabled):not([aria-pressed="true"]) {
+  color: var(--ink);
+  border: none;
+}
+.bi {
+  display: inline-grid;
+}
+.bi > span {
+  grid-area: 1 / 1;
+}
+.bi-ghost {
+  visibility: hidden;
+}
+.step-card .bi,
+.rail-item .bi {
+  display: grid;
+}
+/* touch targets >= 40 px: both controls 44 px high, language buttons 40 px inside */
+.tool-btn,
+.lang-seg {
+  height: 44px;
+}
+.tool-btn {
+  width: 44px;
+}
+.lang-seg {
+  padding: 1px;
+}
+.lang-seg button {
+  height: 40px;
+  min-width: 44px;
+}
+
+/* ------------------------------------------------------------ v6: identity colour language */
+.six-head {
+  margin: -10px -10px 0;
+  padding: 8px 10px 6px;
+  background: var(--lvl-tint);
+}
+.viewing.lvl-0,
+.viewing.lvl-1,
+.viewing.lvl-2,
+.viewing.lvl-3 {
+  background: var(--lvl-tint);
+  color: var(--ink);
+  box-shadow: inset 3px 0 0 var(--lvl-band);
+}
+.guide-switch .clr {
+  margin: 0 0 0 4px;
+  vertical-align: 1px;
+}
+
+/* ------------------------------------------------------------ v6: brand and footer */
+.brand-logo {
+  flex: none;
+}
+.logo-wafer {
+  fill: var(--wafer-fill);
+  stroke: var(--ink);
+}
+.logo-die {
+  fill: var(--die-sop);
+}
+.logo-die-lit {
+  fill: var(--litho-amber);
+  stroke: var(--amber-ink);
+  stroke-width: 0.6;
+}
+.brand h1 {
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: 0.005em;
+  line-height: 1.15;
+}
+.brand-sub {
+  margin: 2px 0 0;
+  font-size: 12.5px;
+  letter-spacing: 0.02em;
+  color: var(--slate-2);
+}
+.foot {
+  margin-top: 28px;
+  padding: 16px 0 8px;
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: 4px;
+  justify-items: center;
+  text-align: center;
+  font-size: 13px;
+  color: var(--slate-2);
+}
+.foot p {
+  margin: 0;
+}
+.foot-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 18px;
+}
+.foot-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2px 14px;
+  font-size: 12px;
+  color: var(--slate-3);
+}
+/* the visible language sits centred in the reserved box (rail) / at the start (links) */
+.rail-item .bi > span {
+  align-self: center;
+}
+.step-next {
+  text-align: left;
+}
+.step-next .bi > span {
+  justify-self: start;
 }

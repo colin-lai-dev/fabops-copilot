@@ -33,6 +33,10 @@ export const replay = {
     );
   },
   scenes: async () => (await load()).scenes,
+  meta: async () => {
+    const d = await load();
+    return { recorded_at: d.recorded_at, model: d.system.match(/Claude [A-Za-z]+ [\d.]+/)?.[0] };
+  },
   // "One question, six identities": the recorded group, one column per demo user.
   sixWay: async (groupId) => {
     const d = await load();

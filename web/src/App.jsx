@@ -11,6 +11,7 @@ import Results from "./components/Results.jsx";
 import DocDrawer from "./components/DocDrawer.jsx";
 import SixWay from "./components/SixWay.jsx";
 import Clearance from "./components/Clearance.jsx";
+import Logo from "./components/Logo.jsx";
 import ScenePicker from "./components/ScenePicker.jsx";
 
 // VITE_DEMO_MODE=replay builds the static demo site: no backend, recorded answers only.
@@ -48,11 +49,12 @@ function Banner() {
           <b>{t("banner.title")}</b>
           {t.lang === "en" ? ": " : "："}
           {t("banner.body")}
-          {t.lang === "zh" && (
-            <span className="banner-en">
-              {translate("en", "banner.title")}: {translate("en", "banner.body")}
-            </span>
-          )}
+          {/* the other language as a second line in both modes: switching never changes the height */}
+          <span className="banner-en" lang={t.lang === "en" ? "zh-Hant-TW" : "en"}>
+            {t.lang === "en"
+              ? `${translate("zh", "banner.title")}：${translate("zh", "banner.body")}`
+              : `${translate("en", "banner.title")}: ${translate("en", "banner.body")}`}
+          </span>
         </>
       )}
     </div>
@@ -93,8 +95,26 @@ function ThemeToggle() {
     }
   }
   return (
-    <button type="button" className="quiet theme-switch" title={t("theme.label")} aria-pressed={dark} onClick={flip}>
-      <span aria-hidden="true">{dark ? "☀" : "☾"}</span> {dark ? t("theme.toLight") : t("theme.toDark")}
+    <button
+      type="button"
+      className="tool-btn theme-switch"
+      title={dark ? t("theme.toLight") : t("theme.toDark")}
+      aria-label={t("theme.dark")}
+      aria-pressed={dark}
+      onClick={flip}
+    >
+      {dark ? (
+        <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true">
+          <circle cx="10" cy="10" r="3.6" fill="currentColor" />
+          <g stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
+            <path d="M10 1.8v2.2M10 16v2.2M1.8 10H4M16 10h2.2M4.2 4.2l1.6 1.6M14.2 14.2l1.6 1.6M4.2 15.8l1.6-1.6M14.2 5.8l1.6-1.6" />
+          </g>
+        </svg>
+      ) : (
+        <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true">
+          <path d="M15.6 12.6A6.6 6.6 0 0 1 7.4 4.4a6.6 6.6 0 1 0 8.2 8.2z" fill="currentColor" />
+        </svg>
+      )}
     </button>
   );
 }
@@ -108,7 +128,7 @@ function ProposalContext({ run, me }) {
     <section className="panel proposal-context" aria-live="polite">
       <div className="panel-head">
         <h2>{t("apx.title")}</h2>
-        <span className="viewing">{t("apx.viewing", { name: t.user(me) })}</span>
+        <span className={`viewing lvl-${me.clearance}`}>{t("apx.viewing", { name: t.user(me) })}</span>
       </div>
       <div className="proposal-line">
         <b>{t(`action.${p.action}`)}</b> <span className="code">{p.target_id}</span>
@@ -124,10 +144,11 @@ function ProposalContext({ run, me }) {
 function ApprovalGuide({ run, me, users, attempts, onSwitch }) {
   const t = useT();
   const p = run.proposal;
-  const name = (id) => t.user(users.find((u) => u.user_id === id));
+  const user = (id) => users.find((u) => u.user_id === id);
   const go = (id) => (
     <button type="button" className="step-next guide-switch" onClick={() => onSwitch(id)}>
-      {t("apx.switchTo", { name: name(id) })}
+      {t("apx.switchTo", { name: t.user(user(id)) })}
+      <Clearance level={user(id)?.clearance ?? 0} />
     </button>
   );
   const done = run.status === "executed" || attempts.some((a) => a.ok && a.approved);
@@ -159,6 +180,49 @@ function ApprovalGuide({ run, me, users, attempts, onSwitch }) {
   );
 }
 
+// Text in the current language, with the other language laid in the same grid cell but
+// invisible: the box always takes the taller of the two, so switching language does not
+// reflow the page (handoff 019).
+function Bi({ zh, en }) {
+  const t = useT();
+  const [cur, other] = t.lang === "en" ? [en, zh] : [zh, en];
+  return (
+    <span className="bi">
+      <span>{cur}</span>
+      <span className="bi-ghost" aria-hidden="true" lang={t.lang === "en" ? "zh-Hant-TW" : "en"}>
+        {other}
+      </span>
+    </span>
+  );
+}
+
+// Quiet footer: where to look next, what the data is, which build and recording this is, author.
+const REPO = "https://github.com/colin-lai-dev/fabops-copilot";
+function Footer({ meta }) {
+  const t = useT();
+  const parts = [
+    __SITE_VERSION__, // e.g. site-v6, from the git tag at build time
+    meta.recorded_at && `${t("foot.recorded")} ${meta.recorded_at.slice(0, 10)}`,
+    meta.model,
+  ].filter(Boolean);
+  return (
+    <footer className="foot">
+      <nav className="foot-links" aria-label={t("foot.label")}>
+        <a href={REPO}>{t("foot.source")}</a>
+        <a href={`${REPO}#eval-results`}>{t("foot.evals")}</a>
+        <a href={`${REPO}/releases/tag/demo-v1`}>{t("foot.video")}</a>
+      </nav>
+      <p>{t("foot.synthetic")}</p>
+      <p className="foot-meta">
+        <span>{parts.join(" · ")}</span>
+        <span>
+          {t("foot.by")} <a href="https://github.com/colin-lai-dev">Colin Lai</a>
+        </span>
+      </p>
+    </footer>
+  );
+}
+
 function useNarrow(query = "(max-width: 760px)") {
   const [narrow, setNarrow] = useState(() => window.matchMedia?.(query).matches ?? false);
   useEffect(() => {
@@ -175,10 +239,11 @@ function Badge({ u, active, onPick }) {
   return (
     <button
       type="button"
-      className={`badge ${active ? "badge-on" : ""}`}
+      className={`badge lvl-${u.clearance} ${active ? "badge-on" : ""}`}
       aria-pressed={active}
       onClick={() => onPick(u.user_id)}
     >
+      {active && <span className="badge-now">{t("badge.now")}</span>}
       <span className="badge-name">{t.user(u)}</span>
       <span className="code badge-id">{u.user_id}</span>
       <span className="badge-scope">
@@ -306,9 +371,14 @@ function Console({ lang, setLang }) {
   const [focusId, setFocusId] = useState(null);
   const [openDoc, setOpenDoc] = useState(null); // cited document shown in the drawer
   const [attempts, setAttempts] = useState([]); // approval tries on screen: { user, ok, approved }
+  // Approval result and audit log on screen. Kept here so a re-mount of the approval block keeps
+  // them; cleared on an identity switch (an audit log belongs to the identity that fetched it:
+  // the API answers 404 to someone who cannot see the target) and on a new answer.
+  const [apView, setApView] = useState({ audit: null, msg: null });
   const [six, setSix] = useState(null); // six-identity view: group id (replay) or "live"
   const [sixData, setSixData] = useState(null);
   const [results, setResults] = useState(null);
+  const [meta, setMeta] = useState({}); // recording date and model (replay)
   const [showResults, setShowResults] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -320,6 +390,7 @@ function Console({ lang, setLang }) {
     api.users().then(setUsers).catch((e) => setError(e.message));
     api.scenes().then(setScenes);
     api.results().then(setResults).catch(() => {});
+    Promise.resolve(api.meta?.()).then((m) => m && setMeta(m)).catch(() => {});
   }, []);
 
   // Deep links (handoff 015 F): the URL hash names a tour step, a recorded scene (optionally
@@ -331,8 +402,13 @@ function Console({ lang, setLang }) {
     if (h.get("lang") === "en" || h.get("lang") === "zh") setLang(h.get("lang"));
     const as = users.find((u) => u.user_id === h.get("as"))?.user_id;
     const stepAt = TOUR.findIndex((s) => s.key === h.get("step"));
-    const target = scenes.find((s) => s.id === h.get("scene"));
-    const group = h.get("six");
+    let group = h.get("six");
+    // a group with no six-identity view (the injection question) opens its single scene instead
+    const info = group && REPLAY ? await api.sixWay(group) : null;
+    const target =
+      scenes.find((s) => s.id === h.get("scene")) ||
+      (info?.unavailable ? scenes.find((s) => s.six_unavailable && s.question === info.question) : null);
+    if (info?.unavailable) group = null;
     if (stepAt >= 0) {
       await goTo(stepAt);
       if (as && TOUR[stepAt].key === "approval" && as !== TOUR[stepAt].user) await login(as);
@@ -396,6 +472,7 @@ function Console({ lang, setLang }) {
 
   async function login(userId) {
     setOpenDoc(null);
+    setApView({ audit: null, msg: null });
     const u = await api.login(userId);
     setMe(u);
     setDocs(await api.docs());
@@ -472,6 +549,7 @@ function Console({ lang, setLang }) {
       setRun(r);
       setRunScene(id);
       setAttempts([]);
+      setApView({ audit: null, msg: null });
       setFocusId(r.citations?.[0] || null);
       setRefreshKey((k) => k + 1);
     } catch (e) {
@@ -486,14 +564,24 @@ function Console({ lang, setLang }) {
   const nextStep = tour !== null && tour < TOUR.length - 1 ? TOUR[tour + 1] : null;
   const stepCard = step && (
     <section className="panel step-card">
-      <div className="panel-sub">{t("step.n", { n: tour + 1, title: t.pick(step, "title") })}</div>
-      <p>{t.pick(step, "explain")}</p>
+      <div className="panel-sub">
+        <Bi
+          zh={translate("zh", "step.n", { n: tour + 1, title: step.title })}
+          en={translate("en", "step.n", { n: tour + 1, title: step.title_en })}
+        />
+      </div>
+      <p>
+        <Bi zh={step.explain} en={step.explain_en} />
+      </p>
       {approvalFirst && run?.proposal && (
         <ApprovalGuide run={run} me={me} users={users} attempts={attempts} onSwitch={switchUser} />
       )}
       {nextStep && (
         <button type="button" className="step-next" onClick={() => goTo(tour + 1)}>
-          {t("step.next", { title: t.pick(nextStep, "title") })} →
+          <Bi
+            zh={`${translate("zh", "step.next", { title: nextStep.title })} →`}
+            en={`${translate("en", "step.next", { title: nextStep.title_en })} →`}
+          />
         </button>
       )}
     </section>
@@ -511,6 +599,8 @@ function Console({ lang, setLang }) {
           refreshKey={refreshKey}
           onDecided={(d) => setRun((r) => (r ? { ...r, status: d.status, proposal: d.proposal ?? r.proposal } : r))}
           onAttempt={(a) => setAttempts((xs) => [...xs, { user: me.user_id, ...a }])}
+          view={apView}
+          setView={setApView}
         />
       )}
     </details>
@@ -528,23 +618,32 @@ function Console({ lang, setLang }) {
         {REPLAY && <Banner />}
         <header className="top">
           <div className="brand">
-            <span className="brand-mark" aria-hidden="true" />
+            <Logo size={38} />
             <div>
               <h1>FabOps Copilot</h1>
-              <p className="fine">{t("brand.sub")}</p>
+              <p className="brand-sub">{t("brand.sub")}</p>
             </div>
           </div>
           <div className="top-tools">
             <ThemeToggle />
-            <button
-              type="button"
-              className="quiet lang-switch"
-              title={t("lang.label")}
-              lang={lang === "en" ? "zh-Hant-TW" : "en"}
-              onClick={() => setLang(lang === "en" ? "zh" : "en")}
-            >
-              {t("lang.switch")}
-            </button>
+            <div className="lang-seg" role="group" aria-label={t("lang.label")}>
+              {[
+                ["zh", "中", "zh-Hant-TW", "中文"],
+                ["en", "EN", "en", "English"],
+              ].map(([code, label, tag, full]) => (
+                <button
+                  key={code}
+                  type="button"
+                  lang={tag}
+                  title={full}
+                  aria-label={full}
+                  aria-pressed={lang === code}
+                  onClick={() => setLang(code)}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
           </div>
         </header>
 
@@ -571,7 +670,7 @@ function Console({ lang, setLang }) {
                     onClick={() => goTo(i)}
                   >
                     <span className="rail-n">{i + 1}</span>
-                    {t.pick(s, "title")}
+                    <Bi zh={s.title} en={s.title_en} />
                   </button>
                 </li>
               ))}
@@ -616,11 +715,7 @@ function Console({ lang, setLang }) {
                       />
                     )}
                     <div className="row">
-                      {REPLAY ? (
-                        <span className="fine">
-                          {t("ask.mode", { mode: scene?.mode ? t(`mode.${scene.mode}`) : "—" })}
-                        </span>
-                      ) : (
+                      {REPLAY ? null : (
                         <select value={mode} onChange={(e) => setMode(e.target.value)} aria-label={t("ask.modeSel")}>
                           {MODES.map((v) => (
                             <option key={v} value={v}>
@@ -628,9 +723,6 @@ function Console({ lang, setLang }) {
                             </option>
                           ))}
                         </select>
-                      )}
-                      {REPLAY && scene?.six_unavailable && (
-                        <p className="fine six-unavailable">{t("six.unavailable")}</p>
                       )}
                       {(REPLAY ? scene?.groups?.length > 0 : question.trim()) && (
                         <button
@@ -702,10 +794,7 @@ function Console({ lang, setLang }) {
             </>
           )}
         </div>
-        <footer className="foot fine">
-          {t("foot")}{" "}
-          <a href="https://github.com/colin-lai-dev/fabops-copilot">github.com/colin-lai-dev/fabops-copilot</a>
-        </footer>
+        <Footer meta={meta} />
       </div>
       {openDoc && run && (
         <DocDrawer docId={openDoc} load={api.doc} answer={run.answer} onClose={() => setOpenDoc(null)} />
