@@ -1851,3 +1851,8 @@ mark.malicious {
     padding-right: 16px;
   }
 }
+
+/* empty evidence blocks: one title row */
+.ev-block.ev-empty > summary {
+  opacity: 0.8;
+}

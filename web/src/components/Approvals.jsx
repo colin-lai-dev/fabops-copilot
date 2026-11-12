@@ -15,7 +15,7 @@ const inView = (el) => {
 // `view` ({ audit, msg }) lives in the parent: the block can be re-mounted when it moves between
 // the evidence column and the main column (a resize across 760 px, or a full-page screenshot that
 // briefly flips the media query), and a decision's result must survive that (handoff 019).
-export default function Approvals({ api, me, refreshKey, onDecided, onAttempt, view, setView }) {
+export default function Approvals({ api, me, refreshKey, onDecided, onAttempt, view, setView, onListed }) {
   const t = useT();
   const why = (r) => t(`why.${r}`);
   const [blind, setBlind] = useState([]);
@@ -33,6 +33,7 @@ export default function Approvals({ api, me, refreshKey, onDecided, onAttempt, v
   useEffect(() => {
     load();
   }, [me?.user_id, refreshKey]);
+  useEffect(() => onListed?.(items.length > 0 || blind.length > 0), [items, blind]);
 
   // the off-screen hint only right after a decision, never on a re-mount
   const [hintAt, setHintAt] = useState(0);
