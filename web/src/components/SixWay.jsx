@@ -28,7 +28,7 @@ function Column({ col }) {
   const long = (run?.answer || "").length > 160;
   return (
     <article className={`six-col six-tone-${v.tone}`}>
-      <header className="six-head">
+      <header className={`six-head lvl-${user.clearance}`}>
         <b>{t.user(user)}</b>
         <span className="code fine">{user.user_id}</span>
         <Clearance level={user.clearance} />

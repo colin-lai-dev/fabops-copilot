@@ -127,7 +127,7 @@ function ProposalContext({ run, me }) {
     <section className="panel proposal-context" aria-live="polite">
       <div className="panel-head">
         <h2>{t("apx.title")}</h2>
-        <span className="viewing">{t("apx.viewing", { name: t.user(me) })}</span>
+        <span className={`viewing lvl-${me.clearance}`}>{t("apx.viewing", { name: t.user(me) })}</span>
       </div>
       <div className="proposal-line">
         <b>{t(`action.${p.action}`)}</b> <span className="code">{p.target_id}</span>
@@ -143,10 +143,11 @@ function ProposalContext({ run, me }) {
 function ApprovalGuide({ run, me, users, attempts, onSwitch }) {
   const t = useT();
   const p = run.proposal;
-  const name = (id) => t.user(users.find((u) => u.user_id === id));
+  const user = (id) => users.find((u) => u.user_id === id);
   const go = (id) => (
     <button type="button" className="step-next guide-switch" onClick={() => onSwitch(id)}>
-      {t("apx.switchTo", { name: name(id) })}
+      {t("apx.switchTo", { name: t.user(user(id)) })}
+      <Clearance level={user(id)?.clearance ?? 0} />
     </button>
   );
   const done = run.status === "executed" || attempts.some((a) => a.ok && a.approved);
@@ -210,10 +211,11 @@ function Badge({ u, active, onPick }) {
   return (
     <button
       type="button"
-      className={`badge ${active ? "badge-on" : ""}`}
+      className={`badge lvl-${u.clearance} ${active ? "badge-on" : ""}`}
       aria-pressed={active}
       onClick={() => onPick(u.user_id)}
     >
+      {active && <span className="badge-now">{t("badge.now")}</span>}
       <span className="badge-name">{t.user(u)}</span>
       <span className="code badge-id">{u.user_id}</span>
       <span className="badge-scope">

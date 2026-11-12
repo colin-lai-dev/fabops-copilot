@@ -46,6 +46,10 @@
   --clr-2-ink: #ffffff;
   --clr-3-bg: #a5332d;
   --clr-3-ink: #ffffff;
+  --clr-0-tint: #eef1f5;
+  --clr-1-tint: #e7eff9;
+  --clr-2-tint: #fbefdf;
+  --clr-3-tint: #f9e6e4;
   --focus-ring: #5b5bd6;
   --scrim: rgba(31, 42, 58, 0.28);
   --shadow: rgba(31, 42, 58, 0.12);
@@ -107,6 +111,10 @@
     --clr-2-ink: #1c1204;
     --clr-3-bg: #f27a72;
     --clr-3-ink: #1f0807;
+    --clr-0-tint: #1f2732;
+    --clr-1-tint: #172739;
+    --clr-2-tint: #2c2213;
+    --clr-3-tint: #301b1b;
     --focus-ring: #9d9ff7;
     --scrim: rgba(0, 0, 0, 0.55);
     --shadow: rgba(0, 0, 0, 0.45);
@@ -162,6 +170,10 @@
   --clr-2-ink: #1c1204;
   --clr-3-bg: #f27a72;
   --clr-3-ink: #1f0807;
+  --clr-0-tint: #1f2732;
+  --clr-1-tint: #172739;
+  --clr-2-tint: #2c2213;
+  --clr-3-tint: #301b1b;
   --focus-ring: #9d9ff7;
   --scrim: rgba(0, 0, 0, 0.55);
   --shadow: rgba(0, 0, 0, 0.45);
@@ -347,30 +359,88 @@ textarea {
   margin-bottom: 14px;
 }
 .badge {
+  --lvl-band: var(--line);
+  --lvl-tint: var(--panel);
   text-align: left;
   display: grid;
   gap: 1px;
-  padding: 8px 10px 8px 14px;
+  padding: 10px 12px 8px;
   border-radius: 6px;
   position: relative;
-  background: var(--panel);
+  background: var(--panel-dim);
+  border-color: var(--line-2);
+  overflow: hidden;
+}
+/* each card knows its clearance colour; only the current identity shows it */
+.lvl-0 {
+  --lvl-band: var(--clr-0-bg);
+  --lvl-tint: var(--clr-0-tint);
+}
+.lvl-1 {
+  --lvl-band: var(--clr-1-bg);
+  --lvl-tint: var(--clr-1-tint);
+}
+.lvl-2 {
+  --lvl-band: var(--clr-2-bg);
+  --lvl-tint: var(--clr-2-tint);
+}
+.lvl-3 {
+  --lvl-band: var(--clr-3-bg);
+  --lvl-tint: var(--clr-3-tint);
 }
 .badge::before {
   content: "";
   position: absolute;
   left: 0;
+  right: 0;
   top: 0;
-  bottom: 0;
-  width: 5px;
-  border-radius: 6px 0 0 6px;
-  background: var(--line);
+  height: 4px;
+  background: transparent;
+}
+.badge .badge-name {
+  color: var(--slate-2);
 }
 .badge-on {
-  border-color: var(--ink);
-  box-shadow: inset 0 0 0 1px var(--ink);
+  background: var(--lvl-tint);
+  border-color: var(--lvl-band);
 }
 .badge-on::before {
-  background: var(--litho-amber);
+  background: var(--lvl-band);
+}
+.badge-on .badge-name {
+  color: var(--ink);
+}
+.badge-now {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--lvl-band);
+  color: var(--panel);
+}
+.lvl-0 .badge-now {
+  color: var(--clr-0-ink);
+}
+.lvl-1 .badge-now {
+  color: var(--clr-1-ink);
+}
+.lvl-2 .badge-now {
+  color: var(--clr-2-ink);
+}
+.lvl-3 .badge-now {
+  color: var(--clr-3-ink);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .badge,
+  .badge::before {
+    transition:
+      background-color 0.18s ease,
+      border-color 0.18s ease;
+  }
 }
 .badge-name {
   font-weight: 600;
@@ -1677,4 +1747,23 @@ mark.malicious {
 .lang-seg button {
   height: 40px;
   min-width: 44px;
+}
+
+/* ------------------------------------------------------------ v6: identity colour language */
+.six-head {
+  margin: -10px -10px 0;
+  padding: 8px 10px 6px;
+  background: var(--lvl-tint);
+}
+.viewing.lvl-0,
+.viewing.lvl-1,
+.viewing.lvl-2,
+.viewing.lvl-3 {
+  background: var(--lvl-tint);
+  color: var(--ink);
+  box-shadow: inset 3px 0 0 var(--lvl-band);
+}
+.guide-switch .clr {
+  margin: 0 0 0 4px;
+  vertical-align: 1px;
 }
