@@ -74,8 +74,24 @@ def test_six_identity_groups_and_free_exploration():
     by_id = {s["id"]: s for s in DATA["scenes"]}
     assert len(DATA["groups"]) >= 2
     for g in DATA["groups"]:
+        if g.get("unavailable"):  # shown with its reason in the UI, never silently hidden
+            assert not g["scenes"] and g["unavailable"] == "answer_cut_off", g["id"]
+            continue
         members = [by_id[i] for i in g["scenes"]]
         assert sorted(m["user"] for m in members) == sorted(users), g["id"]
         assert {m["question"] for m in members} == {g["question"]}
     for u in users:  # every identity has at least two recorded questions to pick from
         assert sum(s["user"] == u for s in DATA["scenes"]) >= 2, u
+
+
+def test_every_recorded_question_has_six_identities_or_a_reason():
+    asked = {(s["question"], s["mode"]) for s in DATA["scenes"]}
+    covered = {(g["question"], g["mode"]) for g in DATA["groups"] if g["scenes"]}
+    explained = {(s["question"], s["mode"]) for s in DATA["scenes"] if s.get("six_unavailable")}
+    assert asked <= covered | explained
+
+
+def test_group_only_scenes_carry_no_approval_flow():
+    for s in DATA["scenes"]:
+        if s["id"].startswith("six-"):
+            assert not s.get("approval_steps"), s["id"]

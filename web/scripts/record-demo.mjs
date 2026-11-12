@@ -18,7 +18,8 @@ if (!kind || !url || !out) {
 }
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-const tourNext = (page) => page.locator(".tour-nav button.primary").click();
+// the step card's "next scene" link is the only forward control (handoff 017 #7)
+const tourNext = (page) => page.locator(".step-next").click();
 async function send(page) {
   await page.getByRole("button", { name: "送出問題" }).click();
   await page.waitForFunction(() => !document.querySelector(".send")?.textContent.includes("查詢中"));

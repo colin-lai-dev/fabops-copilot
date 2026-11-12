@@ -10,12 +10,13 @@ import Injection from "./components/Injection.jsx";
 import Results from "./components/Results.jsx";
 import DocDrawer from "./components/DocDrawer.jsx";
 import SixWay from "./components/SixWay.jsx";
+import Clearance from "./components/Clearance.jsx";
+import ScenePicker from "./components/ScenePicker.jsx";
 
 // VITE_DEMO_MODE=replay builds the static demo site: no backend, recorded answers only.
 const REPLAY = import.meta.env.VITE_DEMO_MODE === "replay";
 const api = REPLAY ? replay : live;
 
-const CLEARANCE = ["public", "internal", "confidential", "restricted"];
 const MODES = ["rag", "fixed", "agent"];
 
 // Two lines at the top of the page; once the page scrolls it shrinks to a slim one-line strip
@@ -58,6 +59,57 @@ function Banner() {
   );
 }
 
+// Light / dark: follows the system until the visitor picks one; the pick is remembered.
+const THEME_KEY = "fabops-theme";
+const systemDark = () => window.matchMedia?.("(prefers-color-scheme: dark)").matches;
+function readTheme() {
+  try {
+    const v = localStorage.getItem(THEME_KEY);
+    return v === "light" || v === "dark" ? v : null;
+  } catch {
+    return null;
+  }
+}
+
+function ThemeToggle() {
+  const t = useT();
+  const [chosen, setChosen] = useState(readTheme);
+  const [sys, setSys] = useState(systemDark);
+  useEffect(() => {
+    const mq = window.matchMedia?.("(prefers-color-scheme: dark)");
+    const on = () => setSys(mq.matches);
+    mq?.addEventListener?.("change", on);
+    return () => mq?.removeEventListener?.("change", on);
+  }, []);
+  const dark = chosen ? chosen === "dark" : sys;
+  function flip() {
+    const next = dark ? "light" : "dark";
+    setChosen(next);
+    document.documentElement.dataset.theme = next;
+    try {
+      localStorage.setItem(THEME_KEY, next);
+    } catch {
+      /* private mode: the choice lasts for this page only */
+    }
+  }
+  return (
+    <button type="button" className="quiet theme-switch" title={t("theme.label")} aria-pressed={dark} onClick={flip}>
+      <span aria-hidden="true">{dark ? "☀" : "☾"}</span> {dark ? t("theme.toLight") : t("theme.toDark")}
+    </button>
+  );
+}
+
+function useNarrow(query = "(max-width: 760px)") {
+  const [narrow, setNarrow] = useState(() => window.matchMedia?.(query).matches ?? false);
+  useEffect(() => {
+    const mq = window.matchMedia?.(query);
+    const on = () => setNarrow(mq.matches);
+    mq?.addEventListener?.("change", on);
+    return () => mq?.removeEventListener?.("change", on);
+  }, [query]);
+  return narrow;
+}
+
 function Badge({ u, active, onPick }) {
   const t = useT();
   return (
@@ -73,7 +125,7 @@ function Badge({ u, active, onPick }) {
         {u.fabs.join("·")} ·{" "}
         {u.departments.length > 2 ? t("badge.depts", { n: u.departments.length }) : u.departments.join("·")}
       </span>
-      <span className={`clr clr-${u.clearance}`}>{CLEARANCE[u.clearance]}</span>
+      <Clearance level={u.clearance} />
     </button>
   );
 }
@@ -201,7 +253,7 @@ function Console({ lang, setLang }) {
   const [error, setError] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
   const [subs] = useState(() => new URLSearchParams(window.location.search).get("subs") === "1");
-  const approvalsRef = useRef(null);
+  const narrow = useNarrow();
 
   useEffect(() => {
     api.users().then(setUsers).catch((e) => setError(e.message));
@@ -310,9 +362,6 @@ function Console({ lang, setLang }) {
       setRunScene(null);
     }
     if (s.key === "approval" && runScene !== s.sceneId) await ask(s.sceneId, s);
-    if (s.key === "approval") {
-      setTimeout(() => approvalsRef.current?.scrollIntoView({ block: "center" }), 100);
-    }
   }
 
   async function openSix(groupOrQuestion) {
@@ -360,6 +409,37 @@ function Console({ lang, setLang }) {
     }
   }
 
+  // The step explanation, with a quiet "next scene" link for visitors who do not know the order.
+  const nextStep = tour !== null && tour < TOUR.length - 1 ? TOUR[tour + 1] : null;
+  const stepCard = step && (
+    <section className="panel step-card">
+      <div className="panel-sub">{t("step.n", { n: tour + 1, title: t.pick(step, "title") })}</div>
+      <p>{t.pick(step, "explain")}</p>
+      {nextStep && (
+        <button type="button" className="step-next" onClick={() => goTo(tour + 1)}>
+          {t("step.next", { title: t.pick(nextStep, "title") })} →
+        </button>
+      )}
+    </section>
+  );
+
+  // On the approval step the approval block is visible without scrolling: first in the evidence
+  // column on wide screens, right under the step card on phones (handoff 017 #6).
+  const approvalFirst = step?.key === "approval";
+  const approvalsBlock = (
+    <details open className="ev-block">
+      <summary>{t("ev.approvals")}</summary>
+      {me && (
+        <Approvals
+          api={api}
+          me={me}
+          refreshKey={refreshKey}
+          onDecided={(d) => setRun((r) => (r ? { ...r, status: d.status, proposal: d.proposal ?? r.proposal } : r))}
+        />
+      )}
+    </details>
+  );
+
   const caption = step
     ? { zh: step.explain, en: step.caption_en }
     : scene
@@ -378,7 +458,8 @@ function Console({ lang, setLang }) {
               <p className="fine">{t("brand.sub")}</p>
             </div>
           </div>
-          <nav className="tour-nav" aria-label={t("tour.nav")}>
+          <div className="top-tools">
+            <ThemeToggle />
             <button
               type="button"
               className="quiet lang-switch"
@@ -388,32 +469,7 @@ function Console({ lang, setLang }) {
             >
               {t("lang.switch")}
             </button>
-            {tour === null ? (
-              <button type="button" className="primary" onClick={() => goTo(0)}>
-                {t("tour.start")}
-              </button>
-            ) : (
-              <>
-                <button type="button" onClick={() => goTo(Math.max(0, tour - 1))} disabled={tour === 0}>
-                  {t("tour.prev")}
-                </button>
-                <span className="fine tour-pos">
-                  {tour + 1} / {TOUR.length}
-                </span>
-                <button
-                  type="button"
-                  className="primary"
-                  onClick={() => goTo(Math.min(TOUR.length - 1, tour + 1))}
-                  disabled={tour === TOUR.length - 1}
-                >
-                  {t("tour.next")}
-                </button>
-                <button type="button" className="quiet" onClick={() => setTour(null)}>
-                  {t("tour.free")}
-                </button>
-              </>
-            )}
-          </nav>
+          </div>
         </header>
 
         <section className="badges" aria-label={t("badges.label")}>
@@ -424,6 +480,11 @@ function Console({ lang, setLang }) {
 
         <div className="grid">
           <nav className="rail" aria-label={t("rail.label")}>
+            {tour === null && (
+              <p className="fine rail-free" role="status">
+                {t("rail.free")}
+              </p>
+            )}
             <ol>
               {TOUR.map((s, i) => (
                 <li key={s.key}>
@@ -444,33 +505,19 @@ function Console({ lang, setLang }) {
 
           {six ? (
             <main className="main main-wide">
-              {step && (
-                <section className="panel step-card">
-                  <div className="panel-sub">{t("step.n", { n: tour + 1, title: t.pick(step, "title") })}</div>
-                  <p>{t.pick(step, "explain")}</p>
-                </section>
-              )}
+              {stepCard}
               <SixWay data={sixData} onClose={step?.six ? null : () => setSix(null)} />
             </main>
           ) : showResults ? (
             <main className="main main-wide">
-              {step && (
-                <section className="panel step-card">
-                  <div className="panel-sub">{t("step.n", { n: tour + 1, title: t.pick(step, "title") })}</div>
-                  <p>{t.pick(step, "explain")}</p>
-                </section>
-              )}
+              {stepCard}
               <Results results={results} />
             </main>
           ) : (
             <>
               <main className="main">
-                {step && (
-                  <section className="panel step-card">
-                    <div className="panel-sub">{t("step.n", { n: tour + 1, title: t.pick(step, "title") })}</div>
-                    <p>{t.pick(step, "explain")}</p>
-                  </section>
-                )}
+                {stepCard}
+                {approvalFirst && narrow && approvalsBlock}
                 {me && (
                   <section className="panel ask">
                     <div className="panel-head">
@@ -481,26 +528,7 @@ function Console({ lang, setLang }) {
                       step?.sceneId ? (
                         <p className="question">{scene?.question}</p>
                       ) : (
-                        <select
-                          className="scene-select"
-                          value={pick}
-                          onChange={(e) => setPick(e.target.value)}
-                          aria-label={t("ask.recorded")}
-                        >
-                          {mine.length === 0 && <option value="">{t("ask.none")}</option>}
-                          {MODES.filter((m) => mine.some((s) => s.mode === m)).map((m) => (
-                            // the mode is the group label, never glued to the question text
-                            <optgroup key={m} label={t(`mode.${m}`)}>
-                              {mine
-                                .filter((s) => s.mode === m)
-                                .map((s) => (
-                                  <option key={s.id} value={s.id}>
-                                    {s.question}
-                                  </option>
-                                ))}
-                            </optgroup>
-                          ))}
-                        </select>
+                        <ScenePicker scenes={mine} value={pick} onChange={setPick} />
                       )
                     ) : (
                       <textarea
@@ -523,6 +551,9 @@ function Console({ lang, setLang }) {
                             </option>
                           ))}
                         </select>
+                      )}
+                      {REPLAY && scene?.six_unavailable && (
+                        <p className="fine six-unavailable">{t("six.unavailable")}</p>
                       )}
                       {(REPLAY ? scene?.groups?.length > 0 : question.trim()) && (
                         <button
@@ -569,6 +600,7 @@ function Console({ lang, setLang }) {
               </main>
 
               <aside className="evidence" aria-label={t("ev.label")}>
+                {approvalFirst && !narrow && approvalsBlock}
                 <details open className="ev-block">
                   <summary>{t("ev.wafer")}</summary>
                   <WaferMap
@@ -588,19 +620,7 @@ function Console({ lang, setLang }) {
                     runKey={`${runScene}-${refreshKey}`}
                   />
                 </details>
-                <details open className="ev-block" ref={approvalsRef}>
-                  <summary>{t("ev.approvals")}</summary>
-                  {me && (
-                    <Approvals
-                      api={api}
-                      me={me}
-                      refreshKey={refreshKey}
-                      onDecided={(d) =>
-                        setRun((r) => (r ? { ...r, status: d.status, proposal: d.proposal ?? r.proposal } : r))
-                      }
-                    />
-                  )}
-                </details>
+                {!approvalFirst && approvalsBlock}
               </aside>
             </>
           )}

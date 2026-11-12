@@ -1,24 +1,28 @@
 // Self-check of the replay site (handoff 015 step 0.3): walks the tour, every recorded scene,
 // every six-identity group, the citation drawer and English mode; saves screenshots and fails on
 // page errors, horizontal overflow, or a permission mismatch on screen.
-//   node scripts/review-v2.mjs <url> <outDir> <width>
+//   node scripts/review-v2.mjs <url> <outDir> <width> [light|dark]
 import { chromium } from "playwright";
 import fs from "node:fs";
 import path from "node:path";
 
-const [, , url, out, w = "1280"] = process.argv;
+const [, , url, out, w = "1280", scheme = "light"] = process.argv;
 const width = Number(w);
 fs.mkdirSync(out, { recursive: true });
 const data = JSON.parse(fs.readFileSync(new URL("../public/replay/scenes.json", import.meta.url), "utf8"));
 const visibleIds = (u) => new Set(data.visible_by_user[u].map((i) => data.docs[i].doc_id));
 
 const browser = await chromium.launch();
-const page = await browser.newPage({ viewport: { width, height: width < 600 ? 812 : 860 }, deviceScaleFactor: 1 });
+const page = await browser.newPage({
+  viewport: { width, height: width < 600 ? 812 : 860 },
+  deviceScaleFactor: 1,
+  colorScheme: scheme,
+});
 const problems = [];
 page.on("pageerror", (e) => problems.push(`pageerror: ${e}`));
 page.on("console", (m) => m.type() === "error" && problems.push(`console: ${m.text()}`));
 
-const shot = (name) => page.screenshot({ path: path.join(out, `${width}-${name}.png`), fullPage: true });
+const shot = (name) => page.screenshot({ path: path.join(out, `${scheme}-${width}-${name}.png`), fullPage: true });
 async function check(label, user) {
   const sw = await page.evaluate(() => document.documentElement.scrollWidth);
   if (sw > width + 1) problems.push(`${label}: horizontal overflow ${sw}px`);
@@ -88,7 +92,9 @@ for (const s of data.scenes) {
 for (const g of data.groups) {
   await open(`#six=${g.id}`);
   const cols = await page.locator(".six-col").count();
-  if (cols !== 6) problems.push(`six ${g.id}: ${cols} columns`);
+  const expect = g.unavailable ? 0 : 6; // an unavailable group says why instead of showing columns
+  if (cols !== expect) problems.push(`six ${g.id}: ${cols} columns, expected ${expect}`);
+  if (g.unavailable && !(await page.locator(".six-unavailable").count())) problems.push(`six ${g.id}: no reason shown`);
   await shot(`six-${g.id}`);
   await check(`six ${g.id}`, null);
 }
@@ -101,5 +107,5 @@ for (const h of ["#step=sop&lang=en", "#step=six&lang=en", "#scene=triage-approv
 }
 
 await browser.close();
-console.log(JSON.stringify({ width, scenes: data.scenes.length, groups: data.groups.length, problems }, null, 1));
+console.log(JSON.stringify({ width, scheme, scenes: data.scenes.length, groups: data.groups.length, problems }, null, 1));
 process.exit(problems.length ? 1 : 0);

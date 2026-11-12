@@ -38,6 +38,7 @@ export const replay = {
     const d = await load();
     const g = d.groups?.find((x) => x.id === groupId);
     if (!g) return { columns: [] };
+    if (g.unavailable) return { question: g.question, title: g.title_zh, title_en: g.title_en, unavailable: g.unavailable, columns: [] };
     const idx = d.docs.findIndex((doc) => doc.doc_id === g.target_doc);
     const columns = d.users.map((user) => {
       const s = d.scenes.find((x) => g.scenes.includes(x.id) && x.user === user.user_id);
@@ -45,6 +46,7 @@ export const replay = {
       return {
         user,
         run: s?.response,
+        cutOff: Boolean(s?.answer_cut_off),
         visible: seen.length,
         total: d.docs.length,
         targetVisible: g.target_doc ? seen.includes(idx) : null,
