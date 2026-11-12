@@ -1,14 +1,26 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useT } from "../i18n.js";
 
+// Pending proposals the current identity can see, with approve / reject. The page never jumps
+// on a decision (handoff 017 #6): the result shows where the buttons were, the audit rows the
+// decision added are briefly highlighted, and if the audit log is off screen a small hint offers
+// to scroll there; the visitor decides.
+
+const inView = (el) => {
+  if (!el) return true;
+  const r = el.getBoundingClientRect();
+  return r.top < window.innerHeight && r.bottom > 0;
+};
 
 export default function Approvals({ api, me, refreshKey, onDecided }) {
   const t = useT();
   const why = (r) => t(`why.${r}`);
   const [blind, setBlind] = useState([]);
   const [items, setItems] = useState([]);
-  const [audit, setAudit] = useState(null);
-  const [msg, setMsg] = useState(null);
+  const [audit, setAudit] = useState(null); // { id, rows, fresh: number of newest rows to mark }
+  const [msg, setMsg] = useState(null); // { id, ok, text }: shown in place of that proposal's buttons
+  const [hint, setHint] = useState(false);
+  const auditRef = useRef(null);
 
   const load = () => {
     api.pending().then(setItems).catch(() => setItems([]));
@@ -20,24 +32,39 @@ export default function Approvals({ api, me, refreshKey, onDecided }) {
   }, [me?.user_id, refreshKey]);
   // An audit log belongs to the identity that fetched it: never carry it over to another one
   // (the API answers 404 to someone who cannot see the target).
-  useEffect(() => setAudit(null), [me?.user_id]);
+  useEffect(() => {
+    setAudit(null);
+    setHint(false);
+  }, [me?.user_id]);
+
+  useEffect(() => {
+    if (!audit) return undefined;
+    if (inView(auditRef.current)) return undefined;
+    setHint(true);
+    const timer = setTimeout(() => setHint(false), 8000);
+    return () => clearTimeout(timer);
+  }, [audit]);
 
   async function decide(p, approved) {
+    let ok = false;
     try {
       const run = await api.decide(p.proposal_id, approved);
+      ok = true;
       onDecided?.(run);
-      setMsg({ ok: true, text: t(approved ? "ap.approved" : "ap.rejected", { s: run.status }) });
+      setMsg({ id: p.proposal_id, ok, text: t(approved ? "ap.approved" : "ap.rejected", { s: run.status }) });
     } catch (e) {
-      setMsg({ ok: false, text: t("ap.denied", { why: why(e.message) }) });
+      setMsg({ id: p.proposal_id, ok, text: t("ap.denied", { why: why(e.message) }) });
     }
-    setAudit({ id: p.proposal_id, rows: await api.audit(p.proposal_id) });
+    const rows = await api.audit(p.proposal_id);
+    // a refusal adds one row; an approval adds "approved" and "executed"
+    setAudit({ id: p.proposal_id, rows, fresh: ok && approved ? 2 : 1 });
     load();
   }
 
+  const decided = msg && !items.some((p) => p.proposal_id === msg.id); // its card is gone
   return (
     <div className="approvals">
-      <p className="fine">{t("ap.rules")}</p>
-      {items.length === 0 && <p className="fine">{t("ap.none")}</p>}
+      {items.length === 0 && !decided && <p className="fine">{t("ap.none")}</p>}
       {items.length === 0 &&
         blind.map((b) => (
           <div key={b.proposal_id} className="proposal-card blind">
@@ -61,15 +88,32 @@ export default function Approvals({ api, me, refreshKey, onDecided }) {
               {t("ap.reject")}
             </button>
           </div>
+          {msg?.id === p.proposal_id && (
+            <p className={msg.ok ? "msg-ok" : "msg-bad"} role="status">
+              {msg.text}
+            </p>
+          )}
         </div>
       ))}
-      {msg && <p className={msg.ok ? "msg-ok" : "msg-bad"} role="status">{msg.text}</p>}
+      {decided && (
+        <div className="proposal-card proposal-done">
+          <p className={msg.ok ? "msg-ok" : "msg-bad"} role="status">
+            {msg.text}
+          </p>
+        </div>
+      )}
+      <p className="fine ap-rules">{t("ap.rules")}</p>
       {audit && audit.rows.length > 0 && (
-        <div className="audit">
-          <div className="panel-sub">Audit log · <span className="code">{audit.id}</span></div>
+        <div className="audit" ref={auditRef}>
+          <div className="panel-sub">
+            Audit log · <span className="code">{audit.id}</span>
+          </div>
           <ol>
             {audit.rows.map((a, i) => (
-              <li key={i} className={`ev ev-${a.event}`}>
+              <li
+                key={`${audit.id}-${i}-${audit.rows.length}`}
+                className={`ev ev-${a.event} ${i >= audit.rows.length - audit.fresh ? "ev-new" : ""}`}
+              >
                 <span className="code">{a.ts.slice(11, 19)}</span>
                 <span className="ev-name">{t(`ev.${a.event}`)}</span>
                 <span className="code">{a.actor}</span>
@@ -78,6 +122,19 @@ export default function Approvals({ api, me, refreshKey, onDecided }) {
             ))}
           </ol>
         </div>
+      )}
+      {hint && (
+        <button
+          type="button"
+          className="audit-hint"
+          onClick={() => {
+            setHint(false);
+            const smooth = !window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+            auditRef.current?.scrollIntoView({ block: "nearest", behavior: smooth ? "smooth" : "auto" });
+          }}
+        >
+          {t("ap.hint")} ↓
+        </button>
       )}
     </div>
   );

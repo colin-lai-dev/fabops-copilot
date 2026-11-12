@@ -1405,3 +1405,58 @@ mark.malicious {
     margin-left: 0;
   }
 }
+
+/* ------------------------------------------------------------ v4: approvals without jumps */
+.proposal-card .msg-ok,
+.proposal-card .msg-bad {
+  margin: 6px 0 0;
+}
+.proposal-done {
+  border-style: solid;
+}
+.ev-new {
+  background: var(--amber-wash);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .ev-new {
+    animation: ev-flash 2.4s ease-out forwards;
+  }
+}
+@keyframes ev-flash {
+  0%,
+  45% {
+    background: var(--amber-wash);
+  }
+  100% {
+    background: transparent;
+  }
+}
+.audit-hint {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 30;
+  border-radius: 999px;
+  padding: 6px 14px;
+  background: var(--console);
+  color: var(--on-console);
+  border: 1px solid var(--line);
+  box-shadow: 0 4px 14px var(--shadow);
+  font-size: 13px;
+}
+.audit-hint:hover:not(:disabled) {
+  border-color: var(--litho-amber);
+}
+@media (max-width: 760px) {
+  /* identities as one swipeable row on phones, so each step's content starts near the top */
+  .badges {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    padding-bottom: 4px;
+  }
+  .badge {
+    flex: 0 0 46%;
+    scroll-snap-align: start;
+  }
+}

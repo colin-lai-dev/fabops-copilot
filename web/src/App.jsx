@@ -98,6 +98,17 @@ function ThemeToggle() {
   );
 }
 
+function useNarrow(query = "(max-width: 760px)") {
+  const [narrow, setNarrow] = useState(() => window.matchMedia?.(query).matches ?? false);
+  useEffect(() => {
+    const mq = window.matchMedia?.(query);
+    const on = () => setNarrow(mq.matches);
+    mq?.addEventListener?.("change", on);
+    return () => mq?.removeEventListener?.("change", on);
+  }, [query]);
+  return narrow;
+}
+
 function Badge({ u, active, onPick }) {
   const t = useT();
   return (
@@ -241,7 +252,7 @@ function Console({ lang, setLang }) {
   const [error, setError] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
   const [subs] = useState(() => new URLSearchParams(window.location.search).get("subs") === "1");
-  const approvalsRef = useRef(null);
+  const narrow = useNarrow();
 
   useEffect(() => {
     api.users().then(setUsers).catch((e) => setError(e.message));
@@ -350,9 +361,6 @@ function Console({ lang, setLang }) {
       setRunScene(null);
     }
     if (s.key === "approval" && runScene !== s.sceneId) await ask(s.sceneId, s);
-    if (s.key === "approval") {
-      setTimeout(() => approvalsRef.current?.scrollIntoView({ block: "center" }), 100);
-    }
   }
 
   async function openSix(groupOrQuestion) {
@@ -412,6 +420,23 @@ function Console({ lang, setLang }) {
         </button>
       )}
     </section>
+  );
+
+  // On the approval step the approval block is visible without scrolling: first in the evidence
+  // column on wide screens, right under the step card on phones (handoff 017 #6).
+  const approvalFirst = step?.key === "approval";
+  const approvalsBlock = (
+    <details open className="ev-block">
+      <summary>{t("ev.approvals")}</summary>
+      {me && (
+        <Approvals
+          api={api}
+          me={me}
+          refreshKey={refreshKey}
+          onDecided={(d) => setRun((r) => (r ? { ...r, status: d.status, proposal: d.proposal ?? r.proposal } : r))}
+        />
+      )}
+    </details>
   );
 
   const caption = step
@@ -491,6 +516,7 @@ function Console({ lang, setLang }) {
             <>
               <main className="main">
                 {stepCard}
+                {approvalFirst && narrow && approvalsBlock}
                 {me && (
                   <section className="panel ask">
                     <div className="panel-head">
@@ -592,6 +618,7 @@ function Console({ lang, setLang }) {
               </main>
 
               <aside className="evidence" aria-label={t("ev.label")}>
+                {approvalFirst && !narrow && approvalsBlock}
                 <details open className="ev-block">
                   <summary>{t("ev.wafer")}</summary>
                   <WaferMap
@@ -611,19 +638,7 @@ function Console({ lang, setLang }) {
                     runKey={`${runScene}-${refreshKey}`}
                   />
                 </details>
-                <details open className="ev-block" ref={approvalsRef}>
-                  <summary>{t("ev.approvals")}</summary>
-                  {me && (
-                    <Approvals
-                      api={api}
-                      me={me}
-                      refreshKey={refreshKey}
-                      onDecided={(d) =>
-                        setRun((r) => (r ? { ...r, status: d.status, proposal: d.proposal ?? r.proposal } : r))
-                      }
-                    />
-                  )}
-                </details>
+                {!approvalFirst && approvalsBlock}
               </aside>
             </>
           )}
