@@ -25,6 +25,13 @@ async function send(page) {
   await page.waitForSelector(".answer-text");
   await sleep(400);
 }
+async function stepAll(page, after) {
+  const next = page.locator(".timeline-controls button").first();
+  while (await next.isEnabled()) {
+    await next.click();
+    await after();
+  }
+}
 const into = (page, sel) => page.locator(sel).first().scrollIntoViewIfNeeded();
 const toTop = (page) =>
   page.evaluate(() => document.querySelector(".app-scroll")?.scrollTo({ top: 0, behavior: "smooth" }));
@@ -42,16 +49,19 @@ async function tour(page, hold) {
   await hold(3500);
   await send(page);
   await hold(14000);
-  // 3 agent, step by step
+  // 3 one question, six identities
+  await tourNext(page);
+  await hold(4000);
+  await into(page, ".six-grid");
+  await hold(16000);
+  await toTop(page);
+  // 4 agent, step by step
   await tourNext(page);
   await hold(3000);
   await send(page);
   await hold(3000);
   await into(page, ".timeline");
-  for (let i = 0; i < 7; i++) {
-    await page.getByRole("button", { name: "下一步", exact: true }).last().click();
-    await hold(2300);
-  }
+  await stepAll(page, () => hold(2300));
   await page.locator(".step-head").first().click();
   await hold(7000);
   // 4 approval: the requester is refused, the admin approves
@@ -122,7 +132,8 @@ if (kind === "video") {
   fs.renameSync(await video.path(), target);
   console.log(`video ${target} ${((Date.now() - t0) / 1000).toFixed(0)} s`);
 } else if (kind === "gif") {
-  // ~30 s at 2 fps: wafer re-light, agent steps, refused then approved, injection control.
+  // ~25 s at 2 fps: filter -> retrieve -> cite on the wafer, the cited passage, the operator
+  // blocked, six identities side by side, agent steps, refused then approved, injection control.
   const { browser, page } = await open({ width: 1280, height: 720 }, { deviceScaleFactor: 1.5 });
   const gif = GIFEncoder();
   const W = 960;
@@ -144,20 +155,29 @@ if (kind === "video") {
       gif.writeFrame(applyPalette(rgba, palette), W, H, { palette, delay: 500 });
     }
   };
-  await frame(5);
-  await send(page);
-  await frame(7);
-  await tourNext(page);
   await frame(3);
+  await page.getByRole("button", { name: "送出問題" }).click();
+  await page.waitForSelector(".answer-text");
+  await frame(4); // the wafer sequence plays here
+  await page.locator(".chip-cite").first().click();
+  await page.waitForSelector(".drawer-title");
+  await page.locator(".cite-mark").first().scrollIntoViewIfNeeded();
+  await frame(5);
+  await page.keyboard.press("Escape");
+  await tourNext(page);
+  await frame(1);
   await send(page);
-  await frame(7);
+  await frame(4);
+  await tourNext(page); // six identities
+  await page.waitForSelector(".six-col");
+  await into(page, ".six-grid");
+  await frame(8);
+  await toTop(page);
   await tourNext(page);
   await send(page);
   await into(page, ".timeline");
-  for (let i = 0; i < 6; i++) {
-    await page.getByRole("button", { name: "下一步", exact: true }).last().click();
-    await frame(1);
-  }
+  await stepAll(page, () => frame(1));
+  await frame(1);
   await tourNext(page);
   await into(page, ".proposal-card");
   await page.locator(".proposal-card button.approve").click();

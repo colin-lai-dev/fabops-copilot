@@ -8,7 +8,7 @@ shows a permission wafer map (192 documents; switch identity and watch what you 
 tool calls step by step, a real approval flow with an audit log, and an injection next to its no-filter control.
 3-minute video: [release `demo-v1`](https://github.com/colin-lai-dev/fabops-copilot/releases/tag/demo-v1).
 
-![30-second demo: permission wafer map, cited SOP answer, operator refused, agent steps, refused then approved proposal, injection control](docs/assets/demo.gif)
+![28-second demo: the wafer map filters by permission before retrieval, a cited SOP passage opens in a drawer, an operator is refused, the same question answered by six identities side by side, agent steps, a proposal refused then approved, and the injection control](docs/assets/demo.gif)
 
 **An AI assistant for semiconductor fab anomaly handling that never shows an engineer a document
 they are not cleared to see** — permission-aware RAG over SOPs and past incident reports, plus a
@@ -251,5 +251,13 @@ Each decision is an ADR in [docs/decisions/](docs/decisions/) (written in Tradit
   an alarm code that appears in tool results only inside a document id (e.g. `SOP-FX2-LIT-FOC-0301-v1`)
   is counted as an ungrounded id when the answer names it on its own; and an injection answer that
   quotes the injected sentence in order to reject it fails the literal forbidden-string check.
+- **The answer is capped at 512 output tokens**, the setting all test numbers were measured with. A
+  long answer can be cut off; the JSON then fails to parse and the system falls back to a generic
+  refusal. The demo keeps the measured setting (one demo scene reuses an earlier recording for this
+  reason; see `docs/open-questions.md`).
+- **More permission means a bigger candidate pool.** The administrator sees all 192 documents, so an
+  SOP's key section can be pushed out of the top hits by other documents. In the demo's six-identity
+  questions (n=3), the administrator can see a relevant SOP in all three but answered only 1, while
+  every narrower identity that can see a relevant SOP answered (5/5; see `docs/experiments.md`).
 - Observability uses Langfuse's free cloud plan only because all data is synthetic; a real
   deployment would self-host it.

@@ -23,6 +23,23 @@
 
 ## 紀錄
 
+### 2026-11-12：權限越大、候選池越大——demo 六身分題的觀察（交接指示 015／016）
+
+- 目的：記錄 site-v2 錄製時看到的現象，不是正式實驗（樣本極小）。
+- 設定：`rag-hybrid-bm25`，Claude Haiku 5.5，回答上限 512 token；demo 的 3 題六身分題（`scripts/record_replay.py` GROUPS），
+  每題 6 個身分各問一次，`fabops_injection` 資料庫，git `1875e9d`。**不是 dev／test 題目。**
+- 結果（n=3 題）：
+
+  | 身分 | 看得到相關 SOP 的題數 | 有回答 |
+  | --- | --- | --- |
+  | `admin_all`（192 份可見） | 3 | 1 |
+  | 其他看得到相關 SOP 的身分（`eng_fx1_etch`、`lead_fx1_multi`、`mgr_fx2_all`，15–85 份可見） | 5 人次 | 5 |
+
+  `admin_all` 拒答的兩題，檢索都拿到了目標 SOP，但進入回答的只有「目的」段落（例：EPD 題回答寫「提供內容只有『目的』段落」）。
+- 觀察：可見範圍越大，候選池越大，同一份 SOP 的關鍵章節越容易被其他文件擠出前幾名；這是召回被稀釋，不是權限錯誤。
+  樣本只有 3 題，不足以下結論；規劃者決定不改善、照實呈現（交接指示 016），列入 README 已知限制，可作為面試討論題。
+  可能的改善（未做）：章節展開擴大到前 k 份 SOP，或 SOP 題型先限 doc_type 再檢索。
+
 ### 2026-11-11：Langfuse 端到端驗證（交接指示 013 D，ADR-0007）
 
 - 設定：`FABOPS_LANGFUSE=1`、Langfuse Cloud（us），qwen3:8b（地端，$0）。`scripts/langfuse_check.py`：dev 規則題前 2 題（RAG）＋ agent dev 情境第 1 題。
