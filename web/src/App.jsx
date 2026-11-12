@@ -99,6 +99,66 @@ function ThemeToggle() {
   );
 }
 
+// Approval step: which proposal is being decided, and as whom (handoff 018).
+function ProposalContext({ run, me }) {
+  const t = useT();
+  const p = run.proposal;
+  const status = run.status === "executed" ? "executed" : p.status === "pending" ? "awaiting_approval" : p.status;
+  return (
+    <section className="panel proposal-context" aria-live="polite">
+      <div className="panel-head">
+        <h2>{t("apx.title")}</h2>
+        <span className="viewing">{t("apx.viewing", { name: t.user(me) })}</span>
+      </div>
+      <div className="proposal-line">
+        <b>{t(`action.${p.action}`)}</b> <span className="code">{p.target_id}</span>
+        <span className={`state state-${status}`}>{t(`status.${status}`)}</span>
+      </div>
+      <p className="fine">{t("apx.meta", { who: p.requester, id: p.proposal_id })}</p>
+    </section>
+  );
+}
+
+// The next thing to try in the approval step, for the identity on screen: the requester is
+// refused, someone who cannot see the target never sees it, a qualified approver executes it.
+function ApprovalGuide({ run, me, users, attempts, onSwitch }) {
+  const t = useT();
+  const p = run.proposal;
+  const name = (id) => t.user(users.find((u) => u.user_id === id));
+  const go = (id) => (
+    <button type="button" className="step-next guide-switch" onClick={() => onSwitch(id)}>
+      {t("apx.switchTo", { name: name(id) })}
+    </button>
+  );
+  const done = run.status === "executed" || attempts.some((a) => a.ok && a.approved);
+  const deniedHere = attempts.some((a) => a.user === me?.user_id && !a.ok);
+  let text;
+  let next = null;
+  if (done) text = t("apx.done");
+  else if (me?.user_id === p.requester) {
+    text = deniedHere ? t("apx.requesterDone") : t("apx.requester");
+    if (deniedHere) next = "lead_fx1_multi";
+  } else if (me?.user_id === "lead_fx1_multi") {
+    text = t("apx.lead");
+    next = "admin_all";
+  } else if (me?.user_id === "admin_all") text = t("apx.admin");
+  else {
+    text = t("apx.other");
+    next = "admin_all";
+  }
+  return (
+    <div className="approval-guide">
+      <p>
+        <b>{t("apx.now", { name: t.user(me) })}</b> {text}
+      </p>
+      <div className="guide-links">
+        {next && go(next)}
+        {!done && me?.user_id !== p.requester && go(p.requester)}
+      </div>
+    </div>
+  );
+}
+
 function useNarrow(query = "(max-width: 760px)") {
   const [narrow, setNarrow] = useState(() => window.matchMedia?.(query).matches ?? false);
   useEffect(() => {
@@ -245,6 +305,7 @@ function Console({ lang, setLang }) {
   const [runScene, setRunScene] = useState(null);
   const [focusId, setFocusId] = useState(null);
   const [openDoc, setOpenDoc] = useState(null); // cited document shown in the drawer
+  const [attempts, setAttempts] = useState([]); // approval tries on screen: { user, ok, approved }
   const [six, setSix] = useState(null); // six-identity view: group id (replay) or "live"
   const [sixData, setSixData] = useState(null);
   const [results, setResults] = useState(null);
@@ -272,7 +333,11 @@ function Console({ lang, setLang }) {
     const stepAt = TOUR.findIndex((s) => s.key === h.get("step"));
     const target = scenes.find((s) => s.id === h.get("scene"));
     const group = h.get("six");
-    if (stepAt >= 0) return goTo(stepAt);
+    if (stepAt >= 0) {
+      await goTo(stepAt);
+      if (as && TOUR[stepAt].key === "approval" && as !== TOUR[stepAt].user) await login(as);
+      return undefined;
+    }
     if (target) {
       setTour(null);
       setSix(null);
@@ -320,6 +385,8 @@ function Console({ lang, setLang }) {
     else if (six && REPLAY) h.set("six", six);
     else if (runScene) h.set("scene", runScene);
     if (me && tour === null) h.set("as", me.user_id);
+    // the approval step can be viewed as another identity (the approver): keep it in the link
+    if (tour !== null && TOUR[tour].key === "approval" && me && me.user_id !== TOUR[tour].user) h.set("as", me.user_id);
     if (lang === "en") h.set("lang", "en");
     const next = h.toString() ? `#${h.toString()}` : " ";
     if (next.trim() !== window.location.hash) {
@@ -378,7 +445,11 @@ function Console({ lang, setLang }) {
   async function switchUser(userId) {
     setSix(null);
     await login(userId);
-    const keep = tour !== null && TOUR[tour].key === "approval"; // approving needs the run
+    // The agent and approval steps share one proposal: switching identity there means trying
+    // to decide it as someone else, so the visitor stays in the approval step with the run.
+    const approvalAt = TOUR.findIndex((s) => s.key === "approval");
+    const keep = tour !== null && ["agent", "approval"].includes(TOUR[tour].key) && run;
+    if (keep) setTour(approvalAt);
     if (!keep) {
       setTour(null); // leaving the script: free exploration
       setRun(null);
@@ -400,6 +471,7 @@ function Console({ lang, setLang }) {
       }
       setRun(r);
       setRunScene(id);
+      setAttempts([]);
       setFocusId(r.citations?.[0] || null);
       setRefreshKey((k) => k + 1);
     } catch (e) {
@@ -409,12 +481,16 @@ function Console({ lang, setLang }) {
     }
   }
 
+  const approvalFirst = step?.key === "approval";
   // The step explanation, with a quiet "next scene" link for visitors who do not know the order.
   const nextStep = tour !== null && tour < TOUR.length - 1 ? TOUR[tour + 1] : null;
   const stepCard = step && (
     <section className="panel step-card">
       <div className="panel-sub">{t("step.n", { n: tour + 1, title: t.pick(step, "title") })}</div>
       <p>{t.pick(step, "explain")}</p>
+      {approvalFirst && run?.proposal && (
+        <ApprovalGuide run={run} me={me} users={users} attempts={attempts} onSwitch={switchUser} />
+      )}
       {nextStep && (
         <button type="button" className="step-next" onClick={() => goTo(tour + 1)}>
           {t("step.next", { title: t.pick(nextStep, "title") })} →
@@ -425,7 +501,6 @@ function Console({ lang, setLang }) {
 
   // On the approval step the approval block is visible without scrolling: first in the evidence
   // column on wide screens, right under the step card on phones (handoff 017 #6).
-  const approvalFirst = step?.key === "approval";
   const approvalsBlock = (
     <details open className="ev-block">
       <summary>{t("ev.approvals")}</summary>
@@ -435,6 +510,7 @@ function Console({ lang, setLang }) {
           me={me}
           refreshKey={refreshKey}
           onDecided={(d) => setRun((r) => (r ? { ...r, status: d.status, proposal: d.proposal ?? r.proposal } : r))}
+          onAttempt={(a) => setAttempts((xs) => [...xs, { user: me.user_id, ...a }])}
         />
       )}
     </details>
@@ -517,6 +593,7 @@ function Console({ lang, setLang }) {
             <>
               <main className="main">
                 {stepCard}
+                {approvalFirst && run?.proposal && <ProposalContext run={run} me={me} />}
                 {approvalFirst && narrow && approvalsBlock}
                 {me && (
                   <section className="panel ask">

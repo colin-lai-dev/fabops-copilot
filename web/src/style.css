@@ -1573,3 +1573,35 @@ mark.malicious {
   background: var(--line-2);
   color: var(--slate-2);
 }
+
+/* ------------------------------------------------------------ v5: approval step context */
+.proposal-context {
+  border-left: 3px solid var(--nitride-violet);
+}
+.proposal-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+  align-items: center;
+}
+.viewing {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 1px 8px;
+  border-radius: 3px;
+  background: var(--violet-wash);
+  color: var(--violet-ink);
+}
+.approval-guide {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--line);
+}
+.approval-guide p {
+  margin: 0 0 4px;
+}
+.guide-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+}
