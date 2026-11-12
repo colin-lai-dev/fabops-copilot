@@ -12,7 +12,7 @@ const inView = (el) => {
   return r.top < window.innerHeight && r.bottom > 0;
 };
 
-export default function Approvals({ api, me, refreshKey, onDecided }) {
+export default function Approvals({ api, me, refreshKey, onDecided, onAttempt }) {
   const t = useT();
   const why = (r) => t(`why.${r}`);
   const [blind, setBlind] = useState([]);
@@ -51,9 +51,11 @@ export default function Approvals({ api, me, refreshKey, onDecided }) {
       const run = await api.decide(p.proposal_id, approved);
       ok = true;
       onDecided?.(run);
+      onAttempt?.({ ok, approved });
       setMsg({ id: p.proposal_id, ok, text: t(approved ? "ap.approved" : "ap.rejected", { s: run.status }) });
     } catch (e) {
       setMsg({ id: p.proposal_id, ok, text: t("ap.denied", { why: why(e.message) }) });
+      onAttempt?.({ ok, approved, reason: e.message });
     }
     const rows = await api.audit(p.proposal_id);
     // a refusal adds one row; an approval adds "approved" and "executed"
