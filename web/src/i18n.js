@@ -56,6 +56,7 @@ const STR = {
     "foot": "FabOps Copilot · 原始碼與評估方法：",
     "lang.switch": "English",
     "lang.label": "語言",
+    "clr.legend": "機密等級（低 → 高）",
     "theme.toDark": "暗色",
     "theme.toLight": "亮色",
     "theme.label": "切換亮色／暗色主題",
@@ -163,7 +164,7 @@ const STR = {
     "doc.locked": "無權限：這份文件不顯示任何屬性或內文。",
     "doc.loading": "載入中…",
     "doc.notRecorded": "這段回答是由另一個身分錄製的；回放版只保存提問者本人看得到的文件內容。",
-    "doc.meta": "{type} · {fab} · {dept} · {clr}",
+    "doc.meta": "{type} · {fab} · {dept}",
   },
   en: {
     "banner.title": "Recorded demo",
@@ -216,6 +217,7 @@ const STR = {
     "foot": "FabOps Copilot · source code and evaluation method:",
     "lang.switch": "中文",
     "lang.label": "Language",
+    "clr.legend": "Clearance (low → high)",
     "theme.toDark": "Dark",
     "theme.toLight": "Light",
     "theme.label": "Switch between light and dark theme",
@@ -316,7 +318,7 @@ const STR = {
     "doc.locked": "No access: no attributes or text are shown for this document.",
     "doc.loading": "Loading…",
     "doc.notRecorded": "This answer was recorded by another identity; the replay keeps document text only as the asker saw it.",
-    "doc.meta": "{type} · {fab} · {dept} · {clr}",
+    "doc.meta": "{type} · {fab} · {dept}",
   },
 };
 

@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { useT } from "../i18n.js";
+import Clearance from "./Clearance.jsx";
 
 // "One question, six identities": the same question answered once per demo user, side by side.
 // Replay columns are six real recordings (scripts/record_replay.py GROUPS); live columns are
 // six real requests, each with that user's own session token. The only variable is permission.
 
-const CLEARANCE = ["public", "internal", "confidential", "restricted"];
 
 // What a column's answer amounts to. RAG: answered / declined / cut off by the 512-token cap.
 // Agent: `refused` means "no action recommended", so the verdict is the proposal or the status.
@@ -31,7 +31,7 @@ function Column({ col }) {
       <header className="six-head">
         <b>{t.user(user)}</b>
         <span className="code fine">{user.user_id}</span>
-        <span className={`clr clr-${user.clearance}`}>{CLEARANCE[user.clearance]}</span>
+        <Clearance level={user.clearance} />
       </header>
       {visible != null && (
         <div className="six-vis" title={t("six.visible", { n: visible, total })}>

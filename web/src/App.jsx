@@ -10,12 +10,12 @@ import Injection from "./components/Injection.jsx";
 import Results from "./components/Results.jsx";
 import DocDrawer from "./components/DocDrawer.jsx";
 import SixWay from "./components/SixWay.jsx";
+import Clearance from "./components/Clearance.jsx";
 
 // VITE_DEMO_MODE=replay builds the static demo site: no backend, recorded answers only.
 const REPLAY = import.meta.env.VITE_DEMO_MODE === "replay";
 const api = REPLAY ? replay : live;
 
-const CLEARANCE = ["public", "internal", "confidential", "restricted"];
 const MODES = ["rag", "fixed", "agent"];
 
 // Two lines at the top of the page; once the page scrolls it shrinks to a slim one-line strip
@@ -113,7 +113,7 @@ function Badge({ u, active, onPick }) {
         {u.fabs.join("·")} ·{" "}
         {u.departments.length > 2 ? t("badge.depts", { n: u.departments.length }) : u.departments.join("·")}
       </span>
-      <span className={`clr clr-${u.clearance}`}>{CLEARANCE[u.clearance]}</span>
+      <Clearance level={u.clearance} />
     </button>
   );
 }

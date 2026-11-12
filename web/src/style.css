@@ -38,7 +38,14 @@
   --wafer-fill: #e9edf2;
   --wafer-edge: #c3cad5;
   --die-partial: #c3cad5;
-  --clr-1-legacy: #2f6aa8;
+  --clr-0-bg: #dde3ea;
+  --clr-0-ink: #28333f;
+  --clr-1-bg: #2f6aa8;
+  --clr-1-ink: #ffffff;
+  --clr-2-bg: #b0600c;
+  --clr-2-ink: #ffffff;
+  --clr-3-bg: #a5332d;
+  --clr-3-ink: #ffffff;
   --focus-ring: #5b5bd6;
   --scrim: rgba(31, 42, 58, 0.28);
   --shadow: rgba(31, 42, 58, 0.12);
@@ -92,7 +99,14 @@
     --wafer-fill: #1a222d;
     --wafer-edge: #3b4757;
     --die-partial: #3b4757;
-    --clr-1-legacy: #8fb8ea;
+    --clr-0-bg: #3a4757;
+    --clr-0-ink: #e6ebf2;
+    --clr-1-bg: #7fb0ea;
+    --clr-1-ink: #0b1624;
+    --clr-2-bg: #f0a845;
+    --clr-2-ink: #1c1204;
+    --clr-3-bg: #f27a72;
+    --clr-3-ink: #1f0807;
     --focus-ring: #9d9ff7;
     --scrim: rgba(0, 0, 0, 0.55);
     --shadow: rgba(0, 0, 0, 0.45);
@@ -140,7 +154,14 @@
   --wafer-fill: #1a222d;
   --wafer-edge: #3b4757;
   --die-partial: #3b4757;
-  --clr-1-legacy: #8fb8ea;
+  --clr-0-bg: #3a4757;
+  --clr-0-ink: #e6ebf2;
+  --clr-1-bg: #7fb0ea;
+  --clr-1-ink: #0b1624;
+  --clr-2-bg: #f0a845;
+  --clr-2-ink: #1c1204;
+  --clr-3-bg: #f27a72;
+  --clr-3-ink: #1f0807;
   --focus-ring: #9d9ff7;
   --scrim: rgba(0, 0, 0, 0.55);
   --shadow: rgba(0, 0, 0, 0.45);
@@ -370,23 +391,49 @@ textarea {
 }
 .clr {
   justify-self: start;
+  display: inline-block;
   font-size: 11px;
-  padding: 0 6px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1.6;
+  padding: 0 7px;
   border-radius: 3px;
   margin-top: 3px;
-  border: 1px solid currentColor;
+  background: var(--clr-bg);
+  color: var(--clr-ink);
 }
 .clr-0 {
-  color: var(--slate-3);
+  --clr-bg: var(--clr-0-bg);
+  --clr-ink: var(--clr-0-ink);
 }
 .clr-1 {
-  color: var(--clr-1-legacy);
+  --clr-bg: var(--clr-1-bg);
+  --clr-ink: var(--clr-1-ink);
 }
 .clr-2 {
-  color: var(--amber-ink);
+  --clr-bg: var(--clr-2-bg);
+  --clr-ink: var(--clr-2-ink);
 }
 .clr-3 {
-  color: var(--hold-red);
+  --clr-bg: var(--clr-3-bg);
+  --clr-ink: var(--clr-3-ink);
+}
+.clr-legend {
+  list-style: none;
+  padding: 0;
+  margin: 6px 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  align-items: center;
+}
+.clr-legend .clr {
+  margin-top: 0;
+}
+.wafer-info .clr,
+.drawer .clr {
+  margin-top: 0;
+  vertical-align: 1px;
 }
 
 /* ------------------------------------------------------------ three columns */

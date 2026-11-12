@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useT } from "../i18n.js";
+import Clearance from "./Clearance.jsx";
 
 // The permission wafer map: one die per document (192), laid out on a round wafer.
 // Visible dies are lit, locked dies are grey with a hatch; retrieved dies are amber and the
@@ -45,7 +46,6 @@ function layout(count) {
   throw new Error("too many dies");
 }
 
-const CLEARANCE = ["public", "internal", "confidential", "restricted"];
 
 export default function WaferMap({ docs, retrieved = [], cited = [], focusId, onFocus, runKey }) {
   const t = useT();
@@ -161,8 +161,8 @@ export default function WaferMap({ docs, retrieved = [], cited = [], focusId, on
             <>
               <span className="code">{shown.doc_id}</span>
               <span>
-                {shown.doc_type === "sop" ? t("wafer.sop") : t("wafer.incident")} · {shown.fab} · {shown.department} ·{" "}
-                {CLEARANCE[shown.clearance]}
+                {shown.doc_type === "sop" ? t("wafer.sop") : t("wafer.incident")} · {shown.fab} · {shown.department}{" "}
+                <Clearance level={shown.clearance} />
                 {shown.superseded_by ? t("wafer.superseded") : ""}
                 {citedSet.has(shown.doc_id) ? t("wafer.cited") : retrievedSet.has(shown.doc_id) ? t("wafer.retrieved") : ""}
               </span>
@@ -180,6 +180,14 @@ export default function WaferMap({ docs, retrieved = [], cited = [], focusId, on
         <li><i className="sw sw-retrieved" />{t("wafer.retrievedN", { n: retrieved.length - extra.length })}</li>
         <li><i className="sw sw-cited" />{t("wafer.citedL")}</li>
         <li className="legend-shape">{t("wafer.shape")}</li>
+      </ul>
+      <ul className="clr-legend" aria-label={t("clr.legend")}>
+        <li className="fine">{t("clr.legend")}</li>
+        {[0, 1, 2, 3].map((l) => (
+          <li key={l}>
+            <Clearance level={l} />
+          </li>
+        ))}
       </ul>
       {extra.length > 0 && (
         <p className="fine">{t("wafer.extra", { n: extra.length, ids: extra.join(", ") })}</p>

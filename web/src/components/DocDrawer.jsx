@@ -1,12 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useT } from "../i18n.js";
+import Clearance from "./Clearance.jsx";
 
 // Side drawer for an opened citation. The text comes from the API's permission-checked
 // GET /api/docs/{doc_id} (live) or from what the recorder fetched with the asker's own token
 // (replay): a locked document has no text anywhere in the page, only the "no access" state.
 // Sentences that share enough wording with the answer are highlighted (simple overlap, labelled).
 
-const CLEARANCE = ["public", "internal", "confidential", "restricted"];
 const N = 4; // character n-grams
 
 function grams(text) {
@@ -120,8 +120,8 @@ export default function DocDrawer({ docId, load, answer, onClose }) {
                 type: doc.doc_type === "sop" ? t("wafer.sop") : t("wafer.incident"),
                 fab: doc.fab,
                 dept: doc.department,
-                clr: CLEARANCE[doc.clearance],
-              })}
+              })}{" "}
+              <Clearance level={doc.clearance} />
               {doc.superseded_by ? t("wafer.superseded") : ""}
             </p>
             <p className="fine drawer-note">
