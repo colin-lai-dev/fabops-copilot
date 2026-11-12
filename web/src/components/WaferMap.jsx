@@ -1,10 +1,15 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useT } from "../i18n.js";
 
 // The permission wafer map: one die per document (192), laid out on a round wafer.
 // Visible dies are lit, locked dies are grey with a hatch; retrieved dies are amber and the
-// cited ones get an outline. Switching identity re-lights the wafer (the page's only
-// choreographed animation, ~600 ms, radial, skipped under prefers-reduced-motion).
+// cited ones get an outline. After each question the map plays the page's only automatic
+// animation, in the order the system works (~1.4 s): first the permission pre-filter dims the
+// locked dies, then the retrieved dies light up, then the cited ones get their outline.
+// Under prefers-reduced-motion, and on identity switches, the final state is shown at once.
+
+const PHASE_AT = [0, 60, 560, 1060]; // ms after a new answer: 0 unfiltered, 1 filtered, 2 retrieved, 3 cited
+const reducedMotion = () => window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
 const CELL = 14;
 const GAP = 2;
@@ -26,8 +31,18 @@ function layout(count) {
 
 const CLEARANCE = ["public", "internal", "confidential", "restricted"];
 
-export default function WaferMap({ docs, retrieved = [], cited = [], focusId, onFocus }) {
+export default function WaferMap({ docs, retrieved = [], cited = [], focusId, onFocus, runKey }) {
   const t = useT();
+  const [phase, setPhase] = useState(3);
+  useEffect(() => {
+    if (!runKey || reducedMotion()) {
+      setPhase(3);
+      return undefined;
+    }
+    setPhase(0);
+    const timers = PHASE_AT.slice(1).map((ms, i) => setTimeout(() => setPhase(i + 1), ms));
+    return () => timers.forEach(clearTimeout);
+  }, [runKey]);
   const { n, cells } = useMemo(() => layout(docs.length || 192), [docs.length]);
   const [hover, setHover] = useState(null);
   const size = n * (CELL + GAP) + GAP;
@@ -41,6 +56,7 @@ export default function WaferMap({ docs, retrieved = [], cited = [], focusId, on
     <div className="wafer">
       <div className="wafer-stage">
         <svg
+          className={phase < 3 ? "wafer-animating" : ""}
           viewBox={`0 0 ${size} ${size + 10}`}
           role="img"
           aria-label={t("wafer.aria", { total: docs.length, visible: visibleCount, retrieved: retrievedSet.size })}
@@ -62,10 +78,14 @@ export default function WaferMap({ docs, retrieved = [], cited = [], focusId, on
             const y = GAP + c.y * (CELL + GAP);
             if (!doc) return <rect key={i} x={x} y={y} width={CELL} height={CELL} rx="2" className="die die-edge" />;
             const state = !doc.visible
-              ? "locked"
-              : citedSet.has(doc.doc_id)
-                ? "cited"
-                : retrievedSet.has(doc.doc_id)
+              ? phase >= 1
+                ? "locked"
+                : "visible"
+              : citedSet.has(doc.doc_id) && phase >= 2
+                ? phase >= 3
+                  ? "cited"
+                  : "retrieved"
+                : retrievedSet.has(doc.doc_id) && phase >= 2
                   ? "retrieved"
                   : "visible";
             const focus = doc.doc_id && doc.doc_id === focusId;
@@ -77,17 +97,33 @@ export default function WaferMap({ docs, retrieved = [], cited = [], focusId, on
                   width={CELL}
                   height={CELL}
                   rx={doc.doc_type === "incident" ? 5 : 1.5}
-                  className={`die die-${state} ${doc.doc_type === "sop" ? "die-sop" : ""} ${focus ? "die-focus" : ""}`}
-                  style={{ transitionDelay: `${Math.round(c.d * 300)}ms` }}
+                  className={`die die-${state} ${doc.doc_type === "sop" ? "die-sop" : ""} ${focus && phase >= 3 ? "die-focus" : ""}`}
                 />
-                {state === "locked" && (
-                  <rect x={x} y={y} width={CELL} height={CELL} rx="2" fill="url(#hatch)" className="die-hatch" style={{ transitionDelay: `${Math.round(c.d * 300)}ms` }} />
+                {!doc.visible && (
+                  <rect
+                    x={x}
+                    y={y}
+                    width={CELL}
+                    height={CELL}
+                    rx="2"
+                    fill="url(#hatch)"
+                    className={`die-hatch ${phase >= 1 ? "" : "die-hatch-off"}`}
+                  />
                 )}
               </g>
             );
           })}
         </svg>
       </div>
+      {runKey && (
+        <ol className="wafer-phases" aria-hidden="true">
+          {[1, 2, 3].map((p) => (
+            <li key={p} className={phase >= p ? "on" : ""}>
+              {t(`wafer.phase${p}`)}
+            </li>
+          ))}
+        </ol>
+      )}
       <div className="wafer-info" aria-live="polite">
         {shown ? (
           shown.visible ? (

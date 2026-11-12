@@ -472,7 +472,6 @@ textarea {
 }
 .die {
   fill: var(--die-visible);
-  transition: fill 0.3s ease;
   cursor: pointer;
 }
 .die-sop {
@@ -548,20 +547,35 @@ textarea {
   color: var(--slate-3);
 }
 
-/* the wafer is the page's only choreographed animation: re-light on identity change */
+/* the wafer's pre-filter -> retrieval -> citation sequence is the page's only automatic
+   animation; transitions run only while it plays (identity switches change at once) */
 @media (prefers-reduced-motion: no-preference) {
-  .die,
-  .die-hatch {
+  .wafer-animating .die,
+  .wafer-animating .die-hatch {
     transition:
       fill 0.3s ease,
-      opacity 0.3s ease;
+      opacity 0.3s ease,
+      stroke-width 0.3s ease;
   }
 }
-@media (prefers-reduced-motion: reduce) {
-  .die,
-  .die-hatch {
-    transition: none !important;
-  }
+.die,
+.die-hatch {
+  transition: none;
+}
+.die-hatch-off {
+  opacity: 0;
+}
+.wafer-phases {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 2px;
+  font-size: 12px;
+  color: var(--slate-3);
+}
+.wafer-phases li.on {
+  color: var(--wafer-slate);
 }
 
 /* agent timeline */

@@ -410,6 +410,7 @@ function Console({ lang, setLang }) {
                     cited={run?.citations || []}
                     focusId={focusId}
                     onFocus={setFocusId}
+                    runKey={run ? `${runScene}-${refreshKey}` : null}
                   />
                 </details>
                 <details open className="ev-block">
