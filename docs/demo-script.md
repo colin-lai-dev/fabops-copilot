@@ -1,8 +1,11 @@
 # 3 分鐘 Demo 腳本
 
-> 2026-11-11：已依本腳本做成靜態回放網站（https://colin-lai-dev.github.io/fabops-copilot/ ，回答事先以真實系統錄製），
-> 2026-11-11 交接指示 012：網站改為「夜班 MES 主控台」設計，內建 6 步導覽（問 SOP、權限擋下、agent 逐步查詢、人工核准、擋下注入、結果），
-> 與本腳本的分鏡一致；影片由 `web/scripts/record-demo.mjs` 自動錄製（`npm run build:replay` 後 `node scripts/record-demo.mjs video <網址> <輸出資料夾>`）。
+> 2026-11-13（site-v9）：靜態回放網站（https://colin-lai-dev.github.io/fabops-copilot/ ，回答事先以真實系統錄製）改為「一盒六片」：
+> 首屏是一個問題加六片晶圓（六個身分各自看得到的文件與各自的回答），換身分不換題。網站內建 7 步：
+> 問 SOP、權限擋下、六身分並排、Agent 逐步查詢、人工核准、擋下注入、結果。
+> 影片與 GIF 由 `web/scripts/record-demo.mjs` 自動錄製（`npm run build:replay`、`npx vite preview --mode replay` 後
+> `node scripts/record-demo.mjs video|gif <網址> <輸出>`）；它走的就是這 7 步。舊版設計保留在 `/v8/`。
+> 下方分鏡表是接真實後端現場操作時的腳本（問題與預期輸出不變）；release `demo-v1` 的影片是舊版畫面。
 
 依企劃 v3 的分鏡。全部為合成資料（虛構 Fab-X）。影片怎麼錄由 Colin 決定；以下每段的問題都已在 2026-11-11 用 Haiku 5.5 實際跑過，
 「預期看到」是當時的實際輸出（模型回答的措辭每次可能略有不同）。

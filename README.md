@@ -3,14 +3,16 @@
 [![ci](https://github.com/colin-lai-dev/fabops-copilot/actions/workflows/ci.yml/badge.svg)](https://github.com/colin-lai-dev/fabops-copilot/actions/workflows/ci.yml)
 
 **▶ Live demo (recorded replay): https://colin-lai-dev.github.io/fabops-copilot/** — a static site that
-replays answers recorded from the real system (no backend, synthetic data only). Seven guided steps (pick
-any of them on the left) show a permission wafer map (192 documents; switch identity and watch what you may
-see), every recorded question answered by all six identities side by side, cited passages, the agent's tool
-calls step by step, a real approval flow with an audit log, and an injection next to its no-filter control.
-Light / dark theme, Chinese / English interface, deep links such as `#step=approval`.
+replays answers recorded from the real system (no backend, synthetic data only). The first screen is one
+question and six wafers, one per identity: each wafer is the 192 documents that identity may see, and each
+gets its own recorded answer, so the same question visibly ends in six different results. Picking a wafer
+keeps the question and switches identity. Seven steps walk through cited passages, the agent's run as one
+thread of read-only tool calls ending in a proposal, a real approval flow with an audit log, an injection
+next to its no-filter control, and the results. Light / dark, Chinese / English, deep links such as
+`#step=approval`. The previous design is kept at [/v8/](https://colin-lai-dev.github.io/fabops-copilot/v8/).
 3-minute video: [release `demo-v1`](https://github.com/colin-lai-dev/fabops-copilot/releases/tag/demo-v1).
 
-![28-second demo: clearance badges, the wafer map filtering by permission before retrieval, a cited SOP passage opened in a drawer, an operator refused, the same question answered by six identities side by side, agent steps, and one proposal refused for its requester, not listed for an FX1 lead and approved by the administrator, then the injection control](docs/assets/demo.gif)
+![30-second demo: one question and six wafers light up differently for six identities, a cited SOP passage opens in a drawer, the operator sees 1 of 192 documents, six answers side by side under their wafers, the agent's run as one thread ending in a proposal, the proposal refused for its requester, not listed for an FX1 lead and approved by the administrator with the audit log, the injection next to its control, and the headline results](docs/assets/demo.gif)
 
 **An AI assistant for semiconductor fab anomaly handling that never shows an engineer a document
 they are not cleared to see** — permission-aware RAG over SOPs and past incident reports, plus a
