@@ -6,6 +6,9 @@
 
 ## 2026-11-12
 
+- **交接指示 022：設計實驗（design-lab，未合併 main）**（Claude Code）：tag `site-v8-final`；pages.yml 改為 main 建正式站、`design-lab` 建到 `/lab/`（design-lab push 以 relay 觸發，未改 repo 設定）。
+  Lab 採「一盒六片」：身分卡、權限晶圓圖、六身分並排合成一排六片晶圓，換身分不換題；agent 一條線、結果頁三個標題數字；機密等級改四格刻度、中文改用系統字體（CSS 425→41 KB）。
+  自檢 `web/scripts/review-lab.mjs`（1280／1024／375 × 亮／暗）、`measure-shift.mjs`、`contrast.py` 全過；行動版 Lighthouse 效能 91–99／無障礙 100／最佳實務 100。lab：https://colin-lai-dev.github.io/fabops-copilot/lab/ 。是否採用由 Colin 決定。
 - **交接指示 021：site-v8**（Claude Code）：移除「自由切換身分中」提示；說明卡固定位置（最小高度＋導覽外改顯示目前身分資料），點身分卡／步驟／六身分／引用側欄／面板開合的錨點位移量測於桌機全為 0（`web/scripts/measure-shift.mjs`）；
   全站 hover／press 語言統一（只在可 hover 裝置、140ms、AA）；晶圓圖圖例下空白移除。tag `site-v8`。GIF 未重錄。
 - **交接指示 020：site-v7**（Claude Code）：步驟列改為單行固定列高（英文步驟名縮短、第 3 步改「六身分並排」），中↔EN 位移仍為 0；手機「目前身分」改為色帶內圓點；
