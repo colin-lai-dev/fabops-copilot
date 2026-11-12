@@ -6,6 +6,8 @@
 
 ## 2026-11-12
 
+- **交接指示 021：site-v8**（Claude Code）：移除「自由切換身分中」提示；說明卡固定位置（最小高度＋導覽外改顯示目前身分資料），點身分卡／步驟／六身分／引用側欄／面板開合的錨點位移量測於桌機全為 0（`web/scripts/measure-shift.mjs`）；
+  全站 hover／press 語言統一（只在可 hover 裝置、140ms、AA）；晶圓圖圖例下空白移除。tag `site-v8`。GIF 未重錄。
 - **交接指示 020：site-v7**（Claude Code）：步驟列改為單行固定列高（英文步驟名縮短、第 3 步改「六身分並排」），中↔EN 位移仍為 0；手機「目前身分」改為色帶內圓點；
   依規劃者決定刪除 5 處自我解釋小字、晶圓圖改 die tooltip；空的 Agent 步驟／核准面板收成一行；README GIF 以線上 v7 重錄（結尾可見 audit log）。tag `site-v7`。
 - **交接指示 019：site-v6**（Claude Code）：核准後 audit log 消失的原因是整頁截圖（及跨 760px 的視窗縮放）讓 media query 瞬間翻轉、核准區在兩欄間搬移而重新掛載，狀態改存在 App；自檢加斷言。
