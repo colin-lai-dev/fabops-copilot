@@ -472,7 +472,6 @@ textarea {
 }
 .die {
   fill: var(--die-visible);
-  transition: fill 0.3s ease;
   cursor: pointer;
 }
 .die-sop {
@@ -548,20 +547,35 @@ textarea {
   color: var(--slate-3);
 }
 
-/* the wafer is the page's only choreographed animation: re-light on identity change */
+/* the wafer's pre-filter -> retrieval -> citation sequence is the page's only automatic
+   animation; transitions run only while it plays (identity switches change at once) */
 @media (prefers-reduced-motion: no-preference) {
-  .die,
-  .die-hatch {
+  .wafer-animating .die,
+  .wafer-animating .die-hatch {
     transition:
       fill 0.3s ease,
-      opacity 0.3s ease;
+      opacity 0.3s ease,
+      stroke-width 0.3s ease;
   }
 }
-@media (prefers-reduced-motion: reduce) {
-  .die,
-  .die-hatch {
-    transition: none !important;
-  }
+.die,
+.die-hatch {
+  transition: none;
+}
+.die-hatch-off {
+  opacity: 0;
+}
+.wafer-phases {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 2px;
+  font-size: 12px;
+  color: var(--slate-3);
+}
+.wafer-phases li.on {
+  color: var(--wafer-slate);
 }
 
 /* agent timeline */
@@ -895,4 +909,237 @@ mark.malicious {
   .subtitles {
     font-size: 15px;
   }
+}
+
+/* ------------------------------------------------------------ v2: language, notes */
+.lang-switch {
+  min-width: 64px;
+}
+.zh-note {
+  margin: 2px 0 6px;
+  font-style: italic;
+}
+.proposal-card.blind {
+  border-style: dashed;
+}
+
+/* ------------------------------------------------------------ v2: cited-document drawer */
+.drawer-wrap {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: rgba(31, 42, 58, 0.28);
+  display: flex;
+  justify-content: flex-end;
+}
+.drawer {
+  width: min(520px, 100%);
+  height: 100%;
+  overflow-y: auto;
+  background: var(--panel);
+  border-left: 1px solid var(--line);
+  padding: 16px 20px 32px;
+  box-shadow: -8px 0 24px rgba(31, 42, 58, 0.12);
+}
+.drawer-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 12px;
+  position: sticky;
+  top: -16px;
+  background: var(--panel);
+  padding: 4px 0 8px;
+  border-bottom: 1px solid var(--line-2);
+}
+.drawer-title {
+  margin-top: 12px;
+}
+.drawer-note mark,
+.cite-mark {
+  background: var(--amber-wash);
+  box-shadow: inset 0 -2px 0 var(--litho-amber);
+  color: inherit;
+  padding: 0 1px;
+}
+.drawer-sec p {
+  white-space: pre-wrap;
+  margin: 2px 0 12px;
+  font-size: 14px;
+}
+@media (max-width: 760px) {
+  .drawer-wrap {
+    align-items: flex-end;
+  }
+  .drawer {
+    height: 82vh;
+    border-left: none;
+    border-top: 1px solid var(--line);
+    border-radius: 12px 12px 0 0;
+  }
+}
+.drawer-table {
+  border-collapse: collapse;
+  font-size: 13px;
+  margin: 4px 0 8px;
+}
+.drawer-table th,
+.drawer-table td {
+  border: 1px solid var(--line);
+  padding: 2px 8px;
+  text-align: left;
+}
+.drawer-table th {
+  background: var(--cleanroom);
+  font-weight: 500;
+}
+
+/* ------------------------------------------------------------ v2: six identities */
+.six-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 8px;
+}
+.six-col {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  background: var(--panel);
+  border-top: 4px solid var(--line);
+}
+.six-answered {
+  border-top-color: var(--pass-green);
+}
+.six-refused {
+  border-top-color: var(--hold-red);
+  background: #fcfbfb;
+}
+.six-head {
+  display: grid;
+  gap: 1px;
+}
+.six-head b {
+  font-size: 14px;
+}
+.six-vis {
+  display: grid;
+  gap: 2px;
+  font-size: 12px;
+}
+.six-bar {
+  height: 6px;
+  background: var(--die-locked);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.six-bar i {
+  display: block;
+  height: 100%;
+  background: var(--die-sop);
+}
+.six-target.ok b {
+  color: var(--pass-green);
+}
+.six-target.no b {
+  color: var(--hold-red);
+}
+.six-verdict {
+  font-weight: 600;
+  font-size: 13px;
+  padding: 1px 8px;
+  border-radius: 3px;
+  align-self: start;
+}
+.six-verdict.good {
+  background: var(--green-wash);
+  color: #1d6b4a;
+}
+.six-verdict.bad {
+  background: var(--red-wash);
+  color: var(--hold-red);
+}
+.six-why {
+  margin: 0;
+  font-size: 12px;
+}
+.six-answer {
+  font-size: 13px;
+  line-height: 1.55;
+  margin: 0;
+  flex: 1;
+}
+.six-refused .six-answer {
+  color: var(--slate-3);
+}
+.six-cites {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+  font-size: 12px;
+}
+.six-cites .chip {
+  font-size: 11px;
+  word-break: break-all;
+}
+.six-scroll-hint {
+  display: none;
+}
+.six-close {
+  margin-left: auto;
+}
+@media (max-width: 1180px) {
+  .six-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 760px) {
+  .six-grid {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding-bottom: 6px;
+  }
+  .six-col {
+    flex: 0 0 78%;
+    scroll-snap-align: start;
+  }
+  .six-scroll-hint {
+    display: block;
+  }
+}
+.main,
+.six {
+  min-width: 0;
+}
+.six-grid {
+  max-width: 100%;
+}
+
+/* ------------------------------------------------------------ v2: agent answer layout */
+.agent-answer .answer-text {
+  margin-top: 2px;
+}
+.pending-action {
+  border: 1px solid var(--nitride-violet);
+  background: var(--violet-wash);
+  border-radius: 6px;
+  padding: 8px 10px;
+  margin: 8px 0;
+}
+.pending-action .state {
+  margin-left: 8px;
+}
+.answer-notes {
+  margin: 6px 0;
+}
+.answer-notes summary {
+  cursor: pointer;
+  color: var(--slate-2);
+  font-size: 13px;
 }

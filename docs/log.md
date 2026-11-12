@@ -6,6 +6,11 @@
 
 ## 2026-11-12
 
+- **交接指示 015：demo 網站 v2 上線**（Claude Code）：補錄三個身分的情境、六身分並排、晶圓圖「過濾→檢索→引用」動畫、點引用開文件側欄（新 API `GET /api/docs/{doc_id}` 依權限過濾）、
+  中英切換、深連結（`#step=`／`#scene=…&as=…`／`#six=`／`#lang=en`）、agent 回答先列結論與待核准動作。Haiku 錄製 US$0.025。
+  注入情境重錄被 512 token 截斷 → 沿用 site-v1 錄製；admin 寬範圍檢索弱點照實呈現（兩項記入 `open-questions.md`）。交班摘要從 PLAN 標為不做。
+- **網站版本與還原**：每次網站改版打 tag `site-vN`（`site-v1` = 改版前、`site-v2` = 本次）。回到任一版：`git revert` 該版之後的網站 commit，
+  或 `git checkout site-v1 -- web/` 後 commit（push 到 main 即重新部署 Pages）。不改寫歷史、不 force push。v2 每個子項是獨立 commit，可單獨 revert。
 - **Phase 4 gate 驗證**（Claude Code）：沒有待執行的交接指示，改從 PLAN 接續。從 GitHub 乾淨 clone，照 README（Windows 指令、port 改 5434）跑到 `eval-dev`，
   累計 8 分 55 秒（下載都已快取）；dev 數字與既有 qwen3 紀錄完全一致。README 補上首次下載量（約 10 GB）。待 Colin 決定 gate 是否通過，見 `docs/gates/phase-4.md`。
 

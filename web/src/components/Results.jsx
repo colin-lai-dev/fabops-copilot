@@ -1,26 +1,32 @@
 import React, { useState } from "react";
+import { useT } from "../i18n.js";
 
 // Interactive bar charts of the final gate numbers. Every bar shows its value, n and the
 // baseline; hovering or focusing a bar shows the full detail.
 
 const COLORS = ["#8A94A6", "#5B5BD6", "#2F9E6E"];
 
-function fmt(chart, row, i) {
+function fmt(chart, row, i, lang) {
+  if (lang === "en" && row.display_en) return row.display_en[i];
   if (row.display) return row.display[i];
   return chart.unit === "ratio" ? row.values[i].toFixed(3) : `${row.values[i]}/${row.n}`;
 }
 
 function Chart({ chart }) {
+  const t = useT();
+  const series = t.pick(chart, "series");
+  const label = (row) => t.pick(row, "label");
+  const f = (row, i) => fmt(chart, row, i, t.lang);
   const [active, setActive] = useState(null);
   const max = chart.unit === "ratio" ? 1 : Math.max(...chart.rows.map((r) => r.n));
   return (
     <figure className="chart">
       <figcaption>
-        <b>{chart.title}</b>
-        <span className="fine">{chart.note}</span>
+        <b>{t.pick(chart, "title")}</b>
+        <span className="fine">{t.pick(chart, "note")}</span>
       </figcaption>
       <ul className="chart-legend">
-        {chart.series.map((s, i) => (
+        {series.map((s, i) => (
           <li key={s}>
             <i style={{ background: chart.lower_is_better && i === 1 ? "#2F9E6E" : COLORS[i] }} />
             {s}
@@ -30,14 +36,14 @@ function Chart({ chart }) {
       {chart.rows.map((row) => (
         <div key={row.label} className="chart-row">
           <div className="chart-label">
-            {row.label} <span className="fine">n={row.n}</span>
+            {label(row)} <span className="fine">n={row.n}</span>
           </div>
           <div className="bars">
             {row.values.map((v, i) => {
               const denom = chart.unit === "ratio" ? 1 : row.n;
               const pct = Math.max((v / denom) * 100, v === 0 ? 0 : 1.5);
               const id = `${row.label}-${i}`;
-              const base = chart.series[0];
+              const base = series[0];
               const color = chart.lower_is_better
                 ? i === 0 ? "#C2413B" : "#2F9E6E"
                 : COLORS[i];
@@ -50,14 +56,14 @@ function Chart({ chart }) {
                   onMouseLeave={() => setActive(null)}
                   onFocus={() => setActive(id)}
                   onBlur={() => setActive(null)}
-                  aria-label={`${row.label}，${chart.series[i]}：${fmt(chart, row, i)}（n=${row.n}；baseline ${base} ${fmt(chart, row, 0)}）`}
+                  aria-label={`${label(row)}: ${series[i]} ${f(row, i)} (n=${row.n}; baseline ${base} ${f(row, 0)})`}
                 >
                   <span className="bar" style={{ width: `${pct}%`, background: color }} />
-                  <span className="bar-val">{fmt(chart, row, i)}</span>
+                  <span className="bar-val">{f(row, i)}</span>
                   {active === id && (
                     <span className="bar-tip" role="tooltip">
-                      {chart.series[i]}：{fmt(chart, row, i)} · n={row.n}
-                      {i > 0 ? ` · baseline（${base}）${fmt(chart, row, 0)}` : " · 這是 baseline"}
+                      {series[i]}: {f(row, i)} · n={row.n}
+                      {i > 0 ? ` · baseline (${base}) ${f(row, 0)}` : t("res.baseline")}
                     </span>
                   )}
                 </div>
@@ -66,17 +72,18 @@ function Chart({ chart }) {
           </div>
         </div>
       ))}
-      {chart.extra && <p className="fine">{chart.extra}</p>}
+      {chart.extra && <p className="fine">{t.pick(chart, "extra")}</p>}
       <span hidden>{max}</span>
     </figure>
   );
 }
 
 export default function Results({ results }) {
-  if (!results) return <p className="fine">載入中…</p>;
+  const t = useT();
+  if (!results) return <p className="fine">{t("res.loading")}</p>;
   return (
-    <section className="results" aria-label="評估結果">
-      <p className="fine">{results.source}</p>
+    <section className="results" aria-label={t("res.label")}>
+      <p className="fine">{t.pick(results, "source")}</p>
       <div className="charts">
         {results.charts.map((c) => (
           <Chart key={c.id} chart={c} />

@@ -163,6 +163,7 @@ def build_app(prebuilt: State | None = None) -> FastAPI:
         return user_id
 
     app = FastAPI(title="FabOps Copilot (synthetic data)", lifespan=lifespan)
+    app.state.fabops = st  # tests swap components (e.g. `connect`) here
 
     @app.get("/api/users")
     def users() -> list[dict[str, Any]]:
@@ -222,6 +223,27 @@ def build_app(prebuilt: State | None = None) -> FastAPI:
             else:
                 out.append({"visible": False, "doc_type": None})
         return out
+
+    @app.get("/api/docs/{doc_id}")
+    def doc_text(doc_id: str, user_id: str = Depends(current_user)) -> dict[str, Any]:
+        """One document's sections, for opening a citation.
+
+        Only a document this user may see is returned; anything else (unknown or locked) is the
+        same 404, so the response never confirms that a locked document exists.
+        """
+        scope = scope_of(user_id)
+        assert scope is not None
+        meta = next((d for d in st.doc_meta if d["doc_id"] == doc_id), None)
+        if meta is None or not visible(scope, meta):
+            raise HTTPException(404, "not found")
+        with st.connect() as conn, conn.cursor() as cur:
+            cur.execute("SELECT title FROM documents WHERE doc_id = %s", (doc_id,))
+            row = cur.fetchone()
+            cur.execute(
+                "SELECT section, text FROM chunks WHERE doc_id = %s ORDER BY seq", (doc_id,)
+            )
+            sections = [{"section": s, "text": t} for s, t in cur]
+        return {**meta, "title": row[0] if row else doc_id, "sections": sections}
 
     @app.get("/api/proposals")
     def pending(user_id: str = Depends(current_user)) -> list[dict[str, Any]]:

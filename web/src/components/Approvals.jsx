@@ -1,36 +1,34 @@
 import React, { useEffect, useState } from "react";
+import { useT } from "../i18n.js";
 
-const ACTION_LABEL = { hold_lot: "hold 批號", inhibit_chamber: "暫停腔體派貨", request_pm: "開立保養工單" };
-const EVENT_LABEL = {
-  proposed: "提出",
-  denied: "拒絕",
-  approved: "核准",
-  rejected: "駁回",
-  executed: "執行（模擬）",
-};
-const WHY = {
-  "the requester cannot decide their own proposal": "提出者不能決定自己的提案",
-  "approver clearance below confidential": "核准者等級需 ≥ confidential",
-  "approver cannot see the target": "核准者看不到這個目標",
-};
 
-export default function Approvals({ api, me, refreshKey }) {
+export default function Approvals({ api, me, refreshKey, onDecided }) {
+  const t = useT();
+  const why = (r) => t(`why.${r}`);
+  const [blind, setBlind] = useState([]);
   const [items, setItems] = useState([]);
   const [audit, setAudit] = useState(null);
   const [msg, setMsg] = useState(null);
 
-  const load = () => api.pending().then(setItems).catch(() => setItems([]));
+  const load = () => {
+    api.pending().then(setItems).catch(() => setItems([]));
+    Promise.resolve(api.blindAttempts?.() ?? []).then(setBlind);
+  };
   useEffect(() => {
     setMsg(null);
     load();
   }, [me?.user_id, refreshKey]);
+  // An audit log belongs to the identity that fetched it: never carry it over to another one
+  // (the API answers 404 to someone who cannot see the target).
+  useEffect(() => setAudit(null), [me?.user_id]);
 
   async function decide(p, approved) {
     try {
       const run = await api.decide(p.proposal_id, approved);
-      setMsg({ ok: true, text: `${approved ? "已核准" : "已駁回"}，狀態：${run.status}` });
+      onDecided?.(run);
+      setMsg({ ok: true, text: t(approved ? "ap.approved" : "ap.rejected", { s: run.status }) });
     } catch (e) {
-      setMsg({ ok: false, text: `被拒絕：${WHY[e.message] || e.message}` });
+      setMsg({ ok: false, text: t("ap.denied", { why: why(e.message) }) });
     }
     setAudit({ id: p.proposal_id, rows: await api.audit(p.proposal_id) });
     load();
@@ -38,20 +36,29 @@ export default function Approvals({ api, me, refreshKey }) {
 
   return (
     <div className="approvals">
-      <p className="fine">規則：不能決定自己的提案；核准者等級需 ≥ confidential；必須看得到目標。執行為模擬，只寫入 audit log。</p>
-      {items.length === 0 && <p className="fine">目前身分沒有看得到的待核准建議。</p>}
+      <p className="fine">{t("ap.rules")}</p>
+      {items.length === 0 && <p className="fine">{t("ap.none")}</p>}
+      {items.length === 0 &&
+        blind.map((b) => (
+          <div key={b.proposal_id} className="proposal-card blind">
+            <p className="fine">{t("ap.blind", { name: t.user(me) })}</p>
+            <p className="msg-bad">
+              HTTP {b.status_code} · <span className="code">{b.proposal_id}</span> · {why(b.detail)}
+            </p>
+          </div>
+        ))}
       {items.map((p) => (
         <div key={p.proposal_id} className="proposal-card">
           <div>
-            <b>{ACTION_LABEL[p.action]}</b> <span className="code">{p.target_id}</span>
+            <b>{t(`action.${p.action}`)}</b> <span className="code">{p.target_id}</span>
           </div>
-          <div className="fine">提出者 {p.requester} · 提案 {p.proposal_id}</div>
+          <div className="fine">{t("ap.by", { who: p.requester, id: p.proposal_id })}</div>
           <div className="row">
             <button type="button" className="approve" onClick={() => decide(p, true)}>
-              核准
+              {t("ap.approve")}
             </button>
             <button type="button" className="quiet" onClick={() => decide(p, false)}>
-              駁回
+              {t("ap.reject")}
             </button>
           </div>
         </div>
@@ -64,9 +71,9 @@ export default function Approvals({ api, me, refreshKey }) {
             {audit.rows.map((a, i) => (
               <li key={i} className={`ev ev-${a.event}`}>
                 <span className="code">{a.ts.slice(11, 19)}</span>
-                <span className="ev-name">{EVENT_LABEL[a.event] || a.event}</span>
+                <span className="ev-name">{t(`ev.${a.event}`)}</span>
                 <span className="code">{a.actor}</span>
-                {a.detail?.reason && <span className="fine">{WHY[a.detail.reason] || a.detail.reason}</span>}
+                {a.detail?.reason && <span className="fine">{why(a.detail.reason)}</span>}
               </li>
             ))}
           </ol>

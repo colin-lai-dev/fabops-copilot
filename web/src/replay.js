@@ -7,6 +7,7 @@ let data = null;
 let me = null;
 let askedTriage = false;
 let lastDecision = null; // index into the triage scene's decision steps
+let lastScene = null; // the scene whose answer is on screen
 
 async function load() {
   if (!data) data = await (await fetch(`${import.meta.env.BASE_URL}replay/scenes.json`)).json();
@@ -32,10 +33,37 @@ export const replay = {
     );
   },
   scenes: async () => (await load()).scenes,
+  // "One question, six identities": the recorded group, one column per demo user.
+  sixWay: async (groupId) => {
+    const d = await load();
+    const g = d.groups?.find((x) => x.id === groupId);
+    if (!g) return { columns: [] };
+    const idx = d.docs.findIndex((doc) => doc.doc_id === g.target_doc);
+    const columns = d.users.map((user) => {
+      const s = d.scenes.find((x) => g.scenes.includes(x.id) && x.user === user.user_id);
+      const seen = d.visible_by_user[user.user_id];
+      return {
+        user,
+        run: s?.response,
+        visible: seen.length,
+        total: d.docs.length,
+        targetVisible: g.target_doc ? seen.includes(idx) : null,
+      };
+    });
+    return { question: g.question, title: g.title_zh, title_en: g.title_en, target: g.target_doc, columns };
+  },
+  // A cited document as the asker saw it at recording time (fetched with their token from the
+  // permission-checked API). Anything else, including every locked document, is "not found".
+  doc: async (docId) => {
+    if (!lastScene) return null;
+    if (lastScene.user !== me?.user_id) throw new Error("not-recorded"); // asked by someone else
+    return lastScene.cited_docs?.[docId] ?? null;
+  },
   ask: async ({ sceneId }) => {
     const s = (await load()).scenes.find((x) => x.id === sceneId);
     if (!s || s.user !== me?.user_id) throw new Error("這個問題不是由目前身分錄製的");
     if (s.approval_steps?.length) askedTriage = true;
+    lastScene = s;
     return s.response;
   },
   pending: async () => {
@@ -51,6 +79,17 @@ export const replay = {
     const d = decisions()[i];
     if (d.status_code !== 200) throw new Error(d.detail);
     return d.run;
+  },
+  // Recorded direct API calls by an identity the proposal is not even listed for (it cannot
+  // see the target): shown as what happened, there is nothing to click.
+  blindAttempts: async () => {
+    const s = triage();
+    if (!s || !me || !askedTriage) return [];
+    const listed = s.approval_steps.find((x) => x.kind === "pending").by_user[me.user_id] ?? [];
+    if (listed.length) return [];
+    return decisions()
+      .filter((d) => d.user === me.user_id && d.status_code !== 200)
+      .map((d) => ({ ...d, proposal_id: s.response.proposal.proposal_id }));
   },
   audit: async () => (lastDecision === null ? [] : decisions()[lastDecision].audit),
   results: async () => (await fetch(`${import.meta.env.BASE_URL}replay/results.json`)).json(),

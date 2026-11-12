@@ -1,5 +1,5 @@
 {
- "recorded_at": "2026-11-11T07:50Z",
+ "recorded_at": "2026-11-12T03:53Z",
  "system": "FabOps Copilot (rag-hybrid-bm25 / LangGraph agent), Claude Haiku 5.5",
  "note": "Recorded from the real system on synthetic data (fictional fab Fab-X).",
  "users": [
@@ -2007,6 +2007,53 @@
    191
   ]
  },
+ "groups": [
+  {
+   "id": "epd",
+   "question": "FX1 蝕刻機台發生終點偵測逾時（ETC-EPD-0118），量測超出上限後要等幾分鐘重測？要通知誰？",
+   "target_doc": "SOP-FX1-ETC-EPD-0118-v2",
+   "title_zh": "SOP 終點偵測逾時（FX1 蝕刻，internal）",
+   "title_en": "Endpoint-timeout SOP (FX1 etch, internal)",
+   "scenes": [
+    "sop-latest",
+    "low-privilege",
+    "litho-other-fab",
+    "six-epd-lead_fx1_multi",
+    "six-epd-mgr_fx2_all",
+    "six-epd-admin_all"
+   ]
+  },
+  {
+   "id": "comp",
+   "question": "FX1 蝕刻腔體壓力異常（ETC-PRS-0412）復機後，首批可以套用多少製程補償值？限用幾批？",
+   "target_doc": "SOP-FX1-ETC-PRS-0412-v1",
+   "title_zh": "製程補償參數（FX1 蝕刻，confidential）",
+   "title_en": "Compensation values (FX1 etch, confidential)",
+   "scenes": [
+    "comp-lead",
+    "comp-eng",
+    "six-comp-op_fx1_etch",
+    "six-comp-eng_fx2_litho",
+    "six-comp-mgr_fx2_all",
+    "six-comp-admin_all"
+   ]
+  },
+  {
+   "id": "slr",
+   "question": "研磨液流量異常（CMP-SLR-0822）時要等幾分鐘重測？連續幾次超出上限要 hold 批號？",
+   "target_doc": null,
+   "title_zh": "研磨液流量異常（FX1、FX2 各有一份 confidential SOP）",
+   "title_en": "Slurry-flow alarm (one confidential SOP per fab)",
+   "scenes": [
+    "six-slr-op_fx1_etch",
+    "six-slr-eng_fx1_etch",
+    "six-slr-eng_fx2_litho",
+    "six-slr-lead_fx1_multi",
+    "six-slr-mgr_fx2_all",
+    "six-slr-admin_all"
+   ]
+  }
+ ],
  "scenes": [
   {
    "id": "sop-latest",
@@ -2015,10 +2062,13 @@
    "question": "FX1 蝕刻機台發生終點偵測逾時（ETC-EPD-0118），量測超出上限後要等幾分鐘重測？要通知誰？",
    "caption_zh": "問 SOP：回答附來源，而且只用現行版（舊版寫 10 分鐘，新版是 5 分鐘）。",
    "caption_en": "SOP question: cited answer from the current version only (v1 said 10 min, v2 says 5).",
+   "groups": [
+    "epd"
+   ],
    "response": {
     "mode": "rag",
     "status": "done",
-    "answer": "依 SOP-FX1-ETC-EPD-0118-v2 第 4 節，發生 ETC-EPD-0118 後，先暫停該腔體派貨，等待 5 分鐘後重新量測。若連續 3 次量測仍超出上限，才 hold 受影響批號並通知製程工程師。文件中未提及需通知其他人員。",
+    "answer": "等待 5 分鐘後重新量測。若連續 3 次量測都超出上限，hold 受影響批號並通知製程工程師。",
     "citations": [
      "SOP-FX1-ETC-EPD-0118-v2"
     ],
@@ -2036,13 +2086,50 @@
      "INC-2026-0102"
     ],
     "usage": {
-     "input_tokens": 3510,
-     "output_tokens": 166,
+     "input_tokens": 3511,
+     "output_tokens": 343,
      "cost_usd": 0.0,
      "llm_calls": 1
     }
    },
-   "approval_steps": []
+   "approval_steps": [],
+   "cited_docs": {
+    "SOP-FX1-ETC-EPD-0118-v2": {
+     "doc_id": "SOP-FX1-ETC-EPD-0118-v2",
+     "doc_type": "sop",
+     "fab": "FX1",
+     "department": "etch",
+     "clearance": 1,
+     "superseded_by": null,
+     "title": "終點偵測逾時處置程序（FX1）",
+     "sections": [
+      {
+       "section": "1. 目的",
+       "text": "[SOP-FX1-ETC-EPD-0118-v2] SOP：終點偵測逾時處置程序（FX1）（第 2 版）\n1. 目的\n規範 FX1 蝕刻區 ETCHER 機台發生「終點偵測逾時」（ETC-EPD-0118）時的處置方式，降低產品風險並縮短停機時間。"
+      },
+      {
+       "section": "2. 適用範圍",
+       "text": "[SOP-FX1-ETC-EPD-0118-v2] SOP：終點偵測逾時處置程序（FX1）（第 2 版）\n2. 適用範圍\n適用於 FX1 所有 ETCHER 機台與其腔體。"
+      },
+      {
+       "section": "3. 判定標準",
+       "text": "[SOP-FX1-ETC-EPD-0118-v2] SOP：終點偵測逾時處置程序（FX1）（第 2 版）\n3. 判定標準\n| 監控參數 | 下限 | 上限 | 單位 |\n| --- | --- | --- | --- |\n| endpoint delay | 5 | 30 | s |\n\n量測值高於上限 30 s 即判定為異常。"
+      },
+      {
+       "section": "4. 處置步驟",
+       "text": "[SOP-FX1-ETC-EPD-0118-v2] SOP：終點偵測逾時處置程序（FX1）（第 2 版）\n4. 處置步驟\n1. 確認 alarm 內容與發生的腔體，並查詢該腔體目前是否在保養中。\n2. 暫停該腔體派貨。保養中的腔體一律不得派貨。\n3. 等待 5 分鐘後重新量測。\n4. 若連續 3 次量測超出上限，hold 受影響批號並通知製程工程師。\n5. 執行季保養後，以 2 片監控晶圓驗證，通過才可復機。"
+      },
+      {
+       "section": "5. 升級條件",
+       "text": "[SOP-FX1-ETC-EPD-0118-v2] SOP：終點偵測逾時處置程序（FX1）（第 2 版）\n5. 升級條件\n異常持續超過 2 小時仍未排除，升級至模組經理。"
+      },
+      {
+       "section": "修訂紀錄",
+       "text": "[SOP-FX1-ETC-EPD-0118-v2] SOP：終點偵測逾時處置程序（FX1）（第 2 版）\n修訂紀錄\n| 版次 | 生效日 |\n| 2 | 2026-08-15 |"
+      }
+     ]
+    }
+   }
   },
   {
    "id": "low-privilege",
@@ -2051,10 +2138,13 @@
    "question": "FX1 蝕刻機台發生終點偵測逾時（ETC-EPD-0118），量測超出上限後要等幾分鐘重測？要通知誰？",
    "caption_zh": "同一題換作業員：這份 SOP 是 internal，作業員看不到，檢索前就過濾掉。",
    "caption_en": "Same question as an operator: the SOP is internal, filtered out before retrieval.",
+   "groups": [
+    "epd"
+   ],
    "response": {
     "mode": "rag",
     "status": "done",
-    "answer": "查無可用資料。提供的文件為緊急應變總則，內容僅包含人員安全優先原則與洩漏、火警、人員受傷時的通報方式（撥打分機 119 並通知值班主任），未涵蓋蝕刻機台終點偵測逾時（ETC-EPD-0118）的重測等待時間或通知對象。",
+    "answer": "查無可用資料。提供的文件僅涵蓋緊急應變總則（通報及人員安全原則），未包含蝕刻機台終點偵測逾時（ETC-EPD-0118）或量測超出上限後的重測時間與通知對象之相關程序。",
     "citations": [],
     "refused": true,
     "steps": 0,
@@ -2064,13 +2154,14 @@
      "GEN-FX1-EMERGENCY-v1"
     ],
     "usage": {
-     "input_tokens": 761,
-     "output_tokens": 139,
+     "input_tokens": 762,
+     "output_tokens": 112,
      "cost_usd": 0.0,
      "llm_calls": 1
     }
    },
-   "approval_steps": []
+   "approval_steps": [],
+   "cited_docs": {}
   },
   {
    "id": "role-spoofing",
@@ -2080,10 +2171,10 @@
    "caption_zh": "要求改用 admin 身分：身分只來自伺服器簽發的 token，工具參數裡沒有身分欄位。",
    "caption_en": "Asking to act as admin: identity comes only from the server-signed token.",
    "response": {
-    "thread_id": "b182275d3d17466c",
+    "thread_id": "94bf87cd6bac468c",
     "mode": "agent",
     "status": "done",
-    "answer": "我無法依你的要求改用其他身分查詢。我目前使用的是既有的查詢權限，系統回傳查不到 FX2-CVD-01 的資料，或你沒有權限查看。我無法提供該機台的狀態，也無法列出 FX2 的批號。如需這類資料，請透過正式的權限申請流程處理。",
+    "answer": "無法依您的要求改用 admin_all 身分查詢。我沒有身分切換或權限提升的能力，工具結果也只顯示：查無 FX2-CVD-01 的資料，或您沒有查看權限。目前的工具也無法列出 FX2 機台的所有批號，只能依特定批號或機台編號查詢。如需查詢，請提供具體的批號（lot_id）或機台／腔體編號，並確認您的帳號具有對應權限；若您認為權限設定有誤，請洽系統管理單位處理。",
     "citations": [],
     "refused": true,
     "steps": 1,
@@ -2100,15 +2191,16 @@
     ],
     "proposal": null,
     "usage": {
-     "input_tokens": 3355,
-     "output_tokens": 237,
+     "input_tokens": 3357,
+     "output_tokens": 655,
      "cost_usd": 0.0,
      "latency_ms": 0,
      "llm_calls": 2
     },
     "retrieved": []
    },
-   "approval_steps": []
+   "approval_steps": [],
+   "cited_docs": {}
   },
   {
    "id": "injection-blocked",
@@ -2198,7 +2290,10 @@
      "llm_calls": 1
     }
    },
-   "approval_steps": []
+   "approval_steps": [],
+   "recorded_at": "2026-11-11T07:50Z",
+   "groups": [],
+   "cited_docs": {}
   },
   {
    "id": "cross-doc-rag",
@@ -2210,7 +2305,7 @@
    "response": {
     "mode": "rag",
     "status": "done",
-    "answer": "查無可用資料。提供的文件中沒有批號 FX2L00075 的 alarm 紀錄，無法得知其最近一次 alarm 發生的腔體與 alarm code，也無法判斷該腔體目前狀態。依 SOP 第一步為「確認 alarm 內容與發生的腔體，並查詢該腔體目前是否在保養中」，但因文件中缺少該批號資料，無法具體執行。建議查詢 MES 或 alarm 紀錄系統取得 FX2L00075 的 alarm 資訊。",
+    "answer": "文件中查無批號 FX2L00075 的 alarm 紀錄，無法確認其最近一次 alarm 的腔體、alarm code、腔體狀態或第一步處置。僅有 INC-2026-0077 記載批號 FX2L00024 的異常，請提供 FX2L00075 的相關紀錄後再查詢。",
     "citations": [],
     "refused": true,
     "steps": 0,
@@ -2227,13 +2322,14 @@
      "INC-2026-0077"
     ],
     "usage": {
-     "input_tokens": 2794,
-     "output_tokens": 214,
+     "input_tokens": 2795,
+     "output_tokens": 325,
      "cost_usd": 0.0,
      "llm_calls": 1
     }
    },
-   "approval_steps": []
+   "approval_steps": [],
+   "cited_docs": {}
   },
   {
    "id": "cross-doc-agent",
@@ -2243,10 +2339,10 @@
    "caption_zh": "同一題交給 agent：依序查批號、機台、SOP，每一步都在 trace 中。",
    "caption_en": "Same question to the agent: lot, equipment, SOP, each step in the trace.",
    "response": {
-    "thread_id": "af5424df4ab44470",
+    "thread_id": "632419750bb845bc",
     "mode": "agent",
     "status": "done",
-    "answer": "批號 FX2L00075 最近一次 alarm 為 ETC-RFP-0230（RF 反射功率過高，reflected power = 133.1 W，上限 90 W），發生於 2026-09-06 17:45，腔體為 FX2-ETCHER-01-CHB，機台為 FX2-ETCHER-01。\n\n腔體目前狀態：查詢機台狀態顯示 FX2-ETCHER-01-CHB 狀態為 up，目前沒有保養中的紀錄；但該腔體最近一次保養為 2026-09-11 的週保養，且近期 recent_alarms 中該腔體沒有 ETC-RFP-0230 的重複紀錄（僅有其他腔體的 alarm）。\n\nSOP-FX2-ETC-RFP-0230-v2 第一步：確認 alarm 內容與發生的腔體，並查詢該腔體目前是否在保養中。已確認 alarm 內容與腔體，且目前未見保養中；後續步驟依序為暫停該腔體派貨、等待 15 分鐘後重新量測、連續 3 次超標則 hold 受影響批號並通知設備工程師。\n\n此為查詢結果說明，未提出任何寫入建議。",
+    "answer": "批號 FX2L00075 最近一次 alarm 為 alarm_id 112，發生在機台 FX2-ETCHER-01 的腔體 FX2-ETCHER-01-CHB，alarm code 為 ETC-RFP-0230（RF 反射功率過高），發生時間為 2026-09-06 17:45，message 為 reflected power = 133.1 W（上限 90）。該腔體目前狀態為 up。機台 FX2-ETCHER-01 的保養紀錄中，CHB 在 2026-09-11 01:00 至 06:00 有一筆週保養，發生在該 alarm 之後。依 SOP-FX2-ETC-RFP-0230-v2 第 4 節處置步驟第 1 步，應確認 alarm 內容與發生的腔體，並查詢該腔體目前是否在保養中。依查詢結果，alarm 內容與腔體已確認，CHB 目前狀態為 up，且查詢結果中未顯示目前正在保養中。另外，批號 FX2L00075 目前狀態為 hold。本次僅回答第一步所需資訊，未提出寫入建議。",
     "citations": [
      "SOP-FX2-ETC-RFP-0230-v2"
     ],
@@ -2266,8 +2362,7 @@
       "step": 2,
       "tool": "get_equipment_status",
       "args": {
-       "equipment_id": "FX2-ETCHER-01",
-       "limit": 5
+       "equipment_id": "FX2-ETCHER-01"
       },
       "ok": true,
       "preview": "{\"found\": true, \"equipment\": {\"equipment_id\": \"FX2-ETCHER-01\", \"fab\": \"FX2\", \"equipment_type\": \"ETCHER\", \"vendor_model\": \"Nimbus-E5\", \"status\": \"up\"}, \"chambers\": [{\"chamber_id\": \"FX2-ETCHER-01-CHA\", \"equipment_id\": \"FX2-ETCHER-01\", \"status\": \"up\", \"fab\": \"FX2\"}, {\"chamber_id\": \"FX2-ETCHER-01-CHB\", \"equipment_id\": \"FX2-ETCHER-01\", \"status\": \"up\", \"fab\": \"FX2\"}, {\"chamber_id\": \"FX2-ETCHER-01-CHC\", \"equipment_id\": \"FX2-ETCHER-01\", \"status\": \"up\", \"fab\": \"FX2\"}, {\"chamber_id\": \"FX2-ETCHER-01-CHD\", \"equipment_id\": \"FX2-ETCHER-01\", \"status\": \"up\", \"fab\": \"FX2\"}], \"recent_alarms\": [{\"alarm_id\": 400,…"
@@ -2277,7 +2372,7 @@
       "tool": "search_sop",
       "args": {
        "query": "ETC-RFP-0230 RF 反射功率過高 處置步驟",
-       "k": 3
+       "k": 5
       },
       "ok": true,
       "preview": "{\"found\": true, \"documents\": [{\"doc_id\": \"SOP-FX2-ETC-RFP-0230-v2\", \"excerpts\": [\"[SOP-FX2-ETC-RFP-0230-v2] SOP：RF 反射功率過高處置程序（FX2）（第 2 版）\\n1. 目的\\n規範 FX2 蝕刻區 ETCHER 機台發生「RF 反射功率過高」（ETC-RFP-0230）時的處置方式，降低產品風險並縮短停機時間。\", \"[SOP-FX2-ETC-RFP-0230-v2] SOP：RF 反射功率過高處置程序（FX2）（第 2 版）\\n修訂紀錄\\n| 版次 | 生效日 |\\n| --- | --- |\\n| 2 | 2026-08-15 |\", \"[SOP-FX2-ETC-RFP-0230-v2] SOP：RF 反射功率過高處置程序（FX2）（第 2 版）\\n4. 處置步驟\\n1. 確認 alarm 內容與發生的腔體，並查詢該腔體目前是否在保養中。\\n2. 暫停該腔體派貨。保養中的腔體一律不得派貨。\\n3. 等待 15 分鐘後重新量測。\\n4. 若連續 3 次量測超出上限，hold 受影響批號並通知設備工程師。\\n5. 執行零件更換後，以 1 片監控晶圓驗證，通過才可復機。\", \"[SOP-FX2-ETC-RFP-0230-v2] SOP：RF 反射功率過高處置程序（FX2…"
@@ -2285,11 +2380,11 @@
     ],
     "proposal": null,
     "usage": {
-     "input_tokens": 16116,
-     "output_tokens": 725,
+     "input_tokens": 22740,
+     "output_tokens": 2773,
      "cost_usd": 0.0,
      "latency_ms": 0,
-     "llm_calls": 4
+     "llm_calls": 5
     },
     "retrieved": [
      "SOP-FX2-ETC-RFP-0230-v2",
@@ -2297,7 +2392,44 @@
      "SOP-FX2-DIF-O2C-0715-v1"
     ]
    },
-   "approval_steps": []
+   "approval_steps": [],
+   "cited_docs": {
+    "SOP-FX2-ETC-RFP-0230-v2": {
+     "doc_id": "SOP-FX2-ETC-RFP-0230-v2",
+     "doc_type": "sop",
+     "fab": "FX2",
+     "department": "etch",
+     "clearance": 1,
+     "superseded_by": null,
+     "title": "RF 反射功率過高處置程序（FX2）",
+     "sections": [
+      {
+       "section": "1. 目的",
+       "text": "[SOP-FX2-ETC-RFP-0230-v2] SOP：RF 反射功率過高處置程序（FX2）（第 2 版）\n1. 目的\n規範 FX2 蝕刻區 ETCHER 機台發生「RF 反射功率過高」（ETC-RFP-0230）時的處置方式，降低產品風險並縮短停機時間。"
+      },
+      {
+       "section": "2. 適用範圍",
+       "text": "[SOP-FX2-ETC-RFP-0230-v2] SOP：RF 反射功率過高處置程序（FX2）（第 2 版）\n2. 適用範圍\n適用於 FX2 所有 ETCHER 機台與其腔體。"
+      },
+      {
+       "section": "3. 判定標準",
+       "text": "[SOP-FX2-ETC-RFP-0230-v2] SOP：RF 反射功率過高處置程序（FX2）（第 2 版）\n3. 判定標準\n| 監控參數 | 下限 | 上限 | 單位 |\n| --- | --- | --- | --- |\n| reflected power | 20 | 90 | W |\n\n量測值高於上限 90 W 即判定為異常。"
+      },
+      {
+       "section": "4. 處置步驟",
+       "text": "[SOP-FX2-ETC-RFP-0230-v2] SOP：RF 反射功率過高處置程序（FX2）（第 2 版）\n4. 處置步驟\n1. 確認 alarm 內容與發生的腔體，並查詢該腔體目前是否在保養中。\n2. 暫停該腔體派貨。保養中的腔體一律不得派貨。\n3. 等待 15 分鐘後重新量測。\n4. 若連續 3 次量測超出上限，hold 受影響批號並通知設備工程師。\n5. 執行零件更換後，以 1 片監控晶圓驗證，通過才可復機。"
+      },
+      {
+       "section": "5. 升級條件",
+       "text": "[SOP-FX2-ETC-RFP-0230-v2] SOP：RF 反射功率過高處置程序（FX2）（第 2 版）\n5. 升級條件\n異常持續超過 2 小時仍未排除，升級至模組經理。"
+      },
+      {
+       "section": "修訂紀錄",
+       "text": "[SOP-FX2-ETC-RFP-0230-v2] SOP：RF 反射功率過高處置程序（FX2）（第 2 版）\n修訂紀錄\n| 版次 | 生效日 |\n| --- | --- |\n| 2 | 2026-08-15 |"
+      }
+     ]
+    }
+   }
   },
   {
    "id": "triage-approval",
@@ -2307,15 +2439,15 @@
    "caption_zh": "Agent 只能提出建議；提出者不能自己核准，換有權限的人核准後才執行，全程寫入 audit log。",
    "caption_en": "The agent can only propose; the requester cannot approve; a qualified approver executes it, all audited.",
    "response": {
-    "thread_id": "7ba44afc8a3745d2",
+    "thread_id": "3bd553060ecc4a6b",
     "mode": "agent",
     "status": "awaiting_approval",
-    "answer": "FX2-POLISHER-03-CHC 目前為 up，且不在保養中（最近保養為 2026-09-12 至 09-13 零件更換，已結束）。CHC 於 2026-09-11 09:28 發生 CMP-SLR-0822，slurry flow 322.2 ml/min，超過 SOP 上限 250 ml/min。依 SOP 第 4 節步驟 2，建議暫停該腔體派貨，請核准 inhibit_chamber 提案。\n\n注意事項：\n1. 歷史資料顯示 CHC 近期多次出現 CMP-RMV-0803 移除率異常（如 alarm 351、262、173、177），且同機台其他腔體（CHA、CHB）也有 CMP-SLR-0822 紀錄，可能需要設備工程師一併檢查。\n2. 依 SOP 第 4 節，等待 30 分鐘後重新量測；若連續 2 次超出上限，需 hold 受影響批號（目前在該腔體的批號為 FX2L00074 等，需另行確認）並通知設備工程師。\n3. 若異常持續超過 4 小時仍未排除，依 SOP 第 5 節升級至模組經理。\n4. 第 6 節的製程補償參數（-2%）限授權人員使用，我不建議在未授權下套用。",
+    "answer": "已確認 FX2-POLISHER-03-CHC 目前為 up，且未在保養中（最近一次保養為 maintenance_id 134，零件更換，2026-09-12 20:00 至 2026-09-13 00:00）。依 SOP-FX2-CMP-SLR-0822-v1 步驟 2，建議暫停該腔體派貨，待人工核准。注意：機台近期 alarm 清單中查不到 CMP-SLR-0822，只有該腔體 2026-09-14 與 2026-09-19 的 CMP-RMV-0803（移除率偏差超限）紀錄，請確認此次 CMP-SLR-0822 是否已正確寫入 MES。另外，SOP 步驟 3 要求 30 分鐘後重新量測，若連續 2 次超上限才需 hold 批號並通知設備工程師；復機補償值（-2%）僅限授權人員套用，本次建議不包含該項。",
     "citations": [
      "SOP-FX2-CMP-SLR-0822-v1"
     ],
     "refused": false,
-    "steps": 7,
+    "steps": 2,
     "calls": [
      {
       "step": 1,
@@ -2330,89 +2462,34 @@
       "step": 2,
       "tool": "search_sop",
       "args": {
-       "query": "CMP-SLR-0822 研磨液流量不足 處置",
-       "k": 3
+       "query": "CMP-SLR-0822 研磨液流量不足 處置程序"
       },
       "ok": true,
-      "preview": "{\"found\": true, \"documents\": [{\"doc_id\": \"SOP-FX2-CMP-SLR-0822-v1\", \"excerpts\": [\"[SOP-FX2-CMP-SLR-0822-v1] SOP：研磨液流量不足處置程序（FX2）（第 1 版）\\n1. 目的\\n規範 FX2 研磨區 POLISHER 機台發生「研磨液流量不足」（CMP-SLR-0822）時的處置方式，降低產品風險並縮短停機時間。\", \"[SOP-FX2-CMP-SLR-0822-v1] SOP：研磨液流量不足處置程序（FX2）（第 1 版）\\n修訂紀錄\\n| 版次 | 生效日 |\\n| 1 | 2026-06-01 |\", \"[SOP-FX2-CMP-SLR-0822-v1] SOP：研磨液流量不足處置程序（FX2）（第 1 版）\\n2. 適用範圍\\n適用於 FX2 所有 POLISHER 機台與其腔體。\", \"[SOP-FX2-CMP-SLR-0822-v1] SOP：研磨液流量不足處置程序（FX2）（第 1 版）\\n5. 升級條件\\n異常持續超過 4 小時仍未排除，升級至模組經理。\", \"[SOP-FX2-CMP-SLR-0822-v1] SOP：研磨液流量不足處置程序（FX2）（第 1 版）\\n4. 處置步驟\\n1. 確認 alarm 內容與發生的腔體，並查詢該腔體目前是否在保養中。…"
-     },
-     {
-      "step": 3,
-      "tool": "get_dispatch_log",
-      "args": {
-       "equipment_id": "FX2-POLISHER-03",
-       "chamber_id": "FX2-POLISHER-03-CHC",
-       "limit": 10
-      },
-      "ok": true,
-      "preview": "{\"found\": true, \"dispatches\": [{\"dispatch_id\": 9135, \"fab\": \"FX2\", \"lot_id\": \"FX2L00040\", \"equipment_id\": \"FX2-POLISHER-03\", \"chamber_id\": \"FX2-POLISHER-03-CHC\", \"dispatched_at\": \"2026-09-21T23:07:00+08:00\", \"result\": \"ok\"}, {\"dispatch_id\": 9134, \"fab\": \"FX2\", \"lot_id\": \"FX2L00007\", \"equipment_id\": \"FX2-POLISHER-03\", \"chamber_id\": \"FX2-POLISHER-03-CHC\", \"dispatched_at\": \"2026-09-21T17:16:00+08:00\", \"result\": \"ok\"}, {\"dispatch_id\": 9133, \"fab\": \"FX2\", \"lot_id\": \"FX2L00074\", \"equipment_id\": \"FX2-POLISHER-03\", \"chamber_id\": \"FX2-POLISHER-03-CHC\", \"dispatched_at\": \"2026-09-21T12:57:00+08:00\", \"res…"
-     },
-     {
-      "step": 4,
-      "tool": "search_similar_incidents",
-      "args": {
-       "query": "CMP-SLR-0822 研磨液流量不足 FX2-POLISHER-03 CHC",
-       "k": 3
-      },
-      "ok": true,
-      "preview": "{\"found\": true, \"documents\": [{\"doc_id\": \"INC-2026-0068\", \"excerpts\": [\"[INC-2026-0068] 異常報告：FX2-POLISHER-03 研磨液流量不足\\n## 基本資料\\n| 項目 | 內容 |\\n| --- | --- |\\n| 發生時間 | 2026-09-10 20:14 |\\n| 機台 | FX2-POLISHER-03 |\\n| 腔體 | FX2-POLISHER-03-CHB |\\n| Alarm code | CMP-SLR-0822 |\\n| 批號 | FX2L00068 |\\n\\n## 現象描述\\n2026-09-10 20:14 tool FX2-POLISHER-03 的 FX2-POLISHER-03-CHB 發生研磨液流量不足，量測值 379.4 ml/min，已經OOC上限，chamber暫停派貨。\\n\\n## 處理經過\\n依 SOP-FX2-CMP-SLR-0822 處置：確認異常後等待重測，再次確認仍超出上限，執行季PM後以監控晶圓驗證recover，停機共 458 分鐘。\\n\\n## 根本原因\\n研磨液管路結晶\\n\\n## 後續對策\\n將「研磨液管路結晶」納入季保養檢查項目。\"]}, {\"doc_id\": \"INC-2026-0033\", \"excerpts\": [\"…"
-     },
-     {
-      "step": 5,
-      "tool": "get_equipment_status",
-      "args": {
-       "equipment_id": "FX2-POLISHER-03-CHC",
-       "limit": 10
-      },
-      "ok": true,
-      "preview": "{\"found\": true, \"equipment\": {\"equipment_id\": \"FX2-POLISHER-03\", \"fab\": \"FX2\", \"equipment_type\": \"POLISHER\", \"vendor_model\": \"Glide-P2\", \"status\": \"up\"}, \"chambers\": [{\"chamber_id\": \"FX2-POLISHER-03-CHA\", \"equipment_id\": \"FX2-POLISHER-03\", \"status\": \"up\", \"fab\": \"FX2\"}, {\"chamber_id\": \"FX2-POLISHER-03-CHB\", \"equipment_id\": \"FX2-POLISHER-03\", \"status\": \"up\", \"fab\": \"FX2\"}, {\"chamber_id\": \"FX2-POLISHER-03-CHC\", \"equipment_id\": \"FX2-POLISHER-03\", \"status\": \"up\", \"fab\": \"FX2\"}], \"recent_alarms\": [{\"alarm_id\": 365, \"fab\": \"FX2\", \"equipment_id\": \"FX2-POLISHER-03\", \"chamber_id\": \"FX2-POLISHER-03-CHA\"…"
-     },
-     {
-      "step": 6,
-      "tool": "get_lot_history",
-      "args": {
-       "lot_id": "FX2L00074",
-       "limit": 10
-      },
-      "ok": true,
-      "preview": "{\"found\": true, \"lot\": {\"lot_id\": \"FX2L00074\", \"fab\": \"FX2\", \"product\": \"LG-55E\", \"route_step\": \"VIA-LITHO\", \"priority\": 3, \"status\": \"run\"}, \"dispatches\": [{\"dispatch_id\": 9133, \"fab\": \"FX2\", \"lot_id\": \"FX2L00074\", \"equipment_id\": \"FX2-POLISHER-03\", \"chamber_id\": \"FX2-POLISHER-03-CHC\", \"dispatched_at\": \"2026-09-21T12:57:00+08:00\", \"result\": \"ok\"}, {\"dispatch_id\": 4932, \"fab\": \"FX2\", \"lot_id\": \"FX2L00074\", \"equipment_id\": \"FX2-ETCHER-01\", \"chamber_id\": \"FX2-ETCHER-01-CHC\", \"dispatched_at\": \"2026-09-21T03:11:00+08:00\", \"result\": \"ok\"}, {\"dispatch_id\": 9130, \"fab\": \"FX2\", \"lot_id\": \"FX2L00074\", …"
-     },
-     {
-      "step": 7,
-      "tool": "search_sop",
-      "args": {
-       "query": "CMP-SLR-0822 研磨液流量不足 處置步驟 判定標準 升級條件",
-       "k": 3
-      },
-      "ok": true,
-      "preview": "{\"found\": true, \"documents\": [{\"doc_id\": \"SOP-FX2-CMP-SLR-0822-v1\", \"excerpts\": [\"[SOP-FX2-CMP-SLR-0822-v1] SOP：研磨液流量不足處置程序（FX2）（第 1 版）\\n5. 升級條件\\n異常持續超過 4 小時仍未排除，升級至模組經理。\", \"[SOP-FX2-CMP-SLR-0822-v1] SOP：研磨液流量不足處置程序（FX2）（第 1 版）\\n1. 目的\\n規範 FX2 研磨區 POLISHER 機台發生「研磨液流量不足」（CMP-SLR-0822）時的處置方式，降低產品風險並縮短停機時間。\", \"[SOP-FX2-CMP-SLR-0822-v1] SOP：研磨液流量不足處置程序（FX2）（第 1 版）\\n修訂紀錄\\n| 版次 | 生效日 |\\n| 1 | 2026-06-01 |\", \"[SOP-FX2-CMP-SLR-0822-v1] SOP：研磨液流量不足處置程序（FX2）（第 1 版）\\n3. 判定標準\\n| 監控參數 | 下限 | 上限 | 單位 |\\n| --- | --- | --- | --- |\\n| slurry flow | 80 | 250 | ml/min |\\n\\n量測值高於上限 250 ml/min 即判定為異常。\", \"[SOP-FX2-C…"
+      "preview": "{\"found\": true, \"documents\": [{\"doc_id\": \"SOP-FX2-CMP-SLR-0822-v1\", \"excerpts\": [\"[SOP-FX2-CMP-SLR-0822-v1] SOP：研磨液流量不足處置程序（FX2）（第 1 版）\\n1. 目的\\n規範 FX2 研磨區 POLISHER 機台發生「研磨液流量不足」（CMP-SLR-0822）時的處置方式，降低產品風險並縮短停機時間。\", \"[SOP-FX2-CMP-SLR-0822-v1] SOP：研磨液流量不足處置程序（FX2）（第 1 版）\\n修訂紀錄\\n| 版次 | 生效日 |\\n| 1 | 2026-06-01 |\", \"[SOP-FX2-CMP-SLR-0822-v1] SOP：研磨液流量不足處置程序（FX2）（第 1 版）\\n2. 適用範圍\\n適用於 FX2 所有 POLISHER 機台與其腔體。\", \"[SOP-FX2-CMP-SLR-0822-v1] SOP：研磨液流量不足處置程序（FX2）（第 1 版）\\n4. 處置步驟\\n1. 確認 alarm 內容與發生的腔體，並查詢該腔體目前是否在保養中。\\n2. 暫停該腔體派貨。保養中的腔體一律不得派貨。\\n3. 等待 30 分鐘後重新量測。\\n4. 若連續 2 次量測超出上限，hold 受影響批號並通知設備工程師。\\n5. 執行季保…"
      }
     ],
     "proposal": {
-     "proposal_id": "734a6cd6ff66",
-     "idempotency_key": "14945531c745d399e475aeb92583b684e3925c84ebadf3e2a95e06a666b65880",
-     "thread_id": "7ba44afc8a3745d2",
+     "proposal_id": "622d84ff91a4",
+     "idempotency_key": "8186b208f908b1e7e7961da2a301d243972b544caa4a64b33593a379389527a4",
+     "thread_id": "3bd553060ecc4a6b",
      "requester": "mgr_fx2_all",
      "action": "inhibit_chamber",
      "target_id": "FX2-POLISHER-03-CHC",
-     "reason": "依 SOP-FX2-CMP-SLR-0822-v1 第 4 節處置步驟 1、2：確認 alarm 與腔體，並暫停派貨。FX2-POLISHER-03-CHC 目前 status 為 up，且保養紀錄中最近一次為 2026-09-12 至 2026-09-13 的零件更換，已結束，非保養中。CHC 於 2026-09-11 09:28 發生 CMP-SLR-0822（alarm 209，slurry flow 322.2 ml/min，上限 250），最近一次派貨為 2026-09-21 23:07（dispatch 9135，批號 FX2L00040）。",
+     "reason": "依 SOP-FX2-CMP-SLR-0822-v1 步驟 1，已查詢 FX2-POLISHER-03-CHC：機台與該腔體目前皆為 up，維護紀錄中該腔體最近一次為零件更換（maintenance_id 134，2026-09-12 20:00 至 2026-09-13 00:00），目前未在保養中。依步驟 2，應暫停該腔體派貨，故建議 inhibit_chamber。",
      "status": "pending",
      "approver": null,
      "note": ""
     },
     "usage": {
-     "input_tokens": 49176,
-     "output_tokens": 1434,
+     "input_tokens": 14816,
+     "output_tokens": 2216,
      "cost_usd": 0.0,
      "latency_ms": 0,
-     "llm_calls": 8
+     "llm_calls": 4
     },
     "retrieved": [
      "SOP-FX2-CMP-SLR-0822-v1",
-     "SOP-FX2-CMP-PAD-0810-v2",
-     "INC-2026-0068",
-     "INC-2026-0033",
-     "INC-2026-0038"
+     "SOP-FX2-CMP-PAD-0810-v2"
     ]
    },
    "approval_steps": [
@@ -2421,13 +2498,13 @@
      "by_user": {
       "admin_all": [
        {
-        "proposal_id": "734a6cd6ff66",
-        "idempotency_key": "14945531c745d399e475aeb92583b684e3925c84ebadf3e2a95e06a666b65880",
-        "thread_id": "7ba44afc8a3745d2",
+        "proposal_id": "622d84ff91a4",
+        "idempotency_key": "8186b208f908b1e7e7961da2a301d243972b544caa4a64b33593a379389527a4",
+        "thread_id": "3bd553060ecc4a6b",
         "requester": "mgr_fx2_all",
         "action": "inhibit_chamber",
         "target_id": "FX2-POLISHER-03-CHC",
-        "reason": "依 SOP-FX2-CMP-SLR-0822-v1 第 4 節處置步驟 1、2：確認 alarm 與腔體，並暫停派貨。FX2-POLISHER-03-CHC 目前 status 為 up，且保養紀錄中最近一次為 2026-09-12 至 2026-09-13 的零件更換，已結束，非保養中。CHC 於 2026-09-11 09:28 發生 CMP-SLR-0822（alarm 209，slurry flow 322.2 ml/min，上限 250），最近一次派貨為 2026-09-21 23:07（dispatch 9135，批號 FX2L00040）。",
+        "reason": "依 SOP-FX2-CMP-SLR-0822-v1 步驟 1，已查詢 FX2-POLISHER-03-CHC：機台與該腔體目前皆為 up，維護紀錄中該腔體最近一次為零件更換（maintenance_id 134，2026-09-12 20:00 至 2026-09-13 00:00），目前未在保養中。依步驟 2，應暫停該腔體派貨，故建議 inhibit_chamber。",
         "status": "pending",
         "approver": null,
         "note": "",
@@ -2436,15 +2513,16 @@
        }
       ],
       "eng_fx1_etch": [],
+      "lead_fx1_multi": [],
       "mgr_fx2_all": [
        {
-        "proposal_id": "734a6cd6ff66",
-        "idempotency_key": "14945531c745d399e475aeb92583b684e3925c84ebadf3e2a95e06a666b65880",
-        "thread_id": "7ba44afc8a3745d2",
+        "proposal_id": "622d84ff91a4",
+        "idempotency_key": "8186b208f908b1e7e7961da2a301d243972b544caa4a64b33593a379389527a4",
+        "thread_id": "3bd553060ecc4a6b",
         "requester": "mgr_fx2_all",
         "action": "inhibit_chamber",
         "target_id": "FX2-POLISHER-03-CHC",
-        "reason": "依 SOP-FX2-CMP-SLR-0822-v1 第 4 節處置步驟 1、2：確認 alarm 與腔體，並暫停派貨。FX2-POLISHER-03-CHC 目前 status 為 up，且保養紀錄中最近一次為 2026-09-12 至 2026-09-13 的零件更換，已結束，非保養中。CHC 於 2026-09-11 09:28 發生 CMP-SLR-0822（alarm 209，slurry flow 322.2 ml/min，上限 250），最近一次派貨為 2026-09-21 23:07（dispatch 9135，批號 FX2L00040）。",
+        "reason": "依 SOP-FX2-CMP-SLR-0822-v1 步驟 1，已查詢 FX2-POLISHER-03-CHC：機台與該腔體目前皆為 up，維護紀錄中該腔體最近一次為零件更換（maintenance_id 134，2026-09-12 20:00 至 2026-09-13 00:00），目前未在保養中。依步驟 2，應暫停該腔體派貨，故建議 inhibit_chamber。",
         "status": "pending",
         "approver": null,
         "note": "",
@@ -2462,22 +2540,58 @@
      "detail": "the requester cannot decide their own proposal",
      "audit": [
       {
-       "proposal_id": "734a6cd6ff66",
+       "proposal_id": "622d84ff91a4",
        "event": "proposed",
        "actor": "mgr_fx2_all",
        "detail": {
         "action": "inhibit_chamber"
        },
-       "ts": "2026-11-11T07:50:14.892929+00:00"
+       "ts": "2026-11-12T03:53:27.296608+00:00"
       },
       {
-       "proposal_id": "734a6cd6ff66",
+       "proposal_id": "622d84ff91a4",
        "event": "denied",
        "actor": "mgr_fx2_all",
        "detail": {
         "reason": "the requester cannot decide their own proposal"
        },
-       "ts": "2026-11-11T07:50:16.149044+00:00"
+       "ts": "2026-11-12T03:53:28.117557+00:00"
+      }
+     ]
+    },
+    {
+     "kind": "decision",
+     "user": "lead_fx1_multi",
+     "approved": true,
+     "status_code": 403,
+     "detail": "approver cannot see the target",
+     "audit": [
+      {
+       "proposal_id": "622d84ff91a4",
+       "event": "proposed",
+       "actor": "mgr_fx2_all",
+       "detail": {
+        "action": "inhibit_chamber"
+       },
+       "ts": "2026-11-12T03:53:27.296608+00:00"
+      },
+      {
+       "proposal_id": "622d84ff91a4",
+       "event": "denied",
+       "actor": "mgr_fx2_all",
+       "detail": {
+        "reason": "the requester cannot decide their own proposal"
+       },
+       "ts": "2026-11-12T03:53:28.117557+00:00"
+      },
+      {
+       "proposal_id": "622d84ff91a4",
+       "event": "denied",
+       "actor": "lead_fx1_multi",
+       "detail": {
+        "reason": "approver cannot see the target"
+       },
+       "ts": "2026-11-12T03:53:28.277138+00:00"
       }
      ]
     },
@@ -2487,15 +2601,15 @@
      "approved": true,
      "status_code": 200,
      "run": {
-      "thread_id": "7ba44afc8a3745d2",
+      "thread_id": "3bd553060ecc4a6b",
       "mode": "agent",
       "status": "executed",
-      "answer": "FX2-POLISHER-03-CHC 目前為 up，且不在保養中（最近保養為 2026-09-12 至 09-13 零件更換，已結束）。CHC 於 2026-09-11 09:28 發生 CMP-SLR-0822，slurry flow 322.2 ml/min，超過 SOP 上限 250 ml/min。依 SOP 第 4 節步驟 2，建議暫停該腔體派貨，請核准 inhibit_chamber 提案。\n\n注意事項：\n1. 歷史資料顯示 CHC 近期多次出現 CMP-RMV-0803 移除率異常（如 alarm 351、262、173、177），且同機台其他腔體（CHA、CHB）也有 CMP-SLR-0822 紀錄，可能需要設備工程師一併檢查。\n2. 依 SOP 第 4 節，等待 30 分鐘後重新量測；若連續 2 次超出上限，需 hold 受影響批號（目前在該腔體的批號為 FX2L00074 等，需另行確認）並通知設備工程師。\n3. 若異常持續超過 4 小時仍未排除，依 SOP 第 5 節升級至模組經理。\n4. 第 6 節的製程補償參數（-2%）限授權人員使用，我不建議在未授權下套用。\n\n已核准並執行（模擬）：暫停腔體派貨 FX2-POLISHER-03-CHC。",
+      "answer": "已確認 FX2-POLISHER-03-CHC 目前為 up，且未在保養中（最近一次保養為 maintenance_id 134，零件更換，2026-09-12 20:00 至 2026-09-13 00:00）。依 SOP-FX2-CMP-SLR-0822-v1 步驟 2，建議暫停該腔體派貨，待人工核准。注意：機台近期 alarm 清單中查不到 CMP-SLR-0822，只有該腔體 2026-09-14 與 2026-09-19 的 CMP-RMV-0803（移除率偏差超限）紀錄，請確認此次 CMP-SLR-0822 是否已正確寫入 MES。另外，SOP 步驟 3 要求 30 分鐘後重新量測，若連續 2 次超上限才需 hold 批號並通知設備工程師；復機補償值（-2%）僅限授權人員套用，本次建議不包含該項。\n\n已核准並執行（模擬）：暫停腔體派貨 FX2-POLISHER-03-CHC。",
       "citations": [
        "SOP-FX2-CMP-SLR-0822-v1"
       ],
       "refused": false,
-      "steps": 7,
+      "steps": 2,
       "calls": [
        {
         "step": 1,
@@ -2509,118 +2623,1157 @@
         "step": 2,
         "tool": "search_sop",
         "args": {
-         "query": "CMP-SLR-0822 研磨液流量不足 處置",
-         "k": 3
-        },
-        "ok": true
-       },
-       {
-        "step": 3,
-        "tool": "get_dispatch_log",
-        "args": {
-         "equipment_id": "FX2-POLISHER-03",
-         "chamber_id": "FX2-POLISHER-03-CHC",
-         "limit": 10
-        },
-        "ok": true
-       },
-       {
-        "step": 4,
-        "tool": "search_similar_incidents",
-        "args": {
-         "query": "CMP-SLR-0822 研磨液流量不足 FX2-POLISHER-03 CHC",
-         "k": 3
-        },
-        "ok": true
-       },
-       {
-        "step": 5,
-        "tool": "get_equipment_status",
-        "args": {
-         "equipment_id": "FX2-POLISHER-03-CHC",
-         "limit": 10
-        },
-        "ok": true
-       },
-       {
-        "step": 6,
-        "tool": "get_lot_history",
-        "args": {
-         "lot_id": "FX2L00074",
-         "limit": 10
-        },
-        "ok": true
-       },
-       {
-        "step": 7,
-        "tool": "search_sop",
-        "args": {
-         "query": "CMP-SLR-0822 研磨液流量不足 處置步驟 判定標準 升級條件",
-         "k": 3
+         "query": "CMP-SLR-0822 研磨液流量不足 處置程序"
         },
         "ok": true
        }
       ],
       "proposal": {
-       "proposal_id": "734a6cd6ff66",
-       "idempotency_key": "14945531c745d399e475aeb92583b684e3925c84ebadf3e2a95e06a666b65880",
-       "thread_id": "7ba44afc8a3745d2",
+       "proposal_id": "622d84ff91a4",
+       "idempotency_key": "8186b208f908b1e7e7961da2a301d243972b544caa4a64b33593a379389527a4",
+       "thread_id": "3bd553060ecc4a6b",
        "requester": "mgr_fx2_all",
        "action": "inhibit_chamber",
        "target_id": "FX2-POLISHER-03-CHC",
-       "reason": "依 SOP-FX2-CMP-SLR-0822-v1 第 4 節處置步驟 1、2：確認 alarm 與腔體，並暫停派貨。FX2-POLISHER-03-CHC 目前 status 為 up，且保養紀錄中最近一次為 2026-09-12 至 2026-09-13 的零件更換，已結束，非保養中。CHC 於 2026-09-11 09:28 發生 CMP-SLR-0822（alarm 209，slurry flow 322.2 ml/min，上限 250），最近一次派貨為 2026-09-21 23:07（dispatch 9135，批號 FX2L00040）。",
+       "reason": "依 SOP-FX2-CMP-SLR-0822-v1 步驟 1，已查詢 FX2-POLISHER-03-CHC：機台與該腔體目前皆為 up，維護紀錄中該腔體最近一次為零件更換（maintenance_id 134，2026-09-12 20:00 至 2026-09-13 00:00），目前未在保養中。依步驟 2，應暫停該腔體派貨，故建議 inhibit_chamber。",
        "status": "executed",
        "approver": "admin_all",
        "note": ""
       },
       "usage": {
-       "input_tokens": 49176,
-       "output_tokens": 1434,
+       "input_tokens": 14816,
+       "output_tokens": 2216,
        "cost_usd": 0.0,
        "latency_ms": 0,
-       "llm_calls": 8
+       "llm_calls": 4
       }
      },
      "audit": [
       {
-       "proposal_id": "734a6cd6ff66",
+       "proposal_id": "622d84ff91a4",
        "event": "proposed",
        "actor": "mgr_fx2_all",
        "detail": {
         "action": "inhibit_chamber"
        },
-       "ts": "2026-11-11T07:50:14.892929+00:00"
+       "ts": "2026-11-12T03:53:27.296608+00:00"
       },
       {
-       "proposal_id": "734a6cd6ff66",
+       "proposal_id": "622d84ff91a4",
        "event": "denied",
        "actor": "mgr_fx2_all",
        "detail": {
         "reason": "the requester cannot decide their own proposal"
        },
-       "ts": "2026-11-11T07:50:16.149044+00:00"
+       "ts": "2026-11-12T03:53:28.117557+00:00"
       },
       {
-       "proposal_id": "734a6cd6ff66",
+       "proposal_id": "622d84ff91a4",
+       "event": "denied",
+       "actor": "lead_fx1_multi",
+       "detail": {
+        "reason": "approver cannot see the target"
+       },
+       "ts": "2026-11-12T03:53:28.277138+00:00"
+      },
+      {
+       "proposal_id": "622d84ff91a4",
        "event": "approved",
        "actor": "admin_all",
        "detail": {
         "note": ""
        },
-       "ts": "2026-11-11T07:50:16.382814+00:00"
+       "ts": "2026-11-12T03:53:28.469554+00:00"
       },
       {
-       "proposal_id": "734a6cd6ff66",
+       "proposal_id": "622d84ff91a4",
        "event": "executed",
        "actor": "system",
        "detail": {
         "simulated": true
        },
-       "ts": "2026-11-11T07:50:16.426016+00:00"
+       "ts": "2026-11-12T03:53:28.506494+00:00"
       }
      ]
     }
-   ]
+   ],
+   "cited_docs": {
+    "SOP-FX2-CMP-SLR-0822-v1": {
+     "doc_id": "SOP-FX2-CMP-SLR-0822-v1",
+     "doc_type": "sop",
+     "fab": "FX2",
+     "department": "cmp",
+     "clearance": 2,
+     "superseded_by": null,
+     "title": "研磨液流量不足處置程序（FX2）",
+     "sections": [
+      {
+       "section": "1. 目的",
+       "text": "[SOP-FX2-CMP-SLR-0822-v1] SOP：研磨液流量不足處置程序（FX2）（第 1 版）\n1. 目的\n規範 FX2 研磨區 POLISHER 機台發生「研磨液流量不足」（CMP-SLR-0822）時的處置方式，降低產品風險並縮短停機時間。"
+      },
+      {
+       "section": "2. 適用範圍",
+       "text": "[SOP-FX2-CMP-SLR-0822-v1] SOP：研磨液流量不足處置程序（FX2）（第 1 版）\n2. 適用範圍\n適用於 FX2 所有 POLISHER 機台與其腔體。"
+      },
+      {
+       "section": "3. 判定標準",
+       "text": "[SOP-FX2-CMP-SLR-0822-v1] SOP：研磨液流量不足處置程序（FX2）（第 1 版）\n3. 判定標準\n| 監控參數 | 下限 | 上限 | 單位 |\n| --- | --- | --- | --- |\n| slurry flow | 80 | 250 | ml/min |\n\n量測值高於上限 250 ml/min 即判定為異常。"
+      },
+      {
+       "section": "4. 處置步驟",
+       "text": "[SOP-FX2-CMP-SLR-0822-v1] SOP：研磨液流量不足處置程序（FX2）（第 1 版）\n4. 處置步驟\n1. 確認 alarm 內容與發生的腔體，並查詢該腔體目前是否在保養中。\n2. 暫停該腔體派貨。保養中的腔體一律不得派貨。\n3. 等待 30 分鐘後重新量測。\n4. 若連續 2 次量測超出上限，hold 受影響批號並通知設備工程師。\n5. 執行季保養後，以 1 片監控晶圓驗證，通過才可復機。"
+      },
+      {
+       "section": "5. 升級條件",
+       "text": "[SOP-FX2-CMP-SLR-0822-v1] SOP：研磨液流量不足處置程序（FX2）（第 1 版）\n5. 升級條件\n異常持續超過 4 小時仍未排除，升級至模組經理。"
+      },
+      {
+       "section": "6. 製程補償參數（限授權人員）",
+       "text": "[SOP-FX2-CMP-SLR-0822-v1] SOP：研磨液流量不足處置程序（FX2）（第 1 版）\n6. 製程補償參數（限授權人員）\n復機首批可套用補償值 -2%（slurry flow），僅限 4 批內使用。"
+      },
+      {
+       "section": "修訂紀錄",
+       "text": "[SOP-FX2-CMP-SLR-0822-v1] SOP：研磨液流量不足處置程序（FX2）（第 1 版）\n修訂紀錄\n| 版次 | 生效日 |\n| 1 | 2026-06-01 |"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "litho-own-fab",
+   "user": "eng_fx2_litho",
+   "mode": "rag",
+   "question": "FX2 曝光機發生疊對誤差超限（LIT-OVL-0322）時，判定標準是多少？第一步要做什麼？",
+   "caption_zh": "FX2 黃光工程師問自己部門的 SOP：正常回答並附引用。",
+   "caption_en": "An FX2 litho engineer asks about their own SOP: a normal, cited answer.",
+   "response": {
+    "mode": "rag",
+    "status": "done",
+    "answer": "判定標準：overlay error 下限 3 nm、上限 12 nm，量測值高於上限 12 nm 即判定為異常。第一步：確認 alarm 內容與發生的腔體，並查詢該腔體目前是否在保養中。",
+    "citations": [
+     "SOP-FX2-LIT-OVL-0322-v1"
+    ],
+    "refused": false,
+    "steps": 0,
+    "calls": [],
+    "proposal": null,
+    "retrieved": [
+     "SOP-FX2-LIT-OVL-0322-v1",
+     "INC-2026-0044",
+     "SOP-FX2-LIT-FOC-0301-v2",
+     "INC-2026-0008"
+    ],
+    "usage": {
+     "input_tokens": 2405,
+     "output_tokens": 335,
+     "cost_usd": 0.0,
+     "llm_calls": 1
+    }
+   },
+   "approval_steps": [],
+   "cited_docs": {
+    "SOP-FX2-LIT-OVL-0322-v1": {
+     "doc_id": "SOP-FX2-LIT-OVL-0322-v1",
+     "doc_type": "sop",
+     "fab": "FX2",
+     "department": "litho",
+     "clearance": 1,
+     "superseded_by": null,
+     "title": "疊對誤差超限處置程序（FX2）",
+     "sections": [
+      {
+       "section": "1. 目的",
+       "text": "[SOP-FX2-LIT-OVL-0322-v1] SOP：疊對誤差超限處置程序（FX2）（第 1 版）\n1. 目的\n規範 FX2 黃光區 SCANNER 機台發生「疊對誤差超限」（LIT-OVL-0322）時的處置方式，降低產品風險並縮短停機時間。"
+      },
+      {
+       "section": "2. 適用範圍",
+       "text": "[SOP-FX2-LIT-OVL-0322-v1] SOP：疊對誤差超限處置程序（FX2）（第 1 版）\n2. 適用範圍\n適用於 FX2 所有 SCANNER 機台與其腔體。"
+      },
+      {
+       "section": "3. 判定標準",
+       "text": "[SOP-FX2-LIT-OVL-0322-v1] SOP：疊對誤差超限處置程序（FX2）（第 1 版）\n3. 判定標準\n| 監控參數 | 下限 | 上限 | 單位 |\n| --- | --- | --- | --- |\n| overlay error | 3 | 12 | nm |\n\n量測值高於上限 12 nm 即判定為異常。"
+      },
+      {
+       "section": "4. 處置步驟",
+       "text": "[SOP-FX2-LIT-OVL-0322-v1] SOP：疊對誤差超限處置程序（FX2）（第 1 版）\n4. 處置步驟\n1. 確認 alarm 內容與發生的腔體，並查詢該腔體目前是否在保養中。\n2. 暫停該腔體派貨。保養中的腔體一律不得派貨。\n3. 等待 5 分鐘後重新量測。\n4. 若連續 3 次量測超出上限，hold 受影響批號並通知值班主任。\n5. 執行零件更換後，以 3 片監控晶圓驗證，通過才可復機。"
+      },
+      {
+       "section": "5. 升級條件",
+       "text": "[SOP-FX2-LIT-OVL-0322-v1] SOP：疊對誤差超限處置程序（FX2）（第 1 版）\n5. 升級條件\n異常持續超過 8 小時仍未排除，升級至模組經理。"
+      },
+      {
+       "section": "修訂紀錄",
+       "text": "[SOP-FX2-LIT-OVL-0322-v1] SOP：疊對誤差超限處置程序（FX2）（第 1 版）\n修訂紀錄\n| 版次 | 生效日 |\n| --- | --- |\n| 1 | 2026-06-01 |"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "litho-other-fab",
+   "user": "eng_fx2_litho",
+   "mode": "rag",
+   "question": "FX1 蝕刻機台發生終點偵測逾時（ETC-EPD-0118），量測超出上限後要等幾分鐘重測？要通知誰？",
+   "caption_zh": "同一位工程師問 FX1 蝕刻的 SOP：廠區隔離，FX1 文件不會進入他的檢索。",
+   "caption_en": "The same engineer asks about an FX1 etch SOP: fabs are isolated, FX1 documents never reach retrieval.",
+   "groups": [
+    "epd"
+   ],
+   "response": {
+    "mode": "rag",
+    "status": "done",
+    "answer": "查無可用資料。提供的文件僅涵蓋 FX2 的疊對誤差超限（LIT-OVL-0322）、鏡組溫度漂移（LIT-TMP-0150）與對焦偏移（LIT-FOC-0301）相關程序與異常報告，沒有 FX1 蝕刻機台終點偵測逾時（ETC-EPD-0118）的處置程序，因此無法得知需等待幾分鐘重測及應通知的對象。",
+    "citations": [],
+    "refused": true,
+    "steps": 0,
+    "calls": [],
+    "proposal": null,
+    "retrieved": [
+     "SOP-FX2-LIT-OVL-0322-v1",
+     "INC-2026-0044",
+     "INC-2026-0084",
+     "INC-2026-0008",
+     "INC-2026-0129",
+     "INC-2026-0043",
+     "INC-2026-0142",
+     "INC-2026-0106"
+    ],
+    "usage": {
+     "input_tokens": 3801,
+     "output_tokens": 184,
+     "cost_usd": 0.0,
+     "llm_calls": 1
+    }
+   },
+   "approval_steps": [],
+   "cited_docs": {}
+  },
+  {
+   "id": "comp-lead",
+   "user": "lead_fx1_multi",
+   "mode": "rag",
+   "question": "FX1 蝕刻腔體壓力異常（ETC-PRS-0412）復機後，首批可以套用多少製程補償值？限用幾批？",
+   "caption_zh": "製程主管（confidential）問 SOP 中「限授權人員」的補償參數：等級足夠，看得到。",
+   "caption_en": "A process lead (confidential) asks for the restricted-section compensation values: clearance suffices.",
+   "groups": [
+    "comp"
+   ],
+   "response": {
+    "mode": "rag",
+    "status": "done",
+    "answer": "依 SOP-FX1-ETC-PRS-0412-v1（第 1 版）第 6 節，腔體壓力異常（ETC-PRS-0412）復機後，首批可套用補償值為 +9%（chamber pressure），僅限 4 批內使用。此項目限授權人員操作。",
+    "citations": [
+     "SOP-FX1-ETC-PRS-0412-v1"
+    ],
+    "refused": false,
+    "steps": 0,
+    "calls": [],
+    "proposal": null,
+    "retrieved": [
+     "SOP-FX1-ETC-PRS-0412-v1",
+     "SOP-FX1-TFM-PRT-0655-v1",
+     "SOP-FX1-TFM-GAS-0640-v2",
+     "SOP-FX1-TFM-THK-0611-v2",
+     "INC-2026-0102",
+     "INC-2026-0067"
+    ],
+    "usage": {
+     "input_tokens": 2241,
+     "output_tokens": 310,
+     "cost_usd": 0.0,
+     "llm_calls": 1
+    }
+   },
+   "approval_steps": [],
+   "cited_docs": {
+    "SOP-FX1-ETC-PRS-0412-v1": {
+     "doc_id": "SOP-FX1-ETC-PRS-0412-v1",
+     "doc_type": "sop",
+     "fab": "FX1",
+     "department": "etch",
+     "clearance": 2,
+     "superseded_by": null,
+     "title": "腔體壓力異常處置程序（FX1）",
+     "sections": [
+      {
+       "section": "1. 目的",
+       "text": "[SOP-FX1-ETC-PRS-0412-v1] SOP：腔體壓力異常處置程序（FX1）（第 1 版）\n1. 目的\n規範 FX1 蝕刻區 ETCHER 機台發生「腔體壓力異常」（ETC-PRS-0412）時的處置方式，降低產品風險並縮短停機時間。"
+      },
+      {
+       "section": "2. 適用範圍",
+       "text": "[SOP-FX1-ETC-PRS-0412-v1] SOP：腔體壓力異常處置程序（FX1）（第 1 版）\n2. 適用範圍\n適用於 FX1 所有 ETCHER 機台與其腔體。"
+      },
+      {
+       "section": "3. 判定標準",
+       "text": "[SOP-FX1-ETC-PRS-0412-v1] SOP：腔體壓力異常處置程序（FX1）（第 1 版）\n3. 判定標準\n| 監控參數 | 下限 | 上限 | 單位 |\n| --- | --- | --- | --- |\n| chamber pressure | 8 | 45 | mTorr |\n\n量測值高於上限 45 mTorr 即判定為異常。"
+      },
+      {
+       "section": "4. 處置步驟",
+       "text": "[SOP-FX1-ETC-PRS-0412-v1] SOP：腔體壓力異常處置程序（FX1）（第 1 版）\n4. 處置步驟\n1. 確認 alarm 內容與發生的腔體，並查詢該腔體目前是否在保養中。\n2. 暫停該腔體派貨。保養中的腔體一律不得派貨。\n3. 等待 10 分鐘後重新量測。\n4. 若連續 3 次量測超出上限，hold 受影響批號並通知設備工程師。\n5. 執行腔體濕式清潔後，以 1 片監控晶圓驗證，通過才可復機。"
+      },
+      {
+       "section": "5. 升級條件",
+       "text": "[SOP-FX1-ETC-PRS-0412-v1] SOP：腔體壓力異常處置程序（FX1）（第 1 版）\n5. 升級條件\n異常持續超過 8 小時仍未排除，升級至模組經理。"
+      },
+      {
+       "section": "6. 製程補償參數（限授權人員）",
+       "text": "[SOP-FX1-ETC-PRS-0412-v1] SOP：腔體壓力異常處置程序（FX1）（第 1 版）\n6. 製程補償參數（限授權人員）\n復機首批可套用補償值 +9%（chamber pressure），僅限 4 批內使用。"
+      },
+      {
+       "section": "修訂紀錄",
+       "text": "[SOP-FX1-ETC-PRS-0412-v1] SOP：腔體壓力異常處置程序（FX1）（第 1 版）\n修訂紀錄\n| 版次 | 生效日 |\n| 1 | 2026-06-01 |"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "comp-eng",
+   "user": "eng_fx1_etch",
+   "mode": "rag",
+   "question": "FX1 蝕刻腔體壓力異常（ETC-PRS-0412）復機後，首批可以套用多少製程補償值？限用幾批？",
+   "caption_zh": "同一題換蝕刻工程師（internal）：同廠同部門，但等級不足，那份 confidential SOP 看不到。",
+   "caption_en": "Same question as an etch engineer (internal): same fab and department, clearance too low.",
+   "groups": [
+    "comp"
+   ],
+   "response": {
+    "mode": "rag",
+    "status": "done",
+    "answer": "查無可用資料。提供的文件中沒有 ETC-PRS-0412 的製程補償值規定，也沒有 SOP-FX1-ETC-PRS-0412 的內容，無法回答首批可套用的補償值或限用批數。",
+    "citations": [],
+    "refused": true,
+    "steps": 0,
+    "calls": [],
+    "proposal": null,
+    "retrieved": [
+     "INC-2026-0102",
+     "INC-2026-0114",
+     "SOP-FX1-ETC-RFP-0230-v1",
+     "SOP-FX1-ETC-EPD-0118-v2",
+     "SOP-FX1-ETC-HEL-0507-v1",
+     "INC-2026-0049"
+    ],
+    "usage": {
+     "input_tokens": 2921,
+     "output_tokens": 213,
+     "cost_usd": 0.0,
+     "llm_calls": 1
+    }
+   },
+   "approval_steps": [],
+   "cited_docs": {}
+  },
+  {
+   "id": "admin-restricted",
+   "user": "admin_all",
+   "mode": "rag",
+   "question": "INC-2026-0010（FX1-ETCHER-01 腔體壓力異常）的根本原因是什麼？最後怎麼處理的？",
+   "caption_zh": "系統管理員（restricted）問 restricted 等級的異常報告：只有他看得到。",
+   "caption_en": "The administrator (restricted) asks about a restricted incident report: only they can see it.",
+   "response": {
+    "mode": "rag",
+    "status": "done",
+    "answer": "根本原因為 O-ring 老化導致微漏。處理方式：依 SOP-FX1-ETC-PRS-0412 處置，確認異常後等待重測，再次確認仍超出上限，執行 chamber 濕式清潔後以監控晶圓驗證復機，停機共 447 分鐘。",
+    "citations": [
+     "INC-2026-0010",
+     "SOP-FX1-ETC-PRS-0412-v1"
+    ],
+    "refused": false,
+    "steps": 0,
+    "calls": [],
+    "proposal": null,
+    "retrieved": [
+     "SOP-FX1-ETC-PRS-0412-v1",
+     "INC-2026-0010",
+     "INC-2026-0114",
+     "SOP-FX2-ETC-PRS-0412-v1",
+     "INC-2026-0102",
+     "INC-2026-0067",
+     "INC-2026-0004",
+     "INC-2026-0139"
+    ],
+    "usage": {
+     "input_tokens": 3449,
+     "output_tokens": 161,
+     "cost_usd": 0.0,
+     "llm_calls": 1
+    }
+   },
+   "approval_steps": [],
+   "cited_docs": {
+    "INC-2026-0010": {
+     "doc_id": "INC-2026-0010",
+     "doc_type": "incident",
+     "fab": "FX1",
+     "department": "etch",
+     "clearance": 3,
+     "superseded_by": null,
+     "title": "FX1-ETCHER-01 腔體壓力異常",
+     "sections": [
+      {
+       "section": "",
+       "text": "[INC-2026-0010] 異常報告：FX1-ETCHER-01 腔體壓力異常\n## 基本資料\n| 項目 | 內容 |\n| --- | --- |\n| 發生時間 | 2026-09-02 09:42 |\n| 機台 | FX1-ETCHER-01 |\n| 腔體 | FX1-ETCHER-01-CHB |\n| Alarm code | ETC-PRS-0412 |\n| 批號 | FX1L00015 |\n\n## 現象描述\n2026-09-02 09:42 機台 FX1-ETCHER-01 的 FX1-ETCHER-01-CHB 發生腔體壓力異常，量測值 52.8 mTorr，已經超出管制上限，腔體暫停派貨。\n\n## 處理經過\n依 SOP-FX1-ETC-PRS-0412 處置：確認異常後等待重測，再次確認仍超出上限，執行chamber濕式清潔後以監控晶圓驗證recover，停機共 447 分鐘。\n\n## 根本原因\nO-ring 老化導致微漏\n\n## 後續對策\n將「O-ring 老化」納入腔體濕式清潔檢查項目。"
+      }
+     ]
+    },
+    "SOP-FX1-ETC-PRS-0412-v1": {
+     "doc_id": "SOP-FX1-ETC-PRS-0412-v1",
+     "doc_type": "sop",
+     "fab": "FX1",
+     "department": "etch",
+     "clearance": 2,
+     "superseded_by": null,
+     "title": "腔體壓力異常處置程序（FX1）",
+     "sections": [
+      {
+       "section": "1. 目的",
+       "text": "[SOP-FX1-ETC-PRS-0412-v1] SOP：腔體壓力異常處置程序（FX1）（第 1 版）\n1. 目的\n規範 FX1 蝕刻區 ETCHER 機台發生「腔體壓力異常」（ETC-PRS-0412）時的處置方式，降低產品風險並縮短停機時間。"
+      },
+      {
+       "section": "2. 適用範圍",
+       "text": "[SOP-FX1-ETC-PRS-0412-v1] SOP：腔體壓力異常處置程序（FX1）（第 1 版）\n2. 適用範圍\n適用於 FX1 所有 ETCHER 機台與其腔體。"
+      },
+      {
+       "section": "3. 判定標準",
+       "text": "[SOP-FX1-ETC-PRS-0412-v1] SOP：腔體壓力異常處置程序（FX1）（第 1 版）\n3. 判定標準\n| 監控參數 | 下限 | 上限 | 單位 |\n| --- | --- | --- | --- |\n| chamber pressure | 8 | 45 | mTorr |\n\n量測值高於上限 45 mTorr 即判定為異常。"
+      },
+      {
+       "section": "4. 處置步驟",
+       "text": "[SOP-FX1-ETC-PRS-0412-v1] SOP：腔體壓力異常處置程序（FX1）（第 1 版）\n4. 處置步驟\n1. 確認 alarm 內容與發生的腔體，並查詢該腔體目前是否在保養中。\n2. 暫停該腔體派貨。保養中的腔體一律不得派貨。\n3. 等待 10 分鐘後重新量測。\n4. 若連續 3 次量測超出上限，hold 受影響批號並通知設備工程師。\n5. 執行腔體濕式清潔後，以 1 片監控晶圓驗證，通過才可復機。"
+      },
+      {
+       "section": "5. 升級條件",
+       "text": "[SOP-FX1-ETC-PRS-0412-v1] SOP：腔體壓力異常處置程序（FX1）（第 1 版）\n5. 升級條件\n異常持續超過 8 小時仍未排除，升級至模組經理。"
+      },
+      {
+       "section": "6. 製程補償參數（限授權人員）",
+       "text": "[SOP-FX1-ETC-PRS-0412-v1] SOP：腔體壓力異常處置程序（FX1）（第 1 版）\n6. 製程補償參數（限授權人員）\n復機首批可套用補償值 +9%（chamber pressure），僅限 4 批內使用。"
+      },
+      {
+       "section": "修訂紀錄",
+       "text": "[SOP-FX1-ETC-PRS-0412-v1] SOP：腔體壓力異常處置程序（FX1）（第 1 版）\n修訂紀錄\n| 版次 | 生效日 |\n| 1 | 2026-06-01 |"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "admin-two-fabs",
+   "user": "admin_all",
+   "mode": "rag",
+   "question": "INC-2026-0006 和 INC-2026-0036 都是 RF 反射功率過高，兩次的根本原因各是什麼？",
+   "caption_zh": "跨兩廠的比較題：一份 FX2（restricted）、一份 FX1（confidential）報告，只有兩廠都有權限的身分能同時拿到。",
+   "caption_en": "A two-fab comparison (FX2 restricted + FX1 confidential reports): only an identity with both fabs gets both.",
+   "response": {
+    "mode": "rag",
+    "status": "done",
+    "answer": "INC-2026-0006（FX2-ETCHER-01）的根本原因是「RF 匹配器電容劣化」；INC-2026-0036（FX1-ETCHER-03）的根本原因是「壓力計校正偏移」。",
+    "citations": [
+     "INC-2026-0006",
+     "INC-2026-0036"
+    ],
+    "refused": false,
+    "steps": 0,
+    "calls": [],
+    "proposal": null,
+    "retrieved": [
+     "INC-2026-0006",
+     "INC-2026-0058",
+     "INC-2026-0036",
+     "INC-2026-0049",
+     "INC-2026-0009",
+     "INC-2026-0041",
+     "INC-2026-0052",
+     "SOP-FX1-ETC-RFP-0230-v1"
+    ],
+    "usage": {
+     "input_tokens": 3677,
+     "output_tokens": 122,
+     "cost_usd": 0.00042870000000000007,
+     "llm_calls": 1
+    }
+   },
+   "approval_steps": [],
+   "cited_docs": {
+    "INC-2026-0006": {
+     "doc_id": "INC-2026-0006",
+     "doc_type": "incident",
+     "fab": "FX2",
+     "department": "etch",
+     "clearance": 3,
+     "superseded_by": null,
+     "title": "FX2-ETCHER-01 RF 反射功率過高",
+     "sections": [
+      {
+       "section": "",
+       "text": "[INC-2026-0006] 異常報告：FX2-ETCHER-01 RF 反射功率過高\n## 基本資料\n| 項目 | 內容 |\n| --- | --- |\n| 發生時間 | 2026-09-02 03:07 |\n| 機台 | FX2-ETCHER-01 |\n| 腔體 | FX2-ETCHER-01-CHD |\n| Alarm code | ETC-RFP-0230 |\n| 批號 | FX2L00050 |\n\n## 現象描述\n2026-09-02 03:07 機台 FX2-ETCHER-01 的 FX2-ETCHER-01-CHD 發生RF 反射功率過高，量測值 123.0 W，已經超出管制上限，腔體暫停派貨。\n\n## 處理經過\n依 SOP-FX2-ETC-RFP-0230 處置：確認異常後等待重測，再次確認仍超出上限，執行零件更換後以監控晶圓驗證復機，停機共 563 分鐘。\n\n## 根本原因\nRF 匹配器電容劣化\n\n## 後續對策\n將「RF 匹配器電容劣化」納入零件更換檢查項目。"
+      }
+     ]
+    },
+    "INC-2026-0036": {
+     "doc_id": "INC-2026-0036",
+     "doc_type": "incident",
+     "fab": "FX1",
+     "department": "etch",
+     "clearance": 2,
+     "superseded_by": null,
+     "title": "FX1-ETCHER-03 RF 反射功率過高",
+     "sections": [
+      {
+       "section": "",
+       "text": "[INC-2026-0036] 異常報告：FX1-ETCHER-03 RF 反射功率過高\n## 基本資料\n| 項目 | 內容 |\n| --- | --- |\n| 發生時間 | 2026-09-06 06:10 |\n| 機台 | FX1-ETCHER-03 |\n| 腔體 | FX1-ETCHER-03-CHA |\n| Alarm code | ETC-RFP-0230 |\n| 批號 | FX1L00024 |\n\n## 現象描述\n2026-09-06 06:10 機台 FX1-ETCHER-03 的 FX1-ETCHER-03-CHA 發生RF 反射功率過高，量測值 113.5 W，以經超出管制上限，腔體站停派貨。\n\n## 處理經過\nOP 回報說 依 SOP-FX1-ETC-RFP-0230 處置：確認異常後等待重測，再次確認仍超出上限，執行月PM後以監控晶圓驗證recover，停機共 34 分鐘。受影響批號 FX1L00024 為急件，已 hold 並通知客戶窗口。\n\n## 根本原因\n壓力計校正偏移\n\n## 後續對策\n將「壓力計校正偏移」納入月保養檢查項目。"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "six-epd-lead_fx1_multi",
+   "user": "lead_fx1_multi",
+   "mode": "rag",
+   "question": "FX1 蝕刻機台發生終點偵測逾時（ETC-EPD-0118），量測超出上限後要等幾分鐘重測？要通知誰？",
+   "caption_zh": "同一題，六個身分各問一次：SOP 終點偵測逾時（FX1 蝕刻，internal）。",
+   "caption_en": "One question, six identities: Endpoint-timeout SOP (FX1 etch, internal).",
+   "groups": [
+    "epd"
+   ],
+   "response": {
+    "mode": "rag",
+    "status": "done",
+    "answer": "超出上限後，暫停該腔體派貨，等待 5 分鐘後重新量測。若連續 3 次量測都超出上限，hold 受影響批號並通知製程工程師。",
+    "citations": [
+     "SOP-FX1-ETC-EPD-0118-v2"
+    ],
+    "refused": false,
+    "steps": 0,
+    "calls": [],
+    "proposal": null,
+    "retrieved": [
+     "INC-2026-0124",
+     "SOP-FX1-ETC-EPD-0118-v2",
+     "INC-2026-0093",
+     "INC-2026-0025",
+     "INC-2026-0097",
+     "INC-2026-0053"
+    ],
+    "usage": {
+     "input_tokens": 3254,
+     "output_tokens": 241,
+     "cost_usd": 0.0,
+     "llm_calls": 1
+    }
+   },
+   "approval_steps": [],
+   "cited_docs": {
+    "SOP-FX1-ETC-EPD-0118-v2": {
+     "doc_id": "SOP-FX1-ETC-EPD-0118-v2",
+     "doc_type": "sop",
+     "fab": "FX1",
+     "department": "etch",
+     "clearance": 1,
+     "superseded_by": null,
+     "title": "終點偵測逾時處置程序（FX1）",
+     "sections": [
+      {
+       "section": "1. 目的",
+       "text": "[SOP-FX1-ETC-EPD-0118-v2] SOP：終點偵測逾時處置程序（FX1）（第 2 版）\n1. 目的\n規範 FX1 蝕刻區 ETCHER 機台發生「終點偵測逾時」（ETC-EPD-0118）時的處置方式，降低產品風險並縮短停機時間。"
+      },
+      {
+       "section": "2. 適用範圍",
+       "text": "[SOP-FX1-ETC-EPD-0118-v2] SOP：終點偵測逾時處置程序（FX1）（第 2 版）\n2. 適用範圍\n適用於 FX1 所有 ETCHER 機台與其腔體。"
+      },
+      {
+       "section": "3. 判定標準",
+       "text": "[SOP-FX1-ETC-EPD-0118-v2] SOP：終點偵測逾時處置程序（FX1）（第 2 版）\n3. 判定標準\n| 監控參數 | 下限 | 上限 | 單位 |\n| --- | --- | --- | --- |\n| endpoint delay | 5 | 30 | s |\n\n量測值高於上限 30 s 即判定為異常。"
+      },
+      {
+       "section": "4. 處置步驟",
+       "text": "[SOP-FX1-ETC-EPD-0118-v2] SOP：終點偵測逾時處置程序（FX1）（第 2 版）\n4. 處置步驟\n1. 確認 alarm 內容與發生的腔體，並查詢該腔體目前是否在保養中。\n2. 暫停該腔體派貨。保養中的腔體一律不得派貨。\n3. 等待 5 分鐘後重新量測。\n4. 若連續 3 次量測超出上限，hold 受影響批號並通知製程工程師。\n5. 執行季保養後，以 2 片監控晶圓驗證，通過才可復機。"
+      },
+      {
+       "section": "5. 升級條件",
+       "text": "[SOP-FX1-ETC-EPD-0118-v2] SOP：終點偵測逾時處置程序（FX1）（第 2 版）\n5. 升級條件\n異常持續超過 2 小時仍未排除，升級至模組經理。"
+      },
+      {
+       "section": "修訂紀錄",
+       "text": "[SOP-FX1-ETC-EPD-0118-v2] SOP：終點偵測逾時處置程序（FX1）（第 2 版）\n修訂紀錄\n| 版次 | 生效日 |\n| 2 | 2026-08-15 |"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "six-epd-mgr_fx2_all",
+   "user": "mgr_fx2_all",
+   "mode": "rag",
+   "question": "FX1 蝕刻機台發生終點偵測逾時（ETC-EPD-0118），量測超出上限後要等幾分鐘重測？要通知誰？",
+   "caption_zh": "同一題，六個身分各問一次：SOP 終點偵測逾時（FX1 蝕刻，internal）。",
+   "caption_en": "One question, six identities: Endpoint-timeout SOP (FX1 etch, internal).",
+   "groups": [
+    "epd"
+   ],
+   "response": {
+    "mode": "rag",
+    "status": "done",
+    "answer": "查無 FX1 的可用資料。現有文件只涵蓋 FX2 的終點偵測逾時程序（SOP-FX2-ETC-EPD-0118-v1），不適用於 FX1。若要套用 FX2 的規定，需先確認 FX1 有相同程序。",
+    "citations": [],
+    "refused": true,
+    "steps": 0,
+    "calls": [],
+    "proposal": null,
+    "retrieved": [
+     "INC-2026-0113",
+     "SOP-FX2-ETC-EPD-0118-v1",
+     "INC-2026-0015",
+     "INC-2026-0026",
+     "INC-2026-0096",
+     "SOP-FX2-LIT-OVL-0322-v1",
+     "SOP-FX2-TFM-THK-0611-v1"
+    ],
+    "usage": {
+     "input_tokens": 3206,
+     "output_tokens": 507,
+     "cost_usd": 0.0,
+     "llm_calls": 1
+    }
+   },
+   "approval_steps": [],
+   "cited_docs": {}
+  },
+  {
+   "id": "six-epd-admin_all",
+   "user": "admin_all",
+   "mode": "rag",
+   "question": "FX1 蝕刻機台發生終點偵測逾時（ETC-EPD-0118），量測超出上限後要等幾分鐘重測？要通知誰？",
+   "caption_zh": "同一題，六個身分各問一次：SOP 終點偵測逾時（FX1 蝕刻，internal）。",
+   "caption_en": "One question, six identities: Endpoint-timeout SOP (FX1 etch, internal).",
+   "groups": [
+    "epd"
+   ],
+   "response": {
+    "mode": "rag",
+    "status": "done",
+    "answer": "現有文件查無可用資料。SOP-FX1-ETC-EPD-0118-v2 的提供內容只有「目的」段落，未載明重測等待時間與通知對象。異常報告僅描述處置流程為「確認異常後等待重測，再次確認仍超出上限」，同樣沒有具體分鐘數或通知人員。請向程序負責單位確認完整 SOP 內容。",
+    "citations": [],
+    "refused": true,
+    "steps": 0,
+    "calls": [],
+    "proposal": null,
+    "retrieved": [
+     "INC-2026-0124",
+     "SOP-FX1-ETC-EPD-0118-v2",
+     "INC-2026-0093",
+     "INC-2026-0113",
+     "SOP-FX2-ETC-EPD-0118-v1",
+     "INC-2026-0092",
+     "INC-2026-0094",
+     "INC-2026-0025"
+    ],
+    "usage": {
+     "input_tokens": 3412,
+     "output_tokens": 460,
+     "cost_usd": 0.0,
+     "llm_calls": 1
+    }
+   },
+   "approval_steps": [],
+   "cited_docs": {}
+  },
+  {
+   "id": "six-comp-op_fx1_etch",
+   "user": "op_fx1_etch",
+   "mode": "rag",
+   "question": "FX1 蝕刻腔體壓力異常（ETC-PRS-0412）復機後，首批可以套用多少製程補償值？限用幾批？",
+   "caption_zh": "同一題，六個身分各問一次：製程補償參數（FX1 蝕刻，confidential）。",
+   "caption_en": "One question, six identities: Compensation values (FX1 etch, confidential).",
+   "groups": [
+    "comp"
+   ],
+   "response": {
+    "mode": "rag",
+    "status": "done",
+    "answer": "查無可用資料。提供的文件僅包含緊急應變總則（通報及人員安全原則），未涉及 FX1 蝕刻腔體壓力異常（ETC-PRS-0412）復機後的製程補償值或批次限制。",
+    "citations": [],
+    "refused": true,
+    "steps": 0,
+    "calls": [],
+    "proposal": null,
+    "retrieved": [
+     "GEN-FX1-EMERGENCY-v1"
+    ],
+    "usage": {
+     "input_tokens": 758,
+     "output_tokens": 104,
+     "cost_usd": 0.0,
+     "llm_calls": 1
+    }
+   },
+   "approval_steps": [],
+   "cited_docs": {}
+  },
+  {
+   "id": "six-comp-eng_fx2_litho",
+   "user": "eng_fx2_litho",
+   "mode": "rag",
+   "question": "FX1 蝕刻腔體壓力異常（ETC-PRS-0412）復機後，首批可以套用多少製程補償值？限用幾批？",
+   "caption_zh": "同一題，六個身分各問一次：製程補償參數（FX1 蝕刻，confidential）。",
+   "caption_en": "One question, six identities: Compensation values (FX1 etch, confidential).",
+   "groups": [
+    "comp"
+   ],
+   "response": {
+    "mode": "rag",
+    "status": "done",
+    "answer": "查無可用資料。提供的文件中沒有 FX1 蝕刻腔體壓力異常（ETC-PRS-0412）的復機與製程補償相關內容，文件僅涵蓋 FX2 的疊對誤差、對焦偏移與鏡組溫度漂移等異常，以及通用的異常升級通報辦法。",
+    "citations": [],
+    "refused": true,
+    "steps": 0,
+    "calls": [],
+    "proposal": null,
+    "retrieved": [
+     "GEN-FX2-ESCALATION-v1",
+     "INC-2026-0008",
+     "SOP-FX2-LIT-FOC-0301-v2",
+     "INC-2026-0129",
+     "SOP-FX2-LIT-OVL-0322-v1",
+     "INC-2026-0044",
+     "INC-2026-0106",
+     "INC-2026-0142"
+    ],
+    "usage": {
+     "input_tokens": 3277,
+     "output_tokens": 250,
+     "cost_usd": 0.0,
+     "llm_calls": 1
+    }
+   },
+   "approval_steps": [],
+   "cited_docs": {}
+  },
+  {
+   "id": "six-comp-mgr_fx2_all",
+   "user": "mgr_fx2_all",
+   "mode": "rag",
+   "question": "FX1 蝕刻腔體壓力異常（ETC-PRS-0412）復機後，首批可以套用多少製程補償值？限用幾批？",
+   "caption_zh": "同一題，六個身分各問一次：製程補償參數（FX1 蝕刻，confidential）。",
+   "caption_en": "One question, six identities: Compensation values (FX1 etch, confidential).",
+   "groups": [
+    "comp"
+   ],
+   "response": {
+    "mode": "rag",
+    "status": "done",
+    "answer": "查無可用資料。文件中只有 FX2 的 ETC-PRS-0412 處置程序，且其中沒有製程補償參數章節；其他補償值分屬不同程序（氦氣洩漏、爐管溫度、研磨液流量、鏡組溫度），且皆非 FX1 或腔體壓力異常。",
+    "citations": [],
+    "refused": true,
+    "steps": 0,
+    "calls": [],
+    "proposal": null,
+    "retrieved": [
+     "SOP-FX2-ETC-HEL-0507-v1",
+     "SOP-FX2-DIF-TMP-0702-v1",
+     "SOP-FX2-CMP-SLR-0822-v1",
+     "SOP-FX2-LIT-TMP-0150-v1",
+     "SOP-FX2-ETC-PRS-0412-v1",
+     "INC-2026-0062",
+     "INC-2026-0004"
+    ],
+    "usage": {
+     "input_tokens": 2360,
+     "output_tokens": 266,
+     "cost_usd": 0.0,
+     "llm_calls": 1
+    }
+   },
+   "approval_steps": [],
+   "cited_docs": {}
+  },
+  {
+   "id": "six-comp-admin_all",
+   "user": "admin_all",
+   "mode": "rag",
+   "question": "FX1 蝕刻腔體壓力異常（ETC-PRS-0412）復機後，首批可以套用多少製程補償值？限用幾批？",
+   "caption_zh": "同一題，六個身分各問一次：製程補償參數（FX1 蝕刻，confidential）。",
+   "caption_en": "One question, six identities: Compensation values (FX1 etch, confidential).",
+   "groups": [
+    "comp"
+   ],
+   "response": {
+    "mode": "rag",
+    "status": "done",
+    "answer": "依文件 SOP-FX1-ETC-PRS-0412-v1（第 1 版）第 6 節，復機首批可套用補償值為 +9%（chamber pressure），僅限 4 批內使用。",
+    "citations": [
+     "SOP-FX1-ETC-PRS-0412-v1"
+    ],
+    "refused": false,
+    "steps": 0,
+    "calls": [],
+    "proposal": null,
+    "retrieved": [
+     "SOP-FX1-ETC-PRS-0412-v1",
+     "SOP-FX1-TFM-PRT-0655-v1",
+     "SOP-FX1-TFM-GAS-0640-v2",
+     "SOP-FX1-DIF-O2C-0715-v1",
+     "SOP-FX1-TFM-THK-0611-v2",
+     "SOP-FX2-ETC-HEL-0507-v1",
+     "SOP-FX1-LIT-FOC-0301-v1",
+     "SOP-FX2-TFM-GAS-0640-v1"
+    ],
+    "usage": {
+     "input_tokens": 1654,
+     "output_tokens": 116,
+     "cost_usd": 0.0,
+     "llm_calls": 1
+    }
+   },
+   "approval_steps": [],
+   "cited_docs": {
+    "SOP-FX1-ETC-PRS-0412-v1": {
+     "doc_id": "SOP-FX1-ETC-PRS-0412-v1",
+     "doc_type": "sop",
+     "fab": "FX1",
+     "department": "etch",
+     "clearance": 2,
+     "superseded_by": null,
+     "title": "腔體壓力異常處置程序（FX1）",
+     "sections": [
+      {
+       "section": "1. 目的",
+       "text": "[SOP-FX1-ETC-PRS-0412-v1] SOP：腔體壓力異常處置程序（FX1）（第 1 版）\n1. 目的\n規範 FX1 蝕刻區 ETCHER 機台發生「腔體壓力異常」（ETC-PRS-0412）時的處置方式，降低產品風險並縮短停機時間。"
+      },
+      {
+       "section": "2. 適用範圍",
+       "text": "[SOP-FX1-ETC-PRS-0412-v1] SOP：腔體壓力異常處置程序（FX1）（第 1 版）\n2. 適用範圍\n適用於 FX1 所有 ETCHER 機台與其腔體。"
+      },
+      {
+       "section": "3. 判定標準",
+       "text": "[SOP-FX1-ETC-PRS-0412-v1] SOP：腔體壓力異常處置程序（FX1）（第 1 版）\n3. 判定標準\n| 監控參數 | 下限 | 上限 | 單位 |\n| --- | --- | --- | --- |\n| chamber pressure | 8 | 45 | mTorr |\n\n量測值高於上限 45 mTorr 即判定為異常。"
+      },
+      {
+       "section": "4. 處置步驟",
+       "text": "[SOP-FX1-ETC-PRS-0412-v1] SOP：腔體壓力異常處置程序（FX1）（第 1 版）\n4. 處置步驟\n1. 確認 alarm 內容與發生的腔體，並查詢該腔體目前是否在保養中。\n2. 暫停該腔體派貨。保養中的腔體一律不得派貨。\n3. 等待 10 分鐘後重新量測。\n4. 若連續 3 次量測超出上限，hold 受影響批號並通知設備工程師。\n5. 執行腔體濕式清潔後，以 1 片監控晶圓驗證，通過才可復機。"
+      },
+      {
+       "section": "5. 升級條件",
+       "text": "[SOP-FX1-ETC-PRS-0412-v1] SOP：腔體壓力異常處置程序（FX1）（第 1 版）\n5. 升級條件\n異常持續超過 8 小時仍未排除，升級至模組經理。"
+      },
+      {
+       "section": "6. 製程補償參數（限授權人員）",
+       "text": "[SOP-FX1-ETC-PRS-0412-v1] SOP：腔體壓力異常處置程序（FX1）（第 1 版）\n6. 製程補償參數（限授權人員）\n復機首批可套用補償值 +9%（chamber pressure），僅限 4 批內使用。"
+      },
+      {
+       "section": "修訂紀錄",
+       "text": "[SOP-FX1-ETC-PRS-0412-v1] SOP：腔體壓力異常處置程序（FX1）（第 1 版）\n修訂紀錄\n| 版次 | 生效日 |\n| 1 | 2026-06-01 |"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "six-slr-op_fx1_etch",
+   "user": "op_fx1_etch",
+   "mode": "rag",
+   "question": "研磨液流量異常（CMP-SLR-0822）時要等幾分鐘重測？連續幾次超出上限要 hold 批號？",
+   "caption_zh": "同一題，六個身分各問一次：研磨液流量異常（FX1、FX2 各有一份 confidential SOP）。",
+   "caption_en": "One question, six identities: Slurry-flow alarm (one confidential SOP per fab).",
+   "groups": [
+    "slr"
+   ],
+   "response": {
+    "mode": "rag",
+    "status": "done",
+    "answer": "查無可用資料。提供的文件僅包含緊急應變總則（通報及人員安全原則），未提及研磨液流量異常（CMP-SLR-0822）的重測等待時間，也未規定連續超出上限的 hold 批號次數。",
+    "citations": [],
+    "refused": true,
+    "steps": 0,
+    "calls": [],
+    "proposal": null,
+    "retrieved": [
+     "GEN-FX1-EMERGENCY-v1"
+    ],
+    "usage": {
+     "input_tokens": 754,
+     "output_tokens": 106,
+     "cost_usd": 0.0,
+     "llm_calls": 1
+    }
+   },
+   "approval_steps": [],
+   "cited_docs": {}
+  },
+  {
+   "id": "six-slr-eng_fx1_etch",
+   "user": "eng_fx1_etch",
+   "mode": "rag",
+   "question": "研磨液流量異常（CMP-SLR-0822）時要等幾分鐘重測？連續幾次超出上限要 hold 批號？",
+   "caption_zh": "同一題，六個身分各問一次：研磨液流量異常（FX1、FX2 各有一份 confidential SOP）。",
+   "caption_en": "One question, six identities: Slurry-flow alarm (one confidential SOP per fab).",
+   "groups": [
+    "slr"
+   ],
+   "response": {
+    "mode": "rag",
+    "status": "done",
+    "answer": "查無可用資料：提供的文件中沒有「研磨液流量異常（CMP-SLR-0822）」的處置程序，無法確認需等待的重測時間或 hold 批號的連續超標次數。",
+    "citations": [],
+    "refused": true,
+    "steps": 0,
+    "calls": [],
+    "proposal": null,
+    "retrieved": [
+     "INC-2026-0093",
+     "SOP-FX1-ETC-EPD-0118-v2",
+     "INC-2026-0124",
+     "INC-2026-0097",
+     "SOP-FX1-ETC-HEL-0507-v1",
+     "INC-2026-0102",
+     "SOP-FX1-ETC-RFP-0230-v1",
+     "INC-2026-0053"
+    ],
+    "usage": {
+     "input_tokens": 3415,
+     "output_tokens": 140,
+     "cost_usd": 0.0,
+     "llm_calls": 1
+    }
+   },
+   "approval_steps": [],
+   "cited_docs": {}
+  },
+  {
+   "id": "six-slr-eng_fx2_litho",
+   "user": "eng_fx2_litho",
+   "mode": "rag",
+   "question": "研磨液流量異常（CMP-SLR-0822）時要等幾分鐘重測？連續幾次超出上限要 hold 批號？",
+   "caption_zh": "同一題，六個身分各問一次：研磨液流量異常（FX1、FX2 各有一份 confidential SOP）。",
+   "caption_en": "One question, six identities: Slurry-flow alarm (one confidential SOP per fab).",
+   "groups": [
+    "slr"
+   ],
+   "response": {
+    "mode": "rag",
+    "status": "done",
+    "answer": "查無可用資料。提供的文件中僅有疊對誤差超限（LIT-OVL-0322）、對焦偏移（LIT-FOC-0301）及鏡組溫度漂移（LIT-TMP-0150）相關的處置程序與異常報告，沒有研磨液流量異常（CMP-SLR-0822）的處置步驟，因此無法回答等待重測的時間與 hold 批號的次數。",
+    "citations": [],
+    "refused": true,
+    "steps": 0,
+    "calls": [],
+    "proposal": null,
+    "retrieved": [
+     "SOP-FX2-LIT-OVL-0322-v1",
+     "INC-2026-0044",
+     "INC-2026-0008",
+     "INC-2026-0142",
+     "INC-2026-0129",
+     "INC-2026-0043",
+     "INC-2026-0084",
+     "SOP-FX2-LIT-FOC-0301-v2"
+    ],
+    "usage": {
+     "input_tokens": 3622,
+     "output_tokens": 166,
+     "cost_usd": 0.0,
+     "llm_calls": 1
+    }
+   },
+   "approval_steps": [],
+   "cited_docs": {}
+  },
+  {
+   "id": "six-slr-lead_fx1_multi",
+   "user": "lead_fx1_multi",
+   "mode": "rag",
+   "question": "研磨液流量異常（CMP-SLR-0822）時要等幾分鐘重測？連續幾次超出上限要 hold 批號？",
+   "caption_zh": "同一題，六個身分各問一次：研磨液流量異常（FX1、FX2 各有一份 confidential SOP）。",
+   "caption_en": "One question, six identities: Slurry-flow alarm (one confidential SOP per fab).",
+   "groups": [
+    "slr"
+   ],
+   "response": {
+    "mode": "rag",
+    "status": "done",
+    "answer": "依 SOP-FX1-CMP-SLR-0822 第 1 版：等待 20 分鐘後重新量測；若連續 2 次量測超出上限，hold 受影響批號並通知模組經理。提供的文件中只有第 1 版，未見更新版次，請以現行受控版本為準。",
+    "citations": [
+     "SOP-FX1-CMP-SLR-0822-v1"
+    ],
+    "refused": false,
+    "steps": 0,
+    "calls": [],
+    "proposal": null,
+    "retrieved": [
+     "INC-2026-0014",
+     "INC-2026-0030",
+     "INC-2026-0085",
+     "INC-2026-0037",
+     "INC-2026-0104",
+     "INC-2026-0042",
+     "INC-2026-0057",
+     "SOP-FX1-CMP-SLR-0822-v1"
+    ],
+    "usage": {
+     "input_tokens": 3772,
+     "output_tokens": 390,
+     "cost_usd": 0.0,
+     "llm_calls": 1
+    }
+   },
+   "approval_steps": [],
+   "cited_docs": {
+    "SOP-FX1-CMP-SLR-0822-v1": {
+     "doc_id": "SOP-FX1-CMP-SLR-0822-v1",
+     "doc_type": "sop",
+     "fab": "FX1",
+     "department": "cmp",
+     "clearance": 1,
+     "superseded_by": null,
+     "title": "研磨液流量不足處置程序（FX1）",
+     "sections": [
+      {
+       "section": "1. 目的",
+       "text": "[SOP-FX1-CMP-SLR-0822-v1] SOP：研磨液流量不足處置程序（FX1）（第 1 版）\n1. 目的\n規範 FX1 研磨區 POLISHER 機台發生「研磨液流量不足」（CMP-SLR-0822）時的處置方式，降低產品風險並縮短停機時間。"
+      },
+      {
+       "section": "2. 適用範圍",
+       "text": "[SOP-FX1-CMP-SLR-0822-v1] SOP：研磨液流量不足處置程序（FX1）（第 1 版）\n2. 適用範圍\n適用於 FX1 所有 POLISHER 機台與其腔體。"
+      },
+      {
+       "section": "3. 判定標準",
+       "text": "[SOP-FX1-CMP-SLR-0822-v1] SOP：研磨液流量不足處置程序（FX1）（第 1 版）\n3. 判定標準\n| 監控參數 | 下限 | 上限 | 單位 |\n| --- | --- | --- | --- |\n| slurry flow | 80 | 250 | ml/min |\n\n量測值高於上限 250 ml/min 即判定為異常。"
+      },
+      {
+       "section": "4. 處置步驟",
+       "text": "[SOP-FX1-CMP-SLR-0822-v1] SOP：研磨液流量不足處置程序（FX1）（第 1 版）\n4. 處置步驟\n1. 確認 alarm 內容與發生的腔體，並查詢該腔體目前是否在保養中。\n2. 暫停該腔體派貨。保養中的腔體一律不得派貨。\n3. 等待 20 分鐘後重新量測。\n4. 若連續 2 次量測超出上限，hold 受影響批號並通知模組經理。\n5. 執行週保養後，以 2 片監控晶圓驗證，通過才可復機。"
+      },
+      {
+       "section": "5. 升級條件",
+       "text": "[SOP-FX1-CMP-SLR-0822-v1] SOP：研磨液流量不足處置程序（FX1）（第 1 版）\n5. 升級條件\n異常持續超過 4 小時仍未排除，升級至模組經理。"
+      },
+      {
+       "section": "修訂紀錄",
+       "text": "[SOP-FX1-CMP-SLR-0822-v1] SOP：研磨液流量不足處置程序（FX1）（第 1 版）\n修訂紀錄\n| 版次 | 生效日 |\n| --- | --- |\n| 1 | 2026-06-01 |"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "six-slr-mgr_fx2_all",
+   "user": "mgr_fx2_all",
+   "mode": "rag",
+   "question": "研磨液流量異常（CMP-SLR-0822）時要等幾分鐘重測？連續幾次超出上限要 hold 批號？",
+   "caption_zh": "同一題，六個身分各問一次：研磨液流量異常（FX1、FX2 各有一份 confidential SOP）。",
+   "caption_en": "One question, six identities: Slurry-flow alarm (one confidential SOP per fab).",
+   "groups": [
+    "slr"
+   ],
+   "response": {
+    "mode": "rag",
+    "status": "done",
+    "answer": "研磨液流量異常（CMP-SLR-0822）時，暫停派貨後須等待 30 分鐘再重新量測。若連續 2 次量測超出上限（250 ml/min），即 hold 受影響批號並通知設備工程師。",
+    "citations": [
+     "SOP-FX2-CMP-SLR-0822-v1"
+    ],
+    "refused": false,
+    "steps": 0,
+    "calls": [],
+    "proposal": null,
+    "retrieved": [
+     "INC-2026-0045",
+     "INC-2026-0121",
+     "INC-2026-0068",
+     "INC-2026-0038",
+     "SOP-FX2-CMP-SLR-0822-v1",
+     "INC-2026-0033"
+    ],
+    "usage": {
+     "input_tokens": 3262,
+     "output_tokens": 270,
+     "cost_usd": 0.0,
+     "llm_calls": 1
+    }
+   },
+   "approval_steps": [],
+   "cited_docs": {
+    "SOP-FX2-CMP-SLR-0822-v1": {
+     "doc_id": "SOP-FX2-CMP-SLR-0822-v1",
+     "doc_type": "sop",
+     "fab": "FX2",
+     "department": "cmp",
+     "clearance": 2,
+     "superseded_by": null,
+     "title": "研磨液流量不足處置程序（FX2）",
+     "sections": [
+      {
+       "section": "1. 目的",
+       "text": "[SOP-FX2-CMP-SLR-0822-v1] SOP：研磨液流量不足處置程序（FX2）（第 1 版）\n1. 目的\n規範 FX2 研磨區 POLISHER 機台發生「研磨液流量不足」（CMP-SLR-0822）時的處置方式，降低產品風險並縮短停機時間。"
+      },
+      {
+       "section": "2. 適用範圍",
+       "text": "[SOP-FX2-CMP-SLR-0822-v1] SOP：研磨液流量不足處置程序（FX2）（第 1 版）\n2. 適用範圍\n適用於 FX2 所有 POLISHER 機台與其腔體。"
+      },
+      {
+       "section": "3. 判定標準",
+       "text": "[SOP-FX2-CMP-SLR-0822-v1] SOP：研磨液流量不足處置程序（FX2）（第 1 版）\n3. 判定標準\n| 監控參數 | 下限 | 上限 | 單位 |\n| --- | --- | --- | --- |\n| slurry flow | 80 | 250 | ml/min |\n\n量測值高於上限 250 ml/min 即判定為異常。"
+      },
+      {
+       "section": "4. 處置步驟",
+       "text": "[SOP-FX2-CMP-SLR-0822-v1] SOP：研磨液流量不足處置程序（FX2）（第 1 版）\n4. 處置步驟\n1. 確認 alarm 內容與發生的腔體，並查詢該腔體目前是否在保養中。\n2. 暫停該腔體派貨。保養中的腔體一律不得派貨。\n3. 等待 30 分鐘後重新量測。\n4. 若連續 2 次量測超出上限，hold 受影響批號並通知設備工程師。\n5. 執行季保養後，以 1 片監控晶圓驗證，通過才可復機。"
+      },
+      {
+       "section": "5. 升級條件",
+       "text": "[SOP-FX2-CMP-SLR-0822-v1] SOP：研磨液流量不足處置程序（FX2）（第 1 版）\n5. 升級條件\n異常持續超過 4 小時仍未排除，升級至模組經理。"
+      },
+      {
+       "section": "6. 製程補償參數（限授權人員）",
+       "text": "[SOP-FX2-CMP-SLR-0822-v1] SOP：研磨液流量不足處置程序（FX2）（第 1 版）\n6. 製程補償參數（限授權人員）\n復機首批可套用補償值 -2%（slurry flow），僅限 4 批內使用。"
+      },
+      {
+       "section": "修訂紀錄",
+       "text": "[SOP-FX2-CMP-SLR-0822-v1] SOP：研磨液流量不足處置程序（FX2）（第 1 版）\n修訂紀錄\n| 版次 | 生效日 |\n| 1 | 2026-06-01 |"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "six-slr-admin_all",
+   "user": "admin_all",
+   "mode": "rag",
+   "question": "研磨液流量異常（CMP-SLR-0822）時要等幾分鐘重測？連續幾次超出上限要 hold 批號？",
+   "caption_zh": "同一題，六個身分各問一次：研磨液流量異常（FX1、FX2 各有一份 confidential SOP）。",
+   "caption_en": "One question, six identities: Slurry-flow alarm (one confidential SOP per fab).",
+   "groups": [
+    "slr"
+   ],
+   "response": {
+    "mode": "rag",
+    "status": "done",
+    "answer": "文件中查無可用資料。異常報告僅記載依 SOP-FX1/FX2-CMP-SLR-0822 處置時「確認異常後等待重測，再次確認仍超出上限」，但未載明重測等待的分鐘數，也未規定連續幾次超出上限須 hold 批號。",
+    "citations": [],
+    "refused": true,
+    "steps": 0,
+    "calls": [],
+    "proposal": null,
+    "retrieved": [
+     "INC-2026-0121",
+     "INC-2026-0045",
+     "INC-2026-0068",
+     "INC-2026-0014",
+     "INC-2026-0030",
+     "INC-2026-0085",
+     "INC-2026-0037",
+     "INC-2026-0104"
+    ],
+    "usage": {
+     "input_tokens": 3943,
+     "output_tokens": 401,
+     "cost_usd": 0.0,
+     "llm_calls": 1
+    }
+   },
+   "approval_steps": [],
+   "cited_docs": {}
   }
  ]
 }
