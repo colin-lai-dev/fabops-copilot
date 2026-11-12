@@ -60,6 +60,10 @@
   --mono: "JetBrains Mono", ui-monospace, monospace;
   --subs-h: 112px;
   color-scheme: light;
+  --hover-bg: #eef1f5;
+  --press-bg: #e2e7ee;
+  --hover-line: #aeb8c6;
+  --chip-hover-bg: #f4d693;
 }
 
 /* Dark theme: follows the system unless the visitor chose light; an explicit choice wins
@@ -122,7 +126,11 @@
     --series-1: #8f91f2;
     --series-2: #3fb883;
     color-scheme: dark;
-  }
+      --hover-bg: #1d2633;
+    --press-bg: #283344;
+    --hover-line: #4f6076;
+    --chip-hover-bg: #664f1b;
+}
 }
 :root[data-theme="dark"] {
   --cleanroom: #0e131a;
@@ -181,6 +189,10 @@
   --series-1: #8f91f2;
   --series-2: #3fb883;
   color-scheme: dark;
+  --hover-bg: #1d2633;
+  --press-bg: #283344;
+  --hover-line: #4f6076;
+  --chip-hover-bg: #664f1b;
 }
 
 * {
@@ -230,8 +242,10 @@ button {
   border-radius: 4px;
   padding: 5px 12px;
 }
-button:hover:not(:disabled) {
-  border-color: var(--slate-3);
+@media (hover: hover) {
+  button:hover:not(:disabled) {
+    border-color: var(--slate-3);
+  }
 }
 button:disabled {
   opacity: 0.45;
@@ -1444,9 +1458,11 @@ mark.malicious {
   text-decoration: underline;
   text-underline-offset: 3px;
 }
-.step-next:hover:not(:disabled) {
-  border: none;
-  text-decoration-thickness: 2px;
+@media (hover: hover) {
+  .step-next:hover:not(:disabled) {
+    border: none;
+    text-decoration-thickness: 2px;
+  }
 }
 @media (max-width: 760px) {
   .top-tools {
@@ -1492,8 +1508,10 @@ mark.malicious {
   box-shadow: 0 4px 14px var(--shadow);
   font-size: 13px;
 }
-.audit-hint:hover:not(:disabled) {
-  border-color: var(--litho-amber);
+@media (hover: hover) {
+  .audit-hint:hover:not(:disabled) {
+    border-color: var(--litho-amber);
+  }
 }
 @media (max-width: 760px) {
   /* identities as one swipeable row on phones, so each step's content starts near the top */
@@ -1676,9 +1694,11 @@ mark.malicious {
   place-items: center;
   color: var(--slate-2);
 }
-.tool-btn:hover:not(:disabled) {
-  color: var(--ink);
-  border-color: var(--slate-3);
+@media (hover: hover) {
+  .tool-btn:hover:not(:disabled) {
+    color: var(--ink);
+    border-color: var(--slate-3);
+  }
 }
 .lang-seg {
   display: inline-flex;
@@ -1701,9 +1721,11 @@ mark.malicious {
   background: var(--console);
   color: var(--on-console);
 }
-.lang-seg button:hover:not(:disabled):not([aria-pressed="true"]) {
-  color: var(--ink);
-  border: none;
+@media (hover: hover) {
+  .lang-seg button:hover:not(:disabled):not([aria-pressed="true"]) {
+    color: var(--ink);
+    border: none;
+  }
 }
 .bi {
   display: inline-grid;
@@ -1884,4 +1906,144 @@ mark.malicious {
 }
 .wafer-info:empty {
   margin: 0;
+}
+
+/* ------------------------------------------------------------ v8: one hover / press language
+   Hover only where a pointer can hover; :active gives touch feedback; 140 ms, none under
+   reduced motion. Keyboard focus stays the separate violet outline. */
+:root {
+  --t-fast: 140ms;
+}
+@media (prefers-reduced-motion: no-preference) {
+  button,
+  .badge,
+  .badge::before,
+  .pick-opt,
+  .rail-item,
+  .rail-n,
+  .chip,
+  .six-col {
+    transition:
+      background-color var(--t-fast) ease,
+      border-color var(--t-fast) ease,
+      color var(--t-fast) ease;
+  }
+  .theme-switch svg {
+    animation: icon-in var(--t-fast) ease-out;
+  }
+}
+@keyframes icon-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (hover: hover) {
+  button:hover:not(:disabled) {
+    background-color: var(--hover-bg);
+    border-color: var(--hover-line);
+  }
+  button.primary:hover:not(:disabled) {
+    background-color: color-mix(in srgb, var(--primary) 86%, var(--panel));
+    border-color: color-mix(in srgb, var(--primary) 86%, var(--panel));
+  }
+  button.approve:hover:not(:disabled) {
+    background-color: color-mix(in srgb, var(--pass-green) 86%, black);
+    border-color: color-mix(in srgb, var(--pass-green) 86%, black);
+  }
+  button.quiet:hover:not(:disabled),
+  .step-next:hover:not(:disabled) {
+    background-color: transparent;
+    border-color: transparent;
+    color: var(--ink);
+  }
+  /* identity cards: a hint of the level colour, never a jump */
+  .badge:not(.badge-on):hover {
+    cursor: pointer;
+    background-color: color-mix(in srgb, var(--lvl-tint) 60%, var(--panel-dim));
+    border-color: color-mix(in srgb, var(--lvl-band) 40%, var(--line));
+  }
+  .badge:not(.badge-on):hover::before {
+    background: color-mix(in srgb, var(--lvl-band) 45%, transparent);
+  }
+  .badge:not(.badge-on):hover .badge-name {
+    color: var(--ink);
+  }
+  .badge-on:hover {
+    background-color: var(--lvl-tint);
+    border-color: var(--lvl-band);
+  }
+  /* header tools */
+  .tool-btn:hover:not(:disabled) {
+    background-color: var(--hover-bg);
+    border-color: var(--hover-line);
+    color: var(--ink);
+  }
+  .lang-seg button:not([aria-pressed="true"]):hover:not(:disabled) {
+    background-color: var(--hover-bg);
+    color: var(--ink);
+    border: none;
+  }
+  /* question picker */
+  .pick-button:hover {
+    background-color: var(--hover-bg);
+    border-color: var(--hover-line);
+    border-left-color: var(--litho-amber);
+  }
+  /* step rail */
+  .rail-item:not(.rail-on):hover {
+    background-color: var(--hover-bg);
+    color: var(--ink);
+  }
+  .rail-item:not(.rail-on):hover .rail-n {
+    border-color: var(--ink);
+    color: var(--ink);
+  }
+  /* citations and six-identity columns */
+  .chip-cite:hover {
+    background-color: var(--chip-hover-bg);
+    border-color: var(--amber-ink);
+  }
+  .six-col:hover {
+    border-left-color: var(--hover-line);
+    border-right-color: var(--hover-line);
+    border-bottom-color: var(--hover-line);
+  }
+}
+/* pressed: one step deeper, on every device */
+button:active:not(:disabled),
+.lang-seg button:active:not(:disabled) {
+  background-color: var(--press-bg);
+}
+button.primary:active:not(:disabled) {
+  background-color: color-mix(in srgb, var(--primary) 76%, var(--panel));
+}
+button.approve:active:not(:disabled) {
+  background-color: color-mix(in srgb, var(--pass-green) 78%, black);
+}
+.badge:not(.badge-on):active {
+  background-color: var(--lvl-tint);
+}
+/* picker options: hover and arrow keys share one highlight; the chosen question has a check */
+.pick-opt {
+  position: relative;
+  padding-right: 34px;
+}
+.pick-active {
+  background: var(--hover-bg);
+  border-left-color: var(--slate-3);
+}
+.pick-chosen {
+  border-left-color: var(--litho-amber);
+}
+.pick-chosen::after {
+  content: "✓";
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--amber-ink);
+  font-weight: 700;
 }
