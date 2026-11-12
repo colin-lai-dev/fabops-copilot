@@ -196,6 +196,7 @@ function Footer({ meta }) {
         <a href={REPO}>{t("foot.source")}</a>
         <a href={`${REPO}#eval-results`}>{t("foot.evals")}</a>
         <a href={`${REPO}/releases/tag/demo-v1`}>{t("foot.video")}</a>
+        {REPLAY && <a href={`${import.meta.env.BASE_URL}v8/`}>{t("foot.v8")}</a>}
       </nav>
       <p>{t("foot.synthetic")}</p>
       <p className="foot-meta">
@@ -505,11 +506,6 @@ function Console({ lang, setLang }) {
         </header>
 
         <p className="strip" role="note">
-          {__LAB__ && (
-            <span className="strip-lab">
-              {t("strip.lab")} · <a href="../">{t("strip.back")}</a>
-            </span>
-          )}
           {REPLAY && <span>{t("strip.recorded")}</span>}
         </p>
 
@@ -640,8 +636,10 @@ function Console({ lang, setLang }) {
                   {onMain && run?.proposal && (
                     <section className="approve-panel">
                       <h2>{t("ap.title")}</h2>
-                      <ApprovalGuide run={run} me={me} users={users} attempts={attempts} onSwitch={actAs} />
+                      {/* the proposal and its buttons first (in view on a 1280 x 800 screen), then
+                          what to try next as this identity */}
                       <Approvals
+                        guide={<ApprovalGuide run={run} me={me} users={users} attempts={attempts} onSwitch={actAs} />}
                         api={api}
                         me={me}
                         refreshKey={refreshKey}

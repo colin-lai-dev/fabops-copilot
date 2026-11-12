@@ -15,7 +15,7 @@ const inView = (el) => {
 // `view` ({ audit, msg }) lives in the parent: the block can be re-mounted when it moves between
 // the evidence column and the main column (a resize across 760 px, or a full-page screenshot that
 // briefly flips the media query), and a decision's result must survive that (handoff 019).
-export default function Approvals({ api, me, refreshKey, onDecided, onAttempt, view, setView, onListed }) {
+export default function Approvals({ api, me, refreshKey, onDecided, onAttempt, view, setView, onListed, guide }) {
   const t = useT();
   const why = (r) => t(`why.${r}`);
   const [blind, setBlind] = useState([]);
@@ -105,6 +105,7 @@ export default function Approvals({ api, me, refreshKey, onDecided, onAttempt, v
           </p>
         </div>
       )}
+      {guide}
       <p className="fine ap-rules">{t("ap.rules")}</p>
       {audit && audit.rows.length > 0 && (
         <div className="audit" ref={auditRef}>
