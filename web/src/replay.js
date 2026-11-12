@@ -45,6 +45,7 @@ export const replay = {
       return {
         user,
         run: s?.response,
+        cutOff: Boolean(s?.answer_cut_off),
         visible: seen.length,
         total: d.docs.length,
         targetVisible: g.target_doc ? seen.includes(idx) : null,

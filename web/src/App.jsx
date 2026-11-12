@@ -524,6 +524,9 @@ function Console({ lang, setLang }) {
                           ))}
                         </select>
                       )}
+                      {REPLAY && scene?.six_unavailable && (
+                        <p className="fine six-unavailable">{t("six.unavailable")}</p>
+                      )}
                       {(REPLAY ? scene?.groups?.length > 0 : question.trim()) && (
                         <button
                           type="button"

@@ -1012,10 +1012,10 @@ mark.malicious {
   background: var(--panel);
   border-top: 4px solid var(--line);
 }
-.six-answered {
+.six-tone-good {
   border-top-color: var(--pass-green);
 }
-.six-refused {
+.six-tone-bad {
   border-top-color: var(--hold-red);
   background: #fcfbfb;
 }
@@ -1073,7 +1073,7 @@ mark.malicious {
   margin: 0;
   flex: 1;
 }
-.six-refused .six-answer {
+.six-tone-bad .six-answer {
   color: var(--slate-3);
 }
 .six-cites {
@@ -1142,4 +1142,40 @@ mark.malicious {
   cursor: pointer;
   color: var(--slate-2);
   font-size: 13px;
+}
+
+/* ------------------------------------------------------------ v4: six-identity verdicts */
+.six-tone-warn {
+  border-top-color: var(--litho-amber);
+}
+.six-tone-violet {
+  border-top-color: var(--nitride-violet);
+}
+.six-verdict.warn {
+  background: var(--amber-wash);
+  color: var(--amber-ink);
+}
+.six-verdict.violet {
+  background: var(--violet-wash);
+  color: var(--nitride-violet);
+}
+.six-proposal {
+  margin-top: -2px;
+}
+.six-unavailable {
+  flex-basis: 100%;
+  margin: 0;
+}
+.six-answer.clamped {
+  display: -webkit-box;
+  -webkit-line-clamp: 7;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  flex: 0 0 auto;
+}
+.six-more {
+  align-self: start;
+  font-size: 12px;
+  padding: 0 4px;
+  min-height: 0;
 }
