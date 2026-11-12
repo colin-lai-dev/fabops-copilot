@@ -10,7 +10,7 @@ calls step by step, a real approval flow with an audit log, and an injection nex
 Light / dark theme, Chinese / English interface, deep links such as `#step=approval`.
 3-minute video: [release `demo-v1`](https://github.com/colin-lai-dev/fabops-copilot/releases/tag/demo-v1).
 
-![28-second demo: the wafer map filters by permission before retrieval, a cited SOP passage opens in a drawer, an operator is refused, the same question answered by six identities side by side, agent steps, a proposal refused then approved, and the injection control](docs/assets/demo.gif)
+![28-second demo: clearance badges, the wafer map filtering by permission before retrieval, a cited SOP passage opened in a drawer, an operator refused, the same question answered by six identities side by side, agent steps, and one proposal refused for its requester, not listed for an FX1 lead and approved by the administrator, then the injection control](docs/assets/demo.gif)
 
 **An AI assistant for semiconductor fab anomaly handling that never shows an engineer a document
 they are not cleared to see** — permission-aware RAG over SOPs and past incident reports, plus a
