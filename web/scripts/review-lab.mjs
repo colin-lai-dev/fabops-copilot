@@ -71,9 +71,51 @@ await click(".proposal-card button.approve");
 await page.waitForSelector(".ev-executed");
 await page.waitForTimeout(1500);
 if (!(await page.locator(".ev-executed").count())) problems.push("approval: audit log gone after 1.5 s");
+// the audit hint (handoff 025): hidden while the audit log is on screen; when shown it sits in the
+// page flow and overlaps no other element's box; once the log is scrolled into view it goes away
+const hintState = () =>
+  page.evaluate(() => {
+    const h = document.querySelector(".audit-hint");
+    const a = document.querySelector(".audit");
+    if (!h || !a) return { missing: true };
+    const on = !h.classList.contains("audit-hint-off");
+    const ar = a.getBoundingClientRect();
+    const auditOn = ar.top < innerHeight - 24 && ar.bottom > 24;
+    const hr = h.getBoundingClientRect();
+    const hit = (r) => r.left < hr.right && r.right > hr.left && r.top < hr.bottom && r.bottom > hr.top;
+    const covers = on && getComputedStyle(h).position !== "static" ? "not in flow" : null;
+    const overlap = on
+      ? [...document.querySelectorAll("p, li, b, span, a, button")]
+          .filter((e) => e !== h && !h.contains(e) && !e.contains(h) && e.offsetParent && hit(e.getBoundingClientRect()))
+          .map((e) => e.className || e.tagName)
+      : [];
+    return { on, auditOn, covers, overlap };
+  });
+{
+  const s1 = await hintState();
+  if (s1.missing) problems.push("approval: no audit hint slot");
+  else {
+    if (s1.on && s1.auditOn) problems.push("approval: hint shown while the audit log is on screen");
+    if (!s1.on && !s1.auditOn) problems.push("approval: audit log off screen but no hint");
+    if (s1.covers) problems.push(`approval: hint ${s1.covers}`);
+    if (s1.overlap.length) problems.push(`approval: hint overlaps ${s1.overlap.join(", ")}`);
+    if (s1.on) {
+      await page.locator(".audit").scrollIntoViewIfNeeded();
+      await page.waitForTimeout(300);
+      if ((await hintState()).on) problems.push("approval: hint still shown after the audit log came into view");
+      await page.evaluate(() => window.scrollTo(0, 0));
+    }
+  }
+  console.log(`audit hint at decision: ${JSON.stringify(s1)}`);
+}
 await shot("approval-c-approved");
 if ((await page.locator(".audit li").count()) < 5) problems.push("approval: audit log gone after a full-page screenshot");
 if (!(await page.locator(".node-proposal .state-executed").count())) problems.push("approval: proposal not shown as executed");
+
+// outside the guided steps the caption shows the current identity, not an empty band
+await open("#q=comp&as=admin_all");
+if (await page.locator(".step-on").count()) problems.push("free question: a guided step is selected");
+if (!(await page.locator(".caption .caption-me .clr-chip").count())) problems.push("free question: no identity in the caption");
 
 // 3. every recorded question as every identity; the drawer for the first citation
 for (const g of data.groups) {

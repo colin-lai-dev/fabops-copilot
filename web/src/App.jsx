@@ -13,6 +13,7 @@ import Results from "./components/Results.jsx";
 import DocDrawer from "./components/DocDrawer.jsx";
 import ScenePicker from "./components/ScenePicker.jsx";
 import Logo from "./components/Logo.jsx";
+import Clearance from "./components/Clearance.jsx";
 
 // Design lab (handoff 022). The page is built around "the lot": six wafers, one per identity,
 // for the same question. Picking a wafer keeps the question and shows that identity's own
@@ -110,6 +111,23 @@ function ThemeToggle() {
 
 // Text in the current language with the other language laid invisibly in the same grid cell:
 // the box takes the taller of the two, so switching language does not reflow the page.
+// Outside the guided steps (a deep link or a freely picked question) the caption keeps its
+// reserved height, so the stage never moves; it shows who is looking instead of an empty band.
+function IdentityLine({ me, slot }) {
+  const t = useT();
+  if (!me) return <p />;
+  return (
+    <p className="caption-me">
+      <span className="caption-me-label">{t("lot.you")}</span>
+      <b>{t.user(me)}</b>
+      <span className="code">{me.user_id}</span>
+      <Clearance level={me.clearance} />
+      {slot && <span>{t("lot.sees", { n: slot.visible.length, total: slot.total })}</span>}
+      <span className="fine">{t("lot.tourHint")}</span>
+    </p>
+  );
+}
+
 function Bi({ zh, en }) {
   const t = useT();
   const [cur, other] = t.lang === "en" ? [en, zh] : [zh, en];
@@ -528,7 +546,13 @@ function Console({ lang, setLang }) {
         </nav>
 
         <div className="caption">
-          <p>{step ? <Bi zh={step.explain} en={step.explain_en} /> : <Bi zh={" "} en={" "} />}</p>
+          {step ? (
+            <p>
+              <Bi zh={step.explain} en={step.explain_en} />
+            </p>
+          ) : (
+            <IdentityLine me={me} slot={lot.find((s) => s.user.user_id === uid)} />
+          )}
           {nextStep && (
             <button type="button" className="link caption-next" onClick={() => goTo(tour + 1)}>
               <Bi
