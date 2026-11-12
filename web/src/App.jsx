@@ -306,6 +306,10 @@ function Console({ lang, setLang }) {
   const [focusId, setFocusId] = useState(null);
   const [openDoc, setOpenDoc] = useState(null); // cited document shown in the drawer
   const [attempts, setAttempts] = useState([]); // approval tries on screen: { user, ok, approved }
+  // Approval result and audit log on screen. Kept here so a re-mount of the approval block keeps
+  // them; cleared on an identity switch (an audit log belongs to the identity that fetched it:
+  // the API answers 404 to someone who cannot see the target) and on a new answer.
+  const [apView, setApView] = useState({ audit: null, msg: null });
   const [six, setSix] = useState(null); // six-identity view: group id (replay) or "live"
   const [sixData, setSixData] = useState(null);
   const [results, setResults] = useState(null);
@@ -396,6 +400,7 @@ function Console({ lang, setLang }) {
 
   async function login(userId) {
     setOpenDoc(null);
+    setApView({ audit: null, msg: null });
     const u = await api.login(userId);
     setMe(u);
     setDocs(await api.docs());
@@ -472,6 +477,7 @@ function Console({ lang, setLang }) {
       setRun(r);
       setRunScene(id);
       setAttempts([]);
+      setApView({ audit: null, msg: null });
       setFocusId(r.citations?.[0] || null);
       setRefreshKey((k) => k + 1);
     } catch (e) {
@@ -511,6 +517,8 @@ function Console({ lang, setLang }) {
           refreshKey={refreshKey}
           onDecided={(d) => setRun((r) => (r ? { ...r, status: d.status, proposal: d.proposal ?? r.proposal } : r))}
           onAttempt={(a) => setAttempts((xs) => [...xs, { user: me.user_id, ...a }])}
+          view={apView}
+          setView={setApView}
         />
       )}
     </details>

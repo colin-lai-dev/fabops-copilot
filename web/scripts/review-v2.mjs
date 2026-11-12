@@ -69,7 +69,10 @@ for (let i = 0; i < steps; i++) {
     await page.waitForTimeout(600);
     await page.locator(".proposal-card button.approve").click();
     await page.waitForSelector(".ev-executed");
+    await page.waitForTimeout(1500); // the audit log must stay (handoff 019)
+    if (!(await page.locator(".ev-executed").count())) problems.push("approval: audit log gone after 1.5 s");
     await shot(`tour-${i + 1}-c-approved`);
+    if ((await page.locator(".audit li").count()) < 5) problems.push("approval: audit log gone after a full-page screenshot");
   }
 }
 
