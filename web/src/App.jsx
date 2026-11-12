@@ -223,6 +223,21 @@ function Footer({ meta }) {
   );
 }
 
+// An evidence block that is just its title while it has nothing to show, and opens by itself
+// when content arrives (handoff 020). The visitor can still open or close it.
+function AutoDetails({ summary, has, children }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    if (ref.current) ref.current.open = has;
+  }, [has]);
+  return (
+    <details ref={ref} className={`ev-block ${has ? "" : "ev-empty"}`}>
+      <summary>{summary}</summary>
+      {children}
+    </details>
+  );
+}
+
 function useNarrow(query = "(max-width: 760px)") {
   const [narrow, setNarrow] = useState(() => window.matchMedia?.(query).matches ?? false);
   useEffect(() => {
@@ -375,6 +390,7 @@ function Console({ lang, setLang }) {
   // them; cleared on an identity switch (an audit log belongs to the identity that fetched it:
   // the API answers 404 to someone who cannot see the target) and on a new answer.
   const [apView, setApView] = useState({ audit: null, msg: null });
+  const [apListed, setApListed] = useState(false); // a proposal (or a recorded attempt) is listed
   const [six, setSix] = useState(null); // six-identity view: group id (replay) or "live"
   const [sixData, setSixData] = useState(null);
   const [results, setResults] = useState(null);
@@ -590,8 +606,7 @@ function Console({ lang, setLang }) {
   // On the approval step the approval block is visible without scrolling: first in the evidence
   // column on wide screens, right under the step card on phones (handoff 017 #6).
   const approvalsBlock = (
-    <details open className="ev-block">
-      <summary>{t("ev.approvals")}</summary>
+    <AutoDetails summary={t("ev.approvals")} has={apListed || Boolean(apView.audit || apView.msg)}>
       {me && (
         <Approvals
           api={api}
@@ -601,9 +616,10 @@ function Console({ lang, setLang }) {
           onAttempt={(a) => setAttempts((xs) => [...xs, { user: me.user_id, ...a }])}
           view={apView}
           setView={setApView}
+          onListed={setApListed}
         />
       )}
-    </details>
+    </AutoDetails>
   );
 
   const caption = step
@@ -670,12 +686,11 @@ function Console({ lang, setLang }) {
                     onClick={() => goTo(i)}
                   >
                     <span className="rail-n">{i + 1}</span>
-                    <Bi zh={s.title} en={s.title_en} />
+                    <span className="rail-label">{t.pick(s, "title")}</span>
                   </button>
                 </li>
               ))}
             </ol>
-            <p className="fine rail-note">{t("rail.note")}</p>
           </nav>
 
           {six ? (
@@ -781,14 +796,13 @@ function Console({ lang, setLang }) {
                     runKey={run ? `${runScene}-${refreshKey}` : null}
                   />
                 </details>
-                <details open className="ev-block">
-                  <summary>{t("ev.steps")}</summary>
+                <AutoDetails summary={t("ev.steps")} has={Boolean(run?.calls?.length || run?.proposal)}>
                   <Timeline
                     calls={run?.calls}
                     proposal={run?.proposal}
                     runKey={`${runScene}-${refreshKey}`}
                   />
-                </details>
+                </AutoDetails>
                 {!approvalFirst && approvalsBlock}
               </aside>
             </>

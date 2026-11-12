@@ -124,9 +124,6 @@ export default function DocDrawer({ docId, load, answer, onClose }) {
               <Clearance level={doc.clearance} />
               {doc.superseded_by ? t("wafer.superseded") : ""}
             </p>
-            <p className="fine drawer-note">
-              <mark>{t("doc.marked")}</mark>
-            </p>
             {t.lang === "en" && <p className="fine zh-note">{t("answer.zhNote")}</p>}
             <div className="drawer-body">
               {doc.sections.map((sec, i) => (

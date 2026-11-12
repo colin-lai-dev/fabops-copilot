@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useT } from "../i18n.js";
-import Clearance from "./Clearance.jsx";
+import Clearance, { CLEARANCE } from "./Clearance.jsx";
 
 // The permission wafer map: one die per document (192), laid out on a round wafer.
 // Visible dies are lit, locked dies are grey with a hatch; retrieved dies are amber and the
@@ -122,6 +122,11 @@ export default function WaferMap({ docs, retrieved = [], cited = [], focusId, on
             const focus = doc.doc_id && doc.doc_id === focusId;
             return (
               <g key={i} onMouseEnter={() => setHover(i)} onClick={() => doc.visible && onFocus?.(doc.doc_id)}>
+                <title>
+                  {doc.visible
+                    ? `${doc.doc_id} · ${doc.fab} · ${doc.department} · ${CLEARANCE[doc.clearance]}`
+                    : t("wafer.lockedTip")}
+                </title>
                 <rect
                   x={x}
                   y={y}
@@ -170,9 +175,7 @@ export default function WaferMap({ docs, retrieved = [], cited = [], focusId, on
           ) : (
             <span>{t("wafer.locked")}</span>
           )
-        ) : (
-          <span>{t("wafer.hint")}</span>
-        )}
+        ) : null}
       </div>
       <ul className="wafer-legend">
         <li><i className="sw sw-visible" />{t("wafer.visible", { n: visibleCount })}</li>

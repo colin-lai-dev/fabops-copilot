@@ -22,7 +22,7 @@ export const TOUR = [
   {
     key: "permission",
     title: "權限擋下",
-    title_en: "Blocked by permission",
+    title_en: "Permission block",
     user: "op_fx1_etch",
     sceneId: "low-privilege",
     mode: "rag",
@@ -35,8 +35,8 @@ export const TOUR = [
   },
   {
     key: "six",
-    title: "同一題，六個身分",
-    title_en: "One question, six identities",
+    title: "六身分並排",
+    title_en: "Six identities",
     user: "eng_fx1_etch",
     sceneId: "sop-latest",
     mode: "rag",
@@ -51,7 +51,7 @@ export const TOUR = [
   {
     key: "agent",
     title: "Agent 逐步查詢",
-    title_en: "Agent, step by step",
+    title_en: "Agent steps",
     user: "mgr_fx2_all",
     sceneId: "triage-approval",
     mode: "agent",

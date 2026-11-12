@@ -100,17 +100,8 @@ export default function SixWay({ data, onClose }) {
       </div>
       {data.title && <div className="panel-sub">{t.pick(data, "title")}</div>}
       <p className="question">{data.question}</p>
-      <p className="fine">
-        {t("six.hint")}
-        {data.target && (
-          <>
-            {" "}
-            {t("six.target", { id: data.target })}
-          </>
-        )}
-      </p>
+      {data.target && <p className="fine">{t("six.target", { id: data.target })}</p>}
       {t.lang === "en" && <p className="fine zh-note">{t("answer.zhNote")}</p>}
-      <p className="fine six-scroll-hint">{t("six.scroll")}</p>
       <div className="six-grid">
         {data.columns.map((c) => (
           <Column key={c.user.user_id} col={{ ...c, target: data.target }} />

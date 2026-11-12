@@ -1819,3 +1819,40 @@ mark.malicious {
 .step-next .bi > span {
   justify-self: start;
 }
+
+/* ------------------------------------------------------------ v7: rail rows of one height */
+.rail-item {
+  height: 40px;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+.rail-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+@media (max-width: 760px) {
+  /* phones: the "current identity" marker shrinks to a dot in the top band; text stays for
+     screen readers, the name is never covered */
+  .badge-now {
+    top: 7px;
+    right: 7px;
+    width: 10px;
+    height: 10px;
+    padding: 0;
+    font-size: 0;
+    border-radius: 50%;
+    box-shadow: 0 0 0 2px var(--lvl-tint);
+  }
+}
+@media (max-width: 760px) {
+  .badge-on .badge-name {
+    padding-right: 16px;
+  }
+}
+
+/* empty evidence blocks: one title row */
+.ev-block.ev-empty > summary {
+  opacity: 0.8;
+}
