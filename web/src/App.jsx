@@ -40,6 +40,13 @@ function Banner() {
   }, []);
   return (
     <div className={`banner ${slim ? "banner-slim" : ""}`} role="note">
+      {__LAB__ && (
+        <span className="lab-flag">
+          {t.lang === "en" ? "Design lab (experiment)" : "設計實驗版"} ·{" "}
+          <a href="../">{t.lang === "en" ? "back to the released site" : "回正式版"}</a>
+          {" · "}
+        </span>
+      )}
       {slim ? (
         <span>
           <b>{t("banner.title")}</b>・{t("banner.slim")}
