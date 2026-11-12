@@ -6,6 +6,7 @@
 
 ## 2026-11-13
 
+- site-v9.1 上線（handoff 025）：核准後的「查看 audit log」提示改放在結果列、log 在視窗內時不顯示；導覽外的說明區改顯示目前身分。自檢加對應斷言。案例文件草稿第 5 段標明誰發現了什麼（本機分支 `docs-case-study`，未公開）。
 - **交接指示 023：site-v9 上線**（Claude Code）：Colin 決定採用設計實驗版。`design-lab` 已併入 main（經 `site-v9` 分支，`7d1cbdd`），分支保留不刪。
   機密等級改回彩色色塊（灰→天藍→靛藍→梅紫，與狀態色在一般色覺與兩種色弱模擬下 ΔE ≥ 22，`web/scripts/palette_check.py`）；
   選單晃動原因是 `scrollIntoView` 連整頁一起捲，已修；核准鈕進 1280×800 第一屏；README、demo-script、錄影腳本、GIF 更新。
