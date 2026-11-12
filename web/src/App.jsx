@@ -670,7 +670,7 @@ function Console({ lang, setLang }) {
                     onClick={() => goTo(i)}
                   >
                     <span className="rail-n">{i + 1}</span>
-                    <Bi zh={s.title} en={s.title_en} />
+                    <span className="rail-label">{t.pick(s, "title")}</span>
                   </button>
                 </li>
               ))}

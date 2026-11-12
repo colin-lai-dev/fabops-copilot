@@ -1819,3 +1819,16 @@ mark.malicious {
 .step-next .bi > span {
   justify-self: start;
 }
+
+/* ------------------------------------------------------------ v7: rail rows of one height */
+.rail-item {
+  height: 40px;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+.rail-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
