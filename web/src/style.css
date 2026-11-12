@@ -334,12 +334,6 @@ textarea {
     var(--litho-amber);
   border: 2px solid var(--ink);
 }
-.tour-nav {
-  margin-left: auto;
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
 .tour-pos {
   min-width: 42px;
   text-align: center;
@@ -1087,10 +1081,6 @@ mark.malicious {
   .charts {
     grid-template-columns: 1fr;
   }
-  .tour-nav {
-    margin-left: 0;
-    width: 100%;
-  }
   .send {
     width: 100%;
   }
@@ -1378,4 +1368,40 @@ mark.malicious {
 .theme-switch {
   min-width: 72px;
   white-space: nowrap;
+}
+
+/* ------------------------------------------------------------ v4: rail-only navigation */
+.top-tools {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.rail-free {
+  margin: 0 0 8px;
+  padding: 6px 8px;
+  border-left: 3px solid var(--line);
+  background: var(--panel);
+  border-radius: 0 4px 4px 0;
+}
+.step-next {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--nitride-violet);
+  font-size: 13px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.step-next:hover:not(:disabled) {
+  border: none;
+  text-decoration-thickness: 2px;
+}
+@media (max-width: 760px) {
+  .top-tools {
+    margin-left: 0;
+  }
 }

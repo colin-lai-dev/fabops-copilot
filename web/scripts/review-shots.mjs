@@ -14,7 +14,7 @@ const page = await browser.newPage({
 });
 const shot = (name, full = true) =>
   page.screenshot({ path: path.join(out, `${width}-${name}.png`), fullPage: full });
-const next = () => page.getByRole("button", { name: "下一步", exact: true }).first().click();
+const next = () => page.locator(".step-next").click(); // "next scene" link on the step card
 const send = async () => {
   await page.getByRole("button", { name: "送出問題" }).click();
   await page.waitForSelector(".answer-text");

@@ -400,6 +400,20 @@ function Console({ lang, setLang }) {
     }
   }
 
+  // The step explanation, with a quiet "next scene" link for visitors who do not know the order.
+  const nextStep = tour !== null && tour < TOUR.length - 1 ? TOUR[tour + 1] : null;
+  const stepCard = step && (
+    <section className="panel step-card">
+      <div className="panel-sub">{t("step.n", { n: tour + 1, title: t.pick(step, "title") })}</div>
+      <p>{t.pick(step, "explain")}</p>
+      {nextStep && (
+        <button type="button" className="step-next" onClick={() => goTo(tour + 1)}>
+          {t("step.next", { title: t.pick(nextStep, "title") })} →
+        </button>
+      )}
+    </section>
+  );
+
   const caption = step
     ? { zh: step.explain, en: step.caption_en }
     : scene
@@ -418,7 +432,7 @@ function Console({ lang, setLang }) {
               <p className="fine">{t("brand.sub")}</p>
             </div>
           </div>
-          <nav className="tour-nav" aria-label={t("tour.nav")}>
+          <div className="top-tools">
             <ThemeToggle />
             <button
               type="button"
@@ -429,32 +443,7 @@ function Console({ lang, setLang }) {
             >
               {t("lang.switch")}
             </button>
-            {tour === null ? (
-              <button type="button" className="primary" onClick={() => goTo(0)}>
-                {t("tour.start")}
-              </button>
-            ) : (
-              <>
-                <button type="button" onClick={() => goTo(Math.max(0, tour - 1))} disabled={tour === 0}>
-                  {t("tour.prev")}
-                </button>
-                <span className="fine tour-pos">
-                  {tour + 1} / {TOUR.length}
-                </span>
-                <button
-                  type="button"
-                  className="primary"
-                  onClick={() => goTo(Math.min(TOUR.length - 1, tour + 1))}
-                  disabled={tour === TOUR.length - 1}
-                >
-                  {t("tour.next")}
-                </button>
-                <button type="button" className="quiet" onClick={() => setTour(null)}>
-                  {t("tour.free")}
-                </button>
-              </>
-            )}
-          </nav>
+          </div>
         </header>
 
         <section className="badges" aria-label={t("badges.label")}>
@@ -465,6 +454,11 @@ function Console({ lang, setLang }) {
 
         <div className="grid">
           <nav className="rail" aria-label={t("rail.label")}>
+            {tour === null && (
+              <p className="fine rail-free" role="status">
+                {t("rail.free")}
+              </p>
+            )}
             <ol>
               {TOUR.map((s, i) => (
                 <li key={s.key}>
@@ -485,33 +479,18 @@ function Console({ lang, setLang }) {
 
           {six ? (
             <main className="main main-wide">
-              {step && (
-                <section className="panel step-card">
-                  <div className="panel-sub">{t("step.n", { n: tour + 1, title: t.pick(step, "title") })}</div>
-                  <p>{t.pick(step, "explain")}</p>
-                </section>
-              )}
+              {stepCard}
               <SixWay data={sixData} onClose={step?.six ? null : () => setSix(null)} />
             </main>
           ) : showResults ? (
             <main className="main main-wide">
-              {step && (
-                <section className="panel step-card">
-                  <div className="panel-sub">{t("step.n", { n: tour + 1, title: t.pick(step, "title") })}</div>
-                  <p>{t.pick(step, "explain")}</p>
-                </section>
-              )}
+              {stepCard}
               <Results results={results} />
             </main>
           ) : (
             <>
               <main className="main">
-                {step && (
-                  <section className="panel step-card">
-                    <div className="panel-sub">{t("step.n", { n: tour + 1, title: t.pick(step, "title") })}</div>
-                    <p>{t.pick(step, "explain")}</p>
-                  </section>
-                )}
+                {stepCard}
                 {me && (
                   <section className="panel ask">
                     <div className="panel-head">
