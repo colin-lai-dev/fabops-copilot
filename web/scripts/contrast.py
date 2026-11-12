@@ -1,6 +1,7 @@
 """WCAG contrast of the design-lab tokens (both themes): text pairs need 4.5, graphics 3.0.
-    python scripts/contrast.py
+python scripts/contrast.py
 """
+
 import re
 import sys
 from pathlib import Path
@@ -22,7 +23,8 @@ def rgb(h):
 
 
 def mix(a, b, p):  # p of a over b, like color-mix(in srgb, a p%, b)
-    return "#" + "".join(f"{round(x * p + y * (1 - p)):02x}" for x, y in zip(rgb(a), rgb(b)))
+    pairs = zip(rgb(a), rgb(b), strict=True)
+    return "#" + "".join(f"{round(x * p + y * (1 - p)):02x}" for x, y in pairs)
 
 
 def lum(h):
@@ -41,17 +43,40 @@ for name, t in (("light", light), ("dark", dark)):
     t = dict(t)
     t["--slot-on"] = mix(t["--amber-wash"], t["--surface"], 0.55)
     t["--step-ink"] = "#131922"
-    text = [(f, b) for b in ("--bg", "--surface", "--slot-on") for f in ("--ink", "--ink-2", "--ink-3", "--good", "--bad", "--violet", "--amber-ink")]
-    text += [("--ink", "--sunken"), ("--ink-2", "--sunken"), ("--ink-3", "--sunken"), ("--amber-ink", "--amber-wash"),
-             ("--ink", "--amber-wash"), ("--good", "--good-wash"), ("--bad", "--bad-wash"), ("--violet", "--violet-wash"),
-             ("--on-console", "--console"), ("--step-ink", "--amber"), ("--bg", "--good"), ("--bg", "--violet"), ("--bg", "--ink")]
-    ui = [("--die", "--wafer"), ("--die-sop", "--wafer"), ("--amber-ink", "--wafer"), ("--ink", "--wafer"),
-          ("--violet", "--bg"), ("--series-0", "--bg"), ("--series-1", "--bg"), ("--series-2", "--bg"), ("--bad", "--bg")]
+    inks = ("--ink", "--ink-2", "--ink-3", "--good", "--bad", "--violet", "--amber-ink")
+    text = [(f, b) for b in ("--bg", "--surface", "--slot-on") for f in inks]
+    text += [
+        ("--ink", "--sunken"),
+        ("--ink-2", "--sunken"),
+        ("--ink-3", "--sunken"),
+        ("--amber-ink", "--amber-wash"),
+        ("--ink", "--amber-wash"),
+        ("--good", "--good-wash"),
+        ("--bad", "--bad-wash"),
+        ("--violet", "--violet-wash"),
+        ("--on-console", "--console"),
+        ("--step-ink", "--amber"),
+        ("--bg", "--good"),
+        ("--bg", "--violet"),
+        ("--bg", "--ink"),
+    ]
+    ui = [
+        ("--die", "--wafer"),
+        ("--die-sop", "--wafer"),
+        ("--amber-ink", "--wafer"),
+        ("--ink", "--wafer"),
+        ("--violet", "--bg"),
+        ("--series-0", "--bg"),
+        ("--series-1", "--bg"),
+        ("--series-2", "--bg"),
+        ("--bad", "--bg"),
+    ]
     for group, need in ((text, 4.5), (ui, 3.0)):
         for fg, bg in group:
             r = ratio(t[fg], t[bg])
             if r < need or "-v" in sys.argv:
                 bad += r < need
-                print(f"{name:5} {fg:14} on {bg:14} {r:5.2f} (need {need}){'  <-- FAIL' if r < need else ''}")
+                flag = "  <-- FAIL" if r < need else ""
+                print(f"{name:5} {fg:14} on {bg:14} {r:5.2f} (need {need}){flag}")
 print("failures:", bad)
 sys.exit(1 if bad else 0)
