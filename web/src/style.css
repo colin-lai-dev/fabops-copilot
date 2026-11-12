@@ -1878,3 +1878,10 @@ mark.malicious {
     min-height: 196px;
   }
 }
+/* the attribute line takes space only while a die is hovered or a document is focused */
+.wafer-info {
+  min-height: 0;
+}
+.wafer-info:empty {
+  margin: 0;
+}
