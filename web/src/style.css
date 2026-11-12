@@ -1809,3 +1809,13 @@ mark.malicious {
   font-size: 12px;
   color: var(--slate-3);
 }
+/* the visible language sits centred in the reserved box (rail) / at the start (links) */
+.rail-item .bi > span {
+  align-self: center;
+}
+.step-next {
+  text-align: left;
+}
+.step-next .bi > span {
+  justify-self: start;
+}
