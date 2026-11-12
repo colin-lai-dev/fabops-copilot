@@ -1179,3 +1179,11 @@ mark.malicious {
   padding: 0 4px;
   min-height: 0;
 }
+
+/* ------------------------------------------------------------ v4: wafer edge */
+.die-partial {
+  fill: none;
+  stroke: var(--die-partial, #c3cad5);
+  stroke-width: 1;
+  stroke-dasharray: 2 2;
+}
