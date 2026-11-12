@@ -896,3 +896,15 @@ mark.malicious {
     font-size: 15px;
   }
 }
+
+/* ------------------------------------------------------------ v2: language, notes */
+.lang-switch {
+  min-width: 64px;
+}
+.zh-note {
+  margin: 2px 0 6px;
+  font-style: italic;
+}
+.proposal-card.blind {
+  border-style: dashed;
+}

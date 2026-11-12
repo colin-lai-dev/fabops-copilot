@@ -1,5 +1,5 @@
 {
-  "source": "Final gate numbers (docs/gates/phase-1..3.md): frozen test sets, each run once. Synthetic data.",
+  "source": "最終 gate 數字（docs/gates/phase-1..3.md）：凍結 test、各只跑一次。合成資料。",
   "caption_zh": "結果都在凍結的 test 上只跑一次、附樣本數與 baseline；固定 workflow 與 agent 差距在雜訊內，所以不宣稱 agent 比較好。",
   "caption_en": "Frozen test sets, run once, with n and a baseline. Fixed workflow vs agent is within noise, so no claim that the agent wins.",
   "charts": [
@@ -8,11 +8,44 @@
       "title": "RAG：權限 pre-filter + 混合檢索 vs 只用向量",
       "note": "Claude Haiku 5.5，凍結 RAG test（110 題）",
       "unit": "ratio",
-      "series": ["只用向量（baseline）", "本系統"],
+      "series": [
+        "只用向量（baseline）",
+        "本系統"
+      ],
       "rows": [
-        { "label": "Recall@5", "n": 99, "values": [0.682, 0.788] },
-        { "label": "回答正確率", "n": 105, "values": [0.657, 0.752] },
-        { "label": "引用正確率", "n": 99, "values": [0.636, 0.747] }
+        {
+          "label": "Recall@5",
+          "n": 99,
+          "values": [
+            0.682,
+            0.788
+          ],
+          "label_en": "Recall@5"
+        },
+        {
+          "label": "回答正確率",
+          "n": 105,
+          "values": [
+            0.657,
+            0.752
+          ],
+          "label_en": "Answer accuracy"
+        },
+        {
+          "label": "引用正確率",
+          "n": 99,
+          "values": [
+            0.636,
+            0.747
+          ],
+          "label_en": "Citation accuracy"
+        }
+      ],
+      "title_en": "RAG: permission pre-filter + hybrid retrieval vs dense only",
+      "note_en": "Claude Haiku 5.5, frozen RAG test (110 questions)",
+      "series_en": [
+        "Dense only (baseline)",
+        "This system"
       ]
     },
     {
@@ -21,14 +54,62 @@
       "note": "Claude Haiku 5.5，凍結 agent test（n=15）；固定 workflow 與 agent 差距在雜訊內",
       "unit": "count",
       "total": 15,
-      "series": ["只用 RAG（baseline）", "固定 workflow", "Agent"],
-      "rows": [
-        { "label": "成功", "n": 15, "values": [4, 15, 13] },
-        { "label": "多步推理", "n": 6, "values": [0, 6, 4] },
-        { "label": "資料矛盾", "n": 4, "values": [0, 4, 4] },
-        { "label": "應拒絕給建議", "n": 5, "values": [4, 5, 5] }
+      "series": [
+        "只用 RAG（baseline）",
+        "固定 workflow",
+        "Agent"
       ],
-      "extra": "捏造 ID 三組皆 0/15；每題成本 US$0.0004／0.0009／0.0020"
+      "rows": [
+        {
+          "label": "成功",
+          "n": 15,
+          "values": [
+            4,
+            15,
+            13
+          ],
+          "label_en": "Success"
+        },
+        {
+          "label": "多步推理",
+          "n": 6,
+          "values": [
+            0,
+            6,
+            4
+          ],
+          "label_en": "Multi-step"
+        },
+        {
+          "label": "資料矛盾",
+          "n": 4,
+          "values": [
+            0,
+            4,
+            4
+          ],
+          "label_en": "Conflicting data"
+        },
+        {
+          "label": "應拒絕給建議",
+          "n": 5,
+          "values": [
+            4,
+            5,
+            5
+          ],
+          "label_en": "Should decline"
+        }
+      ],
+      "extra": "捏造 ID 三組皆 0/15；每題成本 US$0.0004／0.0009／0.0020",
+      "title_en": "Three-way comparison: agent scenario success",
+      "note_en": "Claude Haiku 5.5, frozen agent test (n=15); fixed workflow vs agent is within noise",
+      "series_en": [
+        "RAG only (baseline)",
+        "Fixed workflow",
+        "Agent"
+      ],
+      "extra_en": "Fabricated IDs 0/15 for all three; cost per case US$0.0004 / 0.0009 / 0.0020"
     },
     {
       "id": "leak",
@@ -36,12 +117,53 @@
       "note": "規則產生的洩漏題，每題只違反一個權限條件；數字越小越好",
       "unit": "count",
       "lower_is_better": true,
-      "series": ["對照組（拿掉檢查）", "正式系統"],
+      "series": [
+        "對照組（拿掉檢查）",
+        "正式系統"
+      ],
       "rows": [
-        { "label": "檢索", "n": 30, "values": [19, 0] },
-        { "label": "LLM 回應快取", "n": 30, "values": [23, 0] },
-        { "label": "trace 日誌", "n": 30, "values": [13, 0] },
-        { "label": "agent 工具（MCP + JWT）", "n": 90, "values": [58, 0] }
+        {
+          "label": "檢索",
+          "n": 30,
+          "values": [
+            19,
+            0
+          ],
+          "label_en": "Retrieval"
+        },
+        {
+          "label": "LLM 回應快取",
+          "n": 30,
+          "values": [
+            23,
+            0
+          ],
+          "label_en": "LLM response cache"
+        },
+        {
+          "label": "trace 日誌",
+          "n": 30,
+          "values": [
+            13,
+            0
+          ],
+          "label_en": "Trace log"
+        },
+        {
+          "label": "agent 工具（MCP + JWT）",
+          "n": 90,
+          "values": [
+            58,
+            0
+          ],
+          "label_en": "Agent tools (MCP + JWT)"
+        }
+      ],
+      "title_en": "Permission leaks: real system vs a control without that check",
+      "note_en": "Rule-generated leak cases, each breaks one permission condition; lower is better",
+      "series_en": [
+        "Control (check removed)",
+        "Real system"
       ]
     },
     {
@@ -49,11 +171,46 @@
       "title": "雲端 vs 地端模型",
       "note": "同一份凍結 test；RAG n=105、agent n=15；每題成本：US$0.0004／0.0072／$0（RAG）",
       "unit": "ratio",
-      "series": ["Claude Haiku 5.5", "Claude Sonnet 5.5", "Qwen3 8B（地端）"],
+      "series": [
+        "Claude Haiku 5.5",
+        "Claude Sonnet 5.5",
+        "Qwen3 8B（地端）"
+      ],
       "rows": [
-        { "label": "RAG 回答正確率", "n": 105, "values": [0.752, 0.743, 0.781] },
-        { "label": "Agent 成功率", "n": 15, "values": [0.867, 1.0, 0.267], "display": ["13/15", "15/15", "4/15"] }
+        {
+          "label": "RAG 回答正確率",
+          "n": 105,
+          "values": [
+            0.752,
+            0.743,
+            0.781
+          ],
+          "label_en": "RAG answer accuracy"
+        },
+        {
+          "label": "Agent 成功率",
+          "n": 15,
+          "values": [
+            0.867,
+            1.0,
+            0.267
+          ],
+          "display": [
+            "13/15",
+            "15/15",
+            "4/15"
+          ],
+          "label_en": "Agent success"
+        }
+      ],
+      "title_en": "Cloud vs local models",
+      "note_en": "Same frozen test; RAG n=105, agent n=15; cost per RAG question US$0.0004 / 0.0072 / $0",
+      "series_en": [
+        "Claude Haiku 5.5",
+        "Claude Sonnet 5.5",
+        "Qwen3 8B (local)"
       ]
     }
-  ]
+  ],
+  "source_en": "Final gate numbers (docs/gates/phase-1..3.md): frozen test sets, each run once. Synthetic data."
 }

@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { useT } from "../i18n.js";
 
 // The permission wafer map: one die per document (192), laid out on a round wafer.
 // Visible dies are lit, locked dies are grey with a hatch; retrieved dies are amber and the
@@ -26,6 +27,7 @@ function layout(count) {
 const CLEARANCE = ["public", "internal", "confidential", "restricted"];
 
 export default function WaferMap({ docs, retrieved = [], cited = [], focusId, onFocus }) {
+  const t = useT();
   const { n, cells } = useMemo(() => layout(docs.length || 192), [docs.length]);
   const [hover, setHover] = useState(null);
   const size = n * (CELL + GAP) + GAP;
@@ -41,7 +43,7 @@ export default function WaferMap({ docs, retrieved = [], cited = [], focusId, on
         <svg
           viewBox={`0 0 ${size} ${size + 10}`}
           role="img"
-          aria-label={`權限晶圓圖：192 份文件中可見 ${visibleCount} 份，本次檢索 ${retrievedSet.size} 份`}
+          aria-label={t("wafer.aria", { total: docs.length, visible: visibleCount, retrieved: retrievedSet.size })}
           onMouseLeave={() => setHover(null)}
         >
           <defs>
@@ -92,27 +94,28 @@ export default function WaferMap({ docs, retrieved = [], cited = [], focusId, on
             <>
               <span className="code">{shown.doc_id}</span>
               <span>
-                {shown.doc_type === "sop" ? "SOP" : "異常報告"} · {shown.fab} · {shown.department} · {CLEARANCE[shown.clearance]}
-                {shown.superseded_by ? " · 已被新版取代" : ""}
-                {citedSet.has(shown.doc_id) ? " · 被引用" : retrievedSet.has(shown.doc_id) ? " · 被檢索" : ""}
+                {shown.doc_type === "sop" ? t("wafer.sop") : t("wafer.incident")} · {shown.fab} · {shown.department} ·{" "}
+                {CLEARANCE[shown.clearance]}
+                {shown.superseded_by ? t("wafer.superseded") : ""}
+                {citedSet.has(shown.doc_id) ? t("wafer.cited") : retrievedSet.has(shown.doc_id) ? t("wafer.retrieved") : ""}
               </span>
             </>
           ) : (
-            <span>無權限查看：這份文件不會進入此身分的檢索，也不顯示任何屬性。</span>
+            <span>{t("wafer.locked")}</span>
           )
         ) : (
-          <span>滑過或點選 die 查看文件屬性（只有屬性，沒有內文）。</span>
+          <span>{t("wafer.hint")}</span>
         )}
       </div>
       <ul className="wafer-legend">
-        <li><i className="sw sw-visible" />可見 {visibleCount}</li>
-        <li><i className="sw sw-locked" />無權限 {docs.length - visibleCount}</li>
-        <li><i className="sw sw-retrieved" />本次檢索 {retrieved.length - extra.length}</li>
-        <li><i className="sw sw-cited" />被引用</li>
-        <li className="legend-shape">方形 SOP · 圓角 異常報告</li>
+        <li><i className="sw sw-visible" />{t("wafer.visible", { n: visibleCount })}</li>
+        <li><i className="sw sw-locked" />{t("wafer.lockedN", { n: docs.length - visibleCount })}</li>
+        <li><i className="sw sw-retrieved" />{t("wafer.retrievedN", { n: retrieved.length - extra.length })}</li>
+        <li><i className="sw sw-cited" />{t("wafer.citedL")}</li>
+        <li className="legend-shape">{t("wafer.shape")}</li>
       </ul>
       {extra.length > 0 && (
-        <p className="fine">另檢索到 {extra.length} 份測試用注入文件（{extra.join("、")}），不在 192 份語料中。</p>
+        <p className="fine">{t("wafer.extra", { n: extra.length, ids: extra.join(", ") })}</p>
       )}
     </div>
   );

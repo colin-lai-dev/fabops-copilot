@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { live } from "./api.js";
 import { replay } from "./replay.js";
 import { TOUR } from "./tour.js";
+import { LangContext, translate, useT } from "./i18n.js";
 import WaferMap from "./components/WaferMap.jsx";
 import Timeline from "./components/Timeline.jsx";
 import Approvals from "./components/Approvals.jsx";
@@ -13,18 +14,12 @@ const REPLAY = import.meta.env.VITE_DEMO_MODE === "replay";
 const api = REPLAY ? replay : live;
 
 const CLEARANCE = ["public", "internal", "confidential", "restricted"];
-const MODES = { rag: "只用 RAG", fixed: "固定 workflow", agent: "Agent" };
-const STATUS = {
-  done: "完成",
-  awaiting_approval: "等待核准",
-  executed: "已執行",
-  rejected: "已駁回",
-  incomplete: "未完成",
-};
+const MODES = ["rag", "fixed", "agent"];
 
 // Two lines at the top of the page; once the page scrolls it shrinks to a slim one-line strip
 // (<= 32 px) so it never covers the question or the wafer map.
 function Banner() {
+  const t = useT();
   const [slim, setSlim] = useState(false);
   useEffect(() => {
     const scroller = document.querySelector(".app-scroll");
@@ -43,15 +38,18 @@ function Banner() {
     <div className={`banner ${slim ? "banner-slim" : ""}`} role="note">
       {slim ? (
         <span>
-          <b>錄製的示範</b>・回答事先以真實系統產生・合成資料
+          <b>{t("banner.title")}</b>・{t("banner.slim")}
         </span>
       ) : (
         <>
-          <b>錄製的示範</b>：回答為事先以真實系統產生，資料全部為虛構工廠的合成資料。
-          <span className="banner-en">
-            Recorded demo: answers were produced beforehand by the real system; all data is
-            synthetic, from a fictional fab.
-          </span>
+          <b>{t("banner.title")}</b>
+          {t.lang === "en" ? ": " : "："}
+          {t("banner.body")}
+          {t.lang === "zh" && (
+            <span className="banner-en">
+              {translate("en", "banner.title")}: {translate("en", "banner.body")}
+            </span>
+          )}
         </>
       )}
     </div>
@@ -59,6 +57,7 @@ function Banner() {
 }
 
 function Badge({ u, active, onPick }) {
+  const t = useT();
   return (
     <button
       type="button"
@@ -66,10 +65,11 @@ function Badge({ u, active, onPick }) {
       aria-pressed={active}
       onClick={() => onPick(u.user_id)}
     >
-      <span className="badge-name">{u.display_name}</span>
+      <span className="badge-name">{t.user(u)}</span>
       <span className="code badge-id">{u.user_id}</span>
       <span className="badge-scope">
-        {u.fabs.join("·")} · {u.departments.length > 2 ? `${u.departments.length} 部門` : u.departments.join("·")}
+        {u.fabs.join("·")} ·{" "}
+        {u.departments.length > 2 ? t("badge.depts", { n: u.departments.length }) : u.departments.join("·")}
       </span>
       <span className={`clr clr-${u.clearance}`}>{CLEARANCE[u.clearance]}</span>
     </button>
@@ -77,17 +77,19 @@ function Badge({ u, active, onPick }) {
 }
 
 function Answer({ run, onCite }) {
+  const t = useT();
   if (!run) return null;
   return (
     <section className="panel answer" aria-live="polite">
       <div className="panel-head">
-        <h2>回答</h2>
-        <span className={`state state-${run.status}`}>{STATUS[run.status] || run.status}</span>
-        {run.refused && <span className="state state-refused">不給建議</span>}
+        <h2>{t("answer.title")}</h2>
+        <span className={`state state-${run.status}`}>{t(`status.${run.status}`)}</span>
+        {run.refused && <span className="state state-refused">{t("answer.refused")}</span>}
       </div>
+      {t.lang === "en" && <p className="fine zh-note">{t("answer.zhNote")}</p>}
       <p className="answer-text">{run.answer}</p>
       <div className="cites">
-        <span className="fine">引用</span>
+        <span className="fine">{t("answer.cites")}</span>
         {run.citations?.length ? (
           run.citations.map((c) => (
             <button key={c} type="button" className="chip chip-cite code" onClick={() => onCite(c)}>
@@ -95,18 +97,37 @@ function Answer({ run, onCite }) {
             </button>
           ))
         ) : (
-          <span className="fine">無</span>
+          <span className="fine">{t("answer.none")}</span>
         )}
       </div>
       <p className="fine meta-line">
-        {MODES[run.mode] || run.mode} · 工具呼叫 {run.steps} · LLM 呼叫 {run.usage?.llm_calls ?? 0} · token{" "}
-        {(run.usage?.input_tokens || 0) + (run.usage?.output_tokens || 0)}
+        {t("answer.meta", {
+          mode: t(`mode.${run.mode}`),
+          steps: run.steps,
+          calls: run.usage?.llm_calls ?? 0,
+          tokens: (run.usage?.input_tokens || 0) + (run.usage?.output_tokens || 0),
+        })}
       </p>
     </section>
   );
 }
 
 export default function App() {
+  const [lang, setLang] = useState(() =>
+    new URLSearchParams(window.location.hash.slice(1)).get("lang") === "en" ? "en" : "zh",
+  );
+  useEffect(() => {
+    document.documentElement.lang = lang === "en" ? "en" : "zh-Hant-TW";
+  }, [lang]);
+  return (
+    <LangContext.Provider value={lang}>
+      <Console lang={lang} setLang={setLang} />
+    </LangContext.Provider>
+  );
+}
+
+function Console({ lang, setLang }) {
+  const t = useT();
   const [users, setUsers] = useState([]);
   const [me, setMe] = useState(null);
   const [docs, setDocs] = useState([]);
@@ -221,18 +242,26 @@ export default function App() {
             <span className="brand-mark" aria-hidden="true" />
             <div>
               <h1>FabOps Copilot</h1>
-              <p className="fine">夜班異常處理助理 · 虛構晶圓廠 Fab-X · 全部為合成資料</p>
+              <p className="fine">{t("brand.sub")}</p>
             </div>
           </div>
-          <nav className="tour-nav" aria-label="導覽">
+          <nav className="tour-nav" aria-label={t("tour.nav")}>
+            <button
+              type="button"
+              className="quiet lang-switch"
+              aria-label={t("lang.label")}
+              onClick={() => setLang(lang === "en" ? "zh" : "en")}
+            >
+              {t("lang.switch")}
+            </button>
             {tour === null ? (
               <button type="button" className="primary" onClick={() => goTo(0)}>
-                開始導覽
+                {t("tour.start")}
               </button>
             ) : (
               <>
                 <button type="button" onClick={() => goTo(Math.max(0, tour - 1))} disabled={tour === 0}>
-                  上一步
+                  {t("tour.prev")}
                 </button>
                 <span className="fine tour-pos">
                   {tour + 1} / {TOUR.length}
@@ -243,24 +272,24 @@ export default function App() {
                   onClick={() => goTo(Math.min(TOUR.length - 1, tour + 1))}
                   disabled={tour === TOUR.length - 1}
                 >
-                  下一步
+                  {t("tour.next")}
                 </button>
                 <button type="button" className="quiet" onClick={() => setTour(null)}>
-                  自由探索
+                  {t("tour.free")}
                 </button>
               </>
             )}
           </nav>
         </header>
 
-        <section className="badges" aria-label="切換身分（demo 使用者）">
+        <section className="badges" aria-label={t("badges.label")}>
           {users.map((u) => (
             <Badge key={u.user_id} u={u} active={me?.user_id === u.user_id} onPick={switchUser} />
           ))}
         </section>
 
         <div className="grid">
-          <nav className="rail" aria-label="情境">
+          <nav className="rail" aria-label={t("rail.label")}>
             <ol>
               {TOUR.map((s, i) => (
                 <li key={s.key}>
@@ -271,20 +300,20 @@ export default function App() {
                     onClick={() => goTo(i)}
                   >
                     <span className="rail-n">{i + 1}</span>
-                    {s.title}
+                    {t.pick(s, "title")}
                   </button>
                 </li>
               ))}
             </ol>
-            <p className="fine rail-note">也可以直接點上方的識別證切換身分，自由探索錄製過的問題。</p>
+            <p className="fine rail-note">{t("rail.note")}</p>
           </nav>
 
           {showResults ? (
             <main className="main main-wide">
               {step && (
                 <section className="panel step-card">
-                  <div className="panel-sub">情境 {tour + 1} · {step.title}</div>
-                  <p>{step.explain}</p>
+                  <div className="panel-sub">{t("step.n", { n: tour + 1, title: t.pick(step, "title") })}</div>
+                  <p>{t.pick(step, "explain")}</p>
                 </section>
               )}
               <Results results={results} />
@@ -294,15 +323,15 @@ export default function App() {
               <main className="main">
                 {step && (
                   <section className="panel step-card">
-                    <div className="panel-sub">情境 {tour + 1} · {step.title}</div>
-                    <p>{step.explain}</p>
+                    <div className="panel-sub">{t("step.n", { n: tour + 1, title: t.pick(step, "title") })}</div>
+                    <p>{t.pick(step, "explain")}</p>
                   </section>
                 )}
                 {me && (
                   <section className="panel ask">
                     <div className="panel-head">
-                      <h2>提問</h2>
-                      <span className="fine">身分：{me.display_name}</span>
+                      <h2>{t("ask.title")}</h2>
+                      <span className="fine">{t("ask.as", { name: t.user(me) })}</span>
                     </div>
                     {REPLAY ? (
                       step?.sceneId ? (
@@ -312,12 +341,12 @@ export default function App() {
                           className="scene-select"
                           value={pick}
                           onChange={(e) => setPick(e.target.value)}
-                          aria-label="錄製過的問題"
+                          aria-label={t("ask.recorded")}
                         >
-                          {mine.length === 0 && <option value="">這個身分沒有錄製的問題</option>}
+                          {mine.length === 0 && <option value="">{t("ask.none")}</option>}
                           {mine.map((s) => (
                             <option key={s.id} value={s.id}>
-                              [{MODES[s.mode]}] {s.question}
+                              [{t(`mode.${s.mode}`)}] {s.question}
                             </option>
                           ))}
                         </select>
@@ -327,17 +356,19 @@ export default function App() {
                         rows={3}
                         value={question}
                         onChange={(e) => setQuestion(e.target.value)}
-                        aria-label="問題"
+                        aria-label={t("ask.question")}
                       />
                     )}
                     <div className="row">
                       {REPLAY ? (
-                        <span className="fine">模式：{MODES[scene?.mode] || "—"} · 回放版只能選錄製過的問題</span>
+                        <span className="fine">
+                          {t("ask.mode", { mode: scene?.mode ? t(`mode.${scene.mode}`) : "—" })}
+                        </span>
                       ) : (
-                        <select value={mode} onChange={(e) => setMode(e.target.value)} aria-label="模式">
-                          {Object.entries(MODES).map(([v, l]) => (
+                        <select value={mode} onChange={(e) => setMode(e.target.value)} aria-label={t("ask.modeSel")}>
+                          {MODES.map((v) => (
                             <option key={v} value={v}>
-                              {l}
+                              {t(`mode.${v}`)}
                             </option>
                           ))}
                         </select>
@@ -349,7 +380,7 @@ export default function App() {
                           disabled={busy || (REPLAY ? !sceneId : !question.trim())}
                           onClick={() => ask()}
                         >
-                          {busy ? "查詢中…" : "送出問題"}
+                          {busy ? t("ask.busy") : t("ask.send")}
                         </button>
                       )}
                     </div>
@@ -370,9 +401,9 @@ export default function App() {
                 )}
               </main>
 
-              <aside className="evidence" aria-label="證據">
+              <aside className="evidence" aria-label={t("ev.label")}>
                 <details open className="ev-block">
-                  <summary>權限晶圓圖</summary>
+                  <summary>{t("ev.wafer")}</summary>
                   <WaferMap
                     docs={docs}
                     retrieved={run?.retrieved || []}
@@ -382,7 +413,7 @@ export default function App() {
                   />
                 </details>
                 <details open className="ev-block">
-                  <summary>Agent 步驟</summary>
+                  <summary>{t("ev.steps")}</summary>
                   <Timeline
                     calls={run?.calls}
                     proposal={run?.proposal}
@@ -390,7 +421,7 @@ export default function App() {
                   />
                 </details>
                 <details open className="ev-block" ref={approvalsRef}>
-                  <summary>核准與 audit log</summary>
+                  <summary>{t("ev.approvals")}</summary>
                   {me && <Approvals api={api} me={me} refreshKey={refreshKey} />}
                 </details>
               </aside>
@@ -398,7 +429,7 @@ export default function App() {
           )}
         </div>
         <footer className="foot fine">
-          FabOps Copilot · 原始碼與評估方法：
+          {t("foot")}{" "}
           <a href="https://github.com/colin-lai-dev/fabops-copilot">github.com/colin-lai-dev/fabops-copilot</a>
         </footer>
       </div>

@@ -52,6 +52,17 @@ export const replay = {
     if (d.status_code !== 200) throw new Error(d.detail);
     return d.run;
   },
+  // Recorded direct API calls by an identity the proposal is not even listed for (it cannot
+  // see the target): shown as what happened, there is nothing to click.
+  blindAttempts: async () => {
+    const s = triage();
+    if (!s || !me || !askedTriage) return [];
+    const listed = s.approval_steps.find((x) => x.kind === "pending").by_user[me.user_id] ?? [];
+    if (listed.length) return [];
+    return decisions()
+      .filter((d) => d.user === me.user_id && d.status_code !== 200)
+      .map((d) => ({ ...d, proposal_id: s.response.proposal.proposal_id }));
+  },
   audit: async () => (lastDecision === null ? [] : decisions()[lastDecision].audit),
   results: async () => (await fetch(`${import.meta.env.BASE_URL}replay/results.json`)).json(),
 };
