@@ -90,9 +90,24 @@ button.quiet {
   background: transparent;
   color: var(--slate-2);
 }
+/* Focus: no glow on mouse or touch; a clear but quiet ring for keyboard users. Text fields
+   match :focus-visible even on a click, so the last input type is tracked on <html>
+   (main.jsx: data-input="pointer" | "keyboard"). */
+:focus {
+  outline: none;
+}
 :focus-visible {
-  outline: 3px solid var(--nitride-violet);
+  outline: 2px solid var(--focus-ring, #5b5bd6);
   outline-offset: 2px;
+}
+html[data-input="pointer"] :focus-visible {
+  outline: none;
+}
+select:focus,
+textarea:focus,
+input:focus {
+  border-color: var(--slate-3);
+  box-shadow: none;
 }
 select,
 textarea {
