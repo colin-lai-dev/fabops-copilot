@@ -20,8 +20,7 @@ const LAB = process.env.VITE_LAB === "1";
 const noindex = {
   name: "lab-noindex",
   transformIndexHtml: (html) =>
-    LAB ? html.replace("<head>", '<head>
-    <meta name="robots" content="noindex" />') : html,
+    LAB ? html.replace("<head>", '<head><meta name="robots" content="noindex" />') : html,
 };
 
 // Dev server proxies the API (python -m fabops.api.app, port 8000).
