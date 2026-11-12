@@ -72,7 +72,7 @@ function CompareCell({ slot }) {
   );
 }
 
-export default function Lot({ lot, uid, onPick, phase, playing, playKey, compare }) {
+export default function Lot({ lot, uid, onPick, phase, playing, playKey, compare, live = false }) {
   const t = useT();
   const total = lot[0]?.total || 192;
   const { size, cells } = useMemo(() => layout(total), [total]);
@@ -117,7 +117,9 @@ export default function Lot({ lot, uid, onPick, phase, playing, playKey, compare
                   <b>{slot.visible.length}</b>/{slot.total}
                 </span>
               </span>
-              <span className={`slot-verdict tone-${v.tone} ${phase >= 3 ? "" : "off"}`}>{t(v.key)}</span>
+              <span className={`slot-verdict tone-${v.tone} ${phase >= 3 ? "" : "off"}`}>
+                {t(live && !slot.run ? "v.notAsked" : v.key)}
+              </span>
               {on && <span className="sr-only">{t("lot.you")}</span>}
             </button>
             {compare && <CompareCell slot={slot} />}

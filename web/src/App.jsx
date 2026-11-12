@@ -584,7 +584,7 @@ function Console({ lang, setLang }) {
             </section>
             {error && <p className="msg-bad">{error}</p>}
 
-            <Lot lot={lot} uid={uid} onPick={pick} phase={seq.phase} playing={seq.playing} playKey={seq.key} compare={compare} />
+            <Lot lot={lot} uid={uid} onPick={pick} phase={seq.phase} playing={seq.playing} playKey={seq.key} compare={compare} live={!REPLAY} />
 
             {!compare && me && (
               <section className="detail" aria-live="polite">
