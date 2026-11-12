@@ -11,7 +11,8 @@ const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width, height: width < 600 ? 812 : 800 } });
 const tops = () =>
   page.evaluate((A) => {
-    const o = {};
+    // page scroll and viewport width count as anchors too: neither may change by itself
+    const o = { scrollY: Math.round(window.scrollY), clientWidth: document.documentElement.clientWidth };
     for (const [k, s] of Object.entries(A)) {
       const el = document.querySelector(s);
       o[k] = el ? Math.round(el.getBoundingClientRect().top + window.scrollY) : null;
@@ -19,7 +20,7 @@ const tops = () =>
     return o;
   }, ANCHORS);
 const delta = (a, b) =>
-  Object.fromEntries(Object.keys(ANCHORS).map((k) => [k, a[k] === null || b[k] === null ? "n/a" : b[k] - a[k]]));
+  Object.fromEntries(Object.keys(a).map((k) => [k, a[k] === null || b[k] === null ? "n/a" : b[k] - a[k]]));
 const click = (sel, n = 0) => page.evaluate(([s, i]) => document.querySelectorAll(s)[i].click(), [sel, n]);
 const out = [];
 async function measure(label, action, wait = 500) {
@@ -41,10 +42,19 @@ await measure("approve as the requester", () => click(".proposal-card button.app
 await measure("act as the administrator", () => click(".slot", 5));
 await measure("step 6 (injection)", () => click(".step-tab", 5), 2900);
 await measure("step 1 again", () => click(".step-tab", 0), 2900);
-await measure("another question from the picker", async () => {
-  await click(".pick-button");
+await measure("open the question picker", async () => {
+  await page.locator(".pick-button").click();
   await page.waitForSelector(".pick-opt");
-  await click(".pick-opt", 2);
+});
+await measure("move through its options (keys, then pointer)", async () => {
+  for (let i = 0; i < 5; i++) await page.keyboard.press("ArrowDown");
+  await page.locator(".pick-opt").nth(1).hover();
+});
+await measure("close it", () => page.keyboard.press("Escape"));
+await measure("pick another question", async () => {
+  await page.locator(".pick-button").click();
+  await page.waitForSelector(".pick-opt");
+  await page.locator(".pick-opt").nth(2).click();
 }, 2900);
 await measure("compare on", () => click(".compare-toggle"));
 await measure("compare off", () => click(".compare-toggle"));

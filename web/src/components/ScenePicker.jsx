@@ -24,20 +24,30 @@ export default function ScenePicker({ scenes, value, onChange }) {
   useEffect(() => {
     if (!open) return undefined;
     setActive(Math.max(0, flat.findIndex((s) => s.id === value)));
-    list.current?.focus();
+    byKeys.current = true;
+    list.current?.focus({ preventScroll: true });
     const away = (e) => !wrap.current?.contains(e.target) && setOpen(false);
     document.addEventListener("pointerdown", away);
     return () => document.removeEventListener("pointerdown", away);
   }, [open]);
 
+  // Keep the active option visible by scrolling the list only. (scrollIntoView also scrolled the
+  // page, and reacting to hover moved the list under the pointer: both made the screen shake.)
+  const byKeys = useRef(true);
   useEffect(() => {
-    if (open) document.getElementById(optId(flat[active] || {}))?.scrollIntoView({ block: "nearest" });
+    const el = list.current;
+    const opt = open && document.getElementById(optId(flat[active] || {}));
+    if (!el || !opt || !byKeys.current) return;
+    const top = opt.offsetTop - 32; // room for the sticky group label
+    const bottom = opt.offsetTop + opt.offsetHeight;
+    if (top < el.scrollTop) el.scrollTop = Math.max(0, top);
+    else if (bottom > el.scrollTop + el.clientHeight) el.scrollTop = bottom - el.clientHeight;
   }, [active, open]);
 
   function choose(s) {
     onChange(s.id);
     setOpen(false);
-    button.current?.focus();
+    button.current?.focus({ preventScroll: true });
   }
 
   function onButtonKey(e) {
@@ -52,6 +62,7 @@ export default function ScenePicker({ scenes, value, onChange }) {
     const moves = { ArrowDown: Math.min(last, active + 1), ArrowUp: Math.max(0, active - 1), Home: 0, End: last };
     if (e.key in moves) {
       e.preventDefault();
+      byKeys.current = true;
       setActive(moves[e.key]);
     } else if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
@@ -59,7 +70,7 @@ export default function ScenePicker({ scenes, value, onChange }) {
     } else if (e.key === "Escape") {
       e.preventDefault();
       setOpen(false);
-      button.current?.focus();
+      button.current?.focus({ preventScroll: true });
     } else if (e.key === "Tab") {
       setOpen(false);
     }
@@ -116,7 +127,10 @@ export default function ScenePicker({ scenes, value, onChange }) {
                     role="option"
                     aria-selected={s.id === value}
                     className={`pick-opt ${i === active ? "pick-active" : ""} ${s.id === value ? "pick-chosen" : ""}`}
-                    onPointerEnter={() => setActive(i)}
+                    onPointerMove={() => {
+                      byKeys.current = false; // hover highlights, it never scrolls
+                      if (i !== active) setActive(i);
+                    }}
                     onClick={() => choose(s)}
                   >
                     <span className="pick-q">{s.question}</span>
