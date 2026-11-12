@@ -9,6 +9,7 @@ import Approvals from "./components/Approvals.jsx";
 import Injection from "./components/Injection.jsx";
 import Results from "./components/Results.jsx";
 import DocDrawer from "./components/DocDrawer.jsx";
+import SixWay from "./components/SixWay.jsx";
 
 // VITE_DEMO_MODE=replay builds the static demo site: no backend, recorded answers only.
 const REPLAY = import.meta.env.VITE_DEMO_MODE === "replay";
@@ -147,6 +148,8 @@ function Console({ lang, setLang }) {
   const [runScene, setRunScene] = useState(null);
   const [focusId, setFocusId] = useState(null);
   const [openDoc, setOpenDoc] = useState(null); // cited document shown in the drawer
+  const [six, setSix] = useState(null); // six-identity view: group id (replay) or "live"
+  const [sixData, setSixData] = useState(null);
   const [results, setResults] = useState(null);
   const [showResults, setShowResults] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -183,11 +186,13 @@ function Console({ lang, setLang }) {
     setTour(i);
     setError("");
     const s = TOUR[i];
+    setSix(null);
     if (s.results) {
       setShowResults(true);
       return;
     }
     setShowResults(false);
+    if (s.six) openSix(s.six);
     if (me?.user_id !== s.user) await login(s.user);
     if (!REPLAY && s.question) {
       setQuestion(s.question);
@@ -203,7 +208,19 @@ function Console({ lang, setLang }) {
     }
   }
 
+  async function openSix(groupOrQuestion) {
+    setSix(groupOrQuestion);
+    setSixData(null);
+    try {
+      setSixData(await api.sixWay(groupOrQuestion));
+    } catch (e) {
+      setError(e.message);
+      setSix(null);
+    }
+  }
+
   async function switchUser(userId) {
+    setSix(null);
     await login(userId);
     const keep = tour !== null && TOUR[tour].key === "approval"; // approving needs the run
     if (!keep) {
@@ -317,7 +334,17 @@ function Console({ lang, setLang }) {
             <p className="fine rail-note">{t("rail.note")}</p>
           </nav>
 
-          {showResults ? (
+          {six ? (
+            <main className="main main-wide">
+              {step && (
+                <section className="panel step-card">
+                  <div className="panel-sub">{t("step.n", { n: tour + 1, title: t.pick(step, "title") })}</div>
+                  <p>{t.pick(step, "explain")}</p>
+                </section>
+              )}
+              <SixWay data={sixData} onClose={step?.six ? null : () => setSix(null)} />
+            </main>
+          ) : showResults ? (
             <main className="main main-wide">
               {step && (
                 <section className="panel step-card">
@@ -381,6 +408,16 @@ function Console({ lang, setLang }) {
                             </option>
                           ))}
                         </select>
+                      )}
+                      {(REPLAY ? scene?.groups?.length > 0 : question.trim()) && (
+                        <button
+                          type="button"
+                          className="six-open"
+                          disabled={busy}
+                          onClick={() => openSix(REPLAY ? scene.groups[0] : question)}
+                        >
+                          {t("ask.six")}
+                        </button>
                       )}
                       {step?.key !== "approval" && (
                         <button

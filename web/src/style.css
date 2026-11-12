@@ -993,3 +993,130 @@ mark.malicious {
   background: var(--cleanroom);
   font-weight: 500;
 }
+
+/* ------------------------------------------------------------ v2: six identities */
+.six-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 8px;
+}
+.six-col {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  background: var(--panel);
+  border-top: 4px solid var(--line);
+}
+.six-answered {
+  border-top-color: var(--pass-green);
+}
+.six-refused {
+  border-top-color: var(--hold-red);
+  background: #fcfbfb;
+}
+.six-head {
+  display: grid;
+  gap: 1px;
+}
+.six-head b {
+  font-size: 14px;
+}
+.six-vis {
+  display: grid;
+  gap: 2px;
+  font-size: 12px;
+}
+.six-bar {
+  height: 6px;
+  background: var(--die-locked);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.six-bar i {
+  display: block;
+  height: 100%;
+  background: var(--die-sop);
+}
+.six-target.ok b {
+  color: var(--pass-green);
+}
+.six-target.no b {
+  color: var(--hold-red);
+}
+.six-verdict {
+  font-weight: 600;
+  font-size: 13px;
+  padding: 1px 8px;
+  border-radius: 3px;
+  align-self: start;
+}
+.six-verdict.good {
+  background: var(--green-wash);
+  color: #1d6b4a;
+}
+.six-verdict.bad {
+  background: var(--red-wash);
+  color: var(--hold-red);
+}
+.six-why {
+  margin: 0;
+  font-size: 12px;
+}
+.six-answer {
+  font-size: 13px;
+  line-height: 1.55;
+  margin: 0;
+  flex: 1;
+}
+.six-refused .six-answer {
+  color: var(--slate-3);
+}
+.six-cites {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+  font-size: 12px;
+}
+.six-cites .chip {
+  font-size: 11px;
+  word-break: break-all;
+}
+.six-scroll-hint {
+  display: none;
+}
+.six-close {
+  margin-left: auto;
+}
+@media (max-width: 1180px) {
+  .six-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 760px) {
+  .six-grid {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding-bottom: 6px;
+  }
+  .six-col {
+    flex: 0 0 78%;
+    scroll-snap-align: start;
+  }
+  .six-scroll-hint {
+    display: block;
+  }
+}
+.main,
+.six {
+  min-width: 0;
+}
+.six-grid {
+  max-width: 100%;
+}

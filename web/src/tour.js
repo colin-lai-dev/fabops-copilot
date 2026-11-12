@@ -34,6 +34,21 @@ export const TOUR = [
     caption_en: "Same question as an operator: 1 of 192 documents is visible, filtering happens before retrieval.",
   },
   {
+    key: "six",
+    title: "同一題，六個身分",
+    title_en: "One question, six identities",
+    user: "eng_fx1_etch",
+    sceneId: "sop-latest",
+    mode: "rag",
+    question: EPD_Q,
+    six: "epd",
+    explain:
+      "不用自己切身分：同一題由六個身分各問一次，並排比較。只有同廠、同部門、等級夠的人拿得到那份 internal SOP；其他人在檢索前就被過濾。也可以在提問區按「用所有身分問這題」看補償參數題（confidential）。",
+    explain_en:
+      "No need to switch identities yourself: the same question asked once by each of the six identities, side by side. Only users in the same fab and department with enough clearance get that internal SOP; everyone else is filtered out before retrieval. The Ask panel's 'Ask as all identities' button shows the confidential compensation question too.",
+    caption_en: "The same question as all six identities: the only difference is permission.",
+  },
+  {
     key: "agent",
     title: "Agent 逐步查詢",
     title_en: "Agent, step by step",

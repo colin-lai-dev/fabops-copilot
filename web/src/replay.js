@@ -33,6 +33,25 @@ export const replay = {
     );
   },
   scenes: async () => (await load()).scenes,
+  // "One question, six identities": the recorded group, one column per demo user.
+  sixWay: async (groupId) => {
+    const d = await load();
+    const g = d.groups?.find((x) => x.id === groupId);
+    if (!g) return { columns: [] };
+    const idx = d.docs.findIndex((doc) => doc.doc_id === g.target_doc);
+    const columns = d.users.map((user) => {
+      const s = d.scenes.find((x) => g.scenes.includes(x.id) && x.user === user.user_id);
+      const seen = d.visible_by_user[user.user_id];
+      return {
+        user,
+        run: s?.response,
+        visible: seen.length,
+        total: d.docs.length,
+        targetVisible: g.target_doc ? seen.includes(idx) : null,
+      };
+    });
+    return { question: g.question, title: g.title_zh, title_en: g.title_en, target: g.target_doc, columns };
+  },
   // A cited document as the asker saw it at recording time (fetched with their token from the
   // permission-checked API). Anything else, including every locked document, is "not found".
   doc: async (docId) => {
