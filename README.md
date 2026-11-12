@@ -135,6 +135,12 @@ Full experiment log: [docs/experiments.md](docs/experiments.md).
 Requirements: Docker Desktop, [uv](https://docs.astral.sh/uv/), and optionally
 [Ollama](https://ollama.com/) with `qwen3:8b` for local answers.
 
+**Time and downloads.** On a machine that already has the downloads cached, the whole block
+below (clone → `eval-dev`) took about 9 minutes (Windows 11, CPU embeddings, NVIDIA GPU for Ollama; 2026-11-12).
+A first run also downloads about 1.3 GB of Python packages (`uv sync`), about 4 GB for the
+bge-m3 / reranker weights (`make index`) and 5.2 GB for `ollama pull qwen3:8b`, so plan for
+extra time depending on your connection. `make test` needs none of the model downloads.
+
 ```bash
 cp .env.example .env        # edit if needed (see below)
 docker compose up -d        # Postgres 16 + pgvector

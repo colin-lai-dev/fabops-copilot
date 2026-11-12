@@ -4,6 +4,11 @@
 細節本身留在對應文件：架構決策 → `docs/decisions/`，實驗 → `docs/experiments.md`，
 待決事項 → `docs/open-questions.md`，階段驗收 → `docs/gates/`，程式變更 → git log。
 
+## 2026-11-12
+
+- **Phase 4 gate 驗證**（Claude Code）：沒有待執行的交接指示，改從 PLAN 接續。從 GitHub 乾淨 clone，照 README（Windows 指令、port 改 5434）跑到 `eval-dev`，
+  累計 8 分 55 秒（下載都已快取）；dev 數字與既有 qwen3 紀錄完全一致。README 補上首次下載量（約 10 GB）。待 Colin 決定 gate 是否通過，見 `docs/gates/phase-4.md`。
+
 ## 2026-11-11
 
 - **交接指示 014**（Claude Code）：已記錄範本 repo 公開（https://github.com/colin-lai-dev/cc-project-template，template）、Langfuse 改走 OpenTelemetry 並端到端驗證（12/12、無內文）。
