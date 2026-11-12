@@ -59,6 +59,10 @@ for name, t in (("light", light), ("dark", dark)):
         ("--bg", "--good"),
         ("--bg", "--violet"),
         ("--bg", "--ink"),
+        ("--clr-0-ink", "--clr-0-bg"),
+        ("--clr-1-ink", "--clr-1-bg"),
+        ("--clr-2-ink", "--clr-2-bg"),
+        ("--clr-3-ink", "--clr-3-bg"),
     ]
     ui = [
         ("--die", "--wafer"),

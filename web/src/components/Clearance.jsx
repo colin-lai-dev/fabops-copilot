@@ -1,8 +1,9 @@
 import React from "react";
 
-// Clearance as a four-step meter plus its name: public fills one step, restricted all four.
-// One ink colour (no hue per level), so colour on the page is left to mean retrieval and
-// verdicts; the level name is always written.
+// Clearance as a four-step meter plus a filled chip with its name: public fills one step,
+// restricted all four. One colour per level everywhere on the page (tokens --clr-N-bg /
+// --clr-N-ink, both themes AA); the ramp avoids the state colours, and the name and the steps
+// mean colour is never the only cue.
 
 export const CLEARANCE = ["public", "internal", "confidential", "restricted"];
 
@@ -14,7 +15,7 @@ export default function Clearance({ level }) {
           <i key={i} className={i <= level ? "on" : ""} />
         ))}
       </span>
-      {CLEARANCE[level]}
+      <span className="clr-chip">{CLEARANCE[level]}</span>
     </span>
   );
 }

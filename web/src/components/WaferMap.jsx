@@ -124,6 +124,14 @@ export default function WaferMap({ docs, retrieved = [], cited = [], focusId, on
             {t("wafer.citedL")}
           </li>
         </ul>
+        <ul className="clr-legend" aria-label={t("clr.legend")}>
+          <li className="fine">{t("clr.legend")}</li>
+          {[0, 1, 2, 3].map((l) => (
+            <li key={l}>
+              <Clearance level={l} />
+            </li>
+          ))}
+        </ul>
         <div className="wafer-info" aria-live="polite">
           {shown ? (
             shown.visible ? (
