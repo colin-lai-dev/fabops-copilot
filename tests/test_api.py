@@ -129,6 +129,54 @@ def test_docs_for_the_wafer_map_hide_locked_metadata(client):
     assert all(d["fab"] == "FX1" for d in shown)
 
 
+class _FakeCursor:
+    """Answers the two queries of GET /api/docs/{doc_id} from the corpus (no Postgres)."""
+
+    def __init__(self, corpus):
+        self.corpus, self.rows = corpus, []
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *a):
+        return False
+
+    def execute(self, sql, params):
+        d = self.corpus[params[0]]
+        self.rows = (
+            [(d["title"],)] if "title" in sql else [("全文", d["body_md"])]
+        )  # one section is enough here
+
+    def fetchone(self):
+        return self.rows[0]
+
+    def __iter__(self):
+        return iter(self.rows)
+
+
+class _FakeConn(_FakeCursor):
+    def cursor(self):
+        return _FakeCursor(self.corpus)
+
+
+def test_doc_text_only_for_visible_documents(client):
+    from evals.corpus import load_corpus
+
+    corpus = load_corpus()
+    c = client([])
+    c.app.state.fabops.connect = lambda: _FakeConn(corpus)
+    doc = "SOP-FX1-ETC-PRS-0412-v1"  # FX1 etch, confidential
+    lead = c.get(f"/api/docs/{doc}", headers=login(c, "lead_fx1_multi"))
+    assert lead.status_code == 200
+    body = lead.json()
+    assert body["title"] and "補償" in body["sections"][0]["text"]
+    # clearance too low, other fab, unknown id: the same bare 404, no attributes
+    for user, d in (("eng_fx1_etch", doc), ("mgr_fx2_all", doc), ("admin_all", "SOP-NOPE")):
+        r = c.get(f"/api/docs/{d}", headers=login(c, user))
+        assert r.status_code == 404 and r.json() == {"detail": "not found"}
+    assert c.get(f"/api/docs/{doc}").status_code == 401
+
+
 def test_agent_run_reports_searched_docs():
     from fabops.api.app import searched_doc_ids
 
