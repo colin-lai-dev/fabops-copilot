@@ -488,10 +488,17 @@ function Console({ lang, setLang }) {
                           aria-label={t("ask.recorded")}
                         >
                           {mine.length === 0 && <option value="">{t("ask.none")}</option>}
-                          {mine.map((s) => (
-                            <option key={s.id} value={s.id}>
-                              [{t(`mode.${s.mode}`)}] {s.question}
-                            </option>
+                          {MODES.filter((m) => mine.some((s) => s.mode === m)).map((m) => (
+                            // the mode is the group label, never glued to the question text
+                            <optgroup key={m} label={t(`mode.${m}`)}>
+                              {mine
+                                .filter((s) => s.mode === m)
+                                .map((s) => (
+                                  <option key={s.id} value={s.id}>
+                                    {s.question}
+                                  </option>
+                                ))}
+                            </optgroup>
                           ))}
                         </select>
                       )
