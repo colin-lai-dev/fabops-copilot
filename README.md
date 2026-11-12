@@ -3,9 +3,11 @@
 [![ci](https://github.com/colin-lai-dev/fabops-copilot/actions/workflows/ci.yml/badge.svg)](https://github.com/colin-lai-dev/fabops-copilot/actions/workflows/ci.yml)
 
 **▶ Live demo (recorded replay): https://colin-lai-dev.github.io/fabops-copilot/** — a static site that
-replays answers recorded from the real system (no backend, synthetic data only). A six-step guided tour
-shows a permission wafer map (192 documents; switch identity and watch what you may see), the agent's
-tool calls step by step, a real approval flow with an audit log, and an injection next to its no-filter control.
+replays answers recorded from the real system (no backend, synthetic data only). Seven guided steps (pick
+any of them on the left) show a permission wafer map (192 documents; switch identity and watch what you may
+see), every recorded question answered by all six identities side by side, cited passages, the agent's tool
+calls step by step, a real approval flow with an audit log, and an injection next to its no-filter control.
+Light / dark theme, Chinese / English interface, deep links such as `#step=approval`.
 3-minute video: [release `demo-v1`](https://github.com/colin-lai-dev/fabops-copilot/releases/tag/demo-v1).
 
 ![28-second demo: the wafer map filters by permission before retrieval, a cited SOP passage opens in a drawer, an operator is refused, the same question answered by six identities side by side, agent steps, a proposal refused then approved, and the injection control](docs/assets/demo.gif)

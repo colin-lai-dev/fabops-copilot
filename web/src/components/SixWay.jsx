@@ -82,6 +82,7 @@ function Column({ col }) {
 export default function SixWay({ data, onClose }) {
   const t = useT();
   if (!data) return <p className="fine">{t("doc.loading")}</p>;
+  if (data.unavailable) return <p className="fine six-unavailable">{t("six.unavailable")}</p>;
   if (!data.columns?.length) return <p className="fine">{t("six.none")}</p>;
   const answered = data.columns.filter((c) => ["good", "violet"].includes(verdict(c).tone)).length;
   return (
