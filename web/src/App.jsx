@@ -578,7 +578,26 @@ function Console({ lang, setLang }) {
   const approvalFirst = step?.key === "approval";
   // The step explanation, with a quiet "next scene" link for visitors who do not know the order.
   const nextStep = tour !== null && tour < TOUR.length - 1 ? TOUR[tour + 1] : null;
-  const stepCard = step && (
+  // Outside the tour the same slot holds the current identity (data, not instructions), so
+  // leaving or re-entering the tour does not move the ask card (handoff 021).
+  const freeCard = !step && me && (
+    <section className={`panel step-card free-card lvl-${me.clearance}`}>
+      <div className="panel-sub">{t("free.title")}</div>
+      <p className="free-who">
+        <b>{t.user(me)}</b> <Clearance level={me.clearance} />
+      </p>
+      <p className="fine">
+        {t("free.scope", {
+          fabs: me.fabs.join("·"),
+          depts: me.departments.join("·"),
+          visible: docs.filter((d) => d.visible).length,
+          total: docs.length,
+          n: mine.length,
+        })}
+      </p>
+    </section>
+  );
+  const stepCard = step ? (
     <section className="panel step-card">
       <div className="panel-sub">
         <Bi
@@ -601,7 +620,7 @@ function Console({ lang, setLang }) {
         </button>
       )}
     </section>
-  );
+  ) : freeCard;
 
   // On the approval step the approval block is visible without scrolling: first in the evidence
   // column on wide screens, right under the step card on phones (handoff 017 #6).
@@ -671,11 +690,6 @@ function Console({ lang, setLang }) {
 
         <div className="grid">
           <nav className="rail" aria-label={t("rail.label")}>
-            {tour === null && (
-              <p className="fine rail-free" role="status">
-                {t("rail.free")}
-              </p>
-            )}
             <ol>
               {TOUR.map((s, i) => (
                 <li key={s.key}>
