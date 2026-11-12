@@ -1605,3 +1605,7 @@ mark.malicious {
   flex-wrap: wrap;
   gap: 4px 16px;
 }
+/* recordings with subtitles: the drawer stops above the subtitle bar instead of covering it */
+.app-subs .drawer-wrap {
+  bottom: var(--subs-h);
+}

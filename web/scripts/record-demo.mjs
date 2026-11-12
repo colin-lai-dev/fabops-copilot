@@ -68,20 +68,17 @@ async function tour(page, hold) {
   // 4 approval: the requester is refused, the admin approves
   await tourNext(page);
   await hold(2500);
-  await into(page, ".proposal-card");
-  await hold(3000);
-  await page.locator(".proposal-card button.approve").click();
-  await page.waitForSelector(".msg-bad");
-  await into(page, ".audit");
-  await hold(8000);
   await toTop(page);
-  await page.getByRole("button", { name: /系統管理員/ }).click();
+  await hold(3000);
+  await page.locator(".proposal-card button.approve").click(); // the requester: refused
+  await page.waitForSelector(".proposal-card .msg-bad");
+  await hold(7000);
+  await page.locator(".guide-switch").first().click(); // FX1 lead: not even listed
+  await hold(7000);
+  await page.locator(".guide-switch").first().click(); // administrator
   await hold(2500);
-  await into(page, ".proposal-card");
-  await hold(1500);
   await page.locator(".proposal-card button.approve").click();
   await page.waitForSelector(".ev-executed");
-  await into(page, ".audit");
   await hold(11000);
   // 5 injection with the control
   await toTop(page);
@@ -179,19 +176,21 @@ if (kind === "video") {
   await into(page, ".timeline");
   await stepAll(page, () => frame(1));
   await frame(1);
+  // approval: three outcomes without leaving the step (handoff 018)
   await tourNext(page);
-  await into(page, ".proposal-card");
-  await page.locator(".proposal-card button.approve").click();
-  await page.waitForSelector(".msg-bad");
-  await into(page, ".audit");
-  await frame(5);
   await toTop(page);
-  await page.getByRole("button", { name: /系統管理員/ }).click();
-  await into(page, ".proposal-card");
+  await page.waitForSelector(".proposal-card button.approve");
+  await frame(2);
+  await page.locator(".proposal-card button.approve").click(); // the requester: refused
+  await page.waitForSelector(".proposal-card .msg-bad");
+  await frame(3);
+  await page.locator(".guide-switch").first().click(); // FX1 lead: not even listed
+  await page.waitForSelector(".proposal-card.blind");
+  await frame(3);
+  await page.locator(".guide-switch").first().click(); // administrator: approves
   await page.locator(".proposal-card button.approve").click();
   await page.waitForSelector(".ev-executed");
-  await into(page, ".audit");
-  await frame(7);
+  await frame(5);
   await toTop(page);
   await tourNext(page);
   await send(page);
