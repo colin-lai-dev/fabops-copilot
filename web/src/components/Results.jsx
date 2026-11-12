@@ -4,7 +4,8 @@ import { useT } from "../i18n.js";
 // Interactive bar charts of the final gate numbers. Every bar shows its value, n and the
 // baseline; hovering or focusing a bar shows the full detail.
 
-const COLORS = ["#8A94A6", "#5B5BD6", "#2F9E6E"];
+// theme tokens (style.css), so the bars follow the light / dark theme
+const COLORS = ["var(--series-0)", "var(--series-1)", "var(--series-2)"];
 
 function fmt(chart, row, i, lang) {
   if (lang === "en" && row.display_en) return row.display_en[i];
@@ -28,7 +29,7 @@ function Chart({ chart }) {
       <ul className="chart-legend">
         {series.map((s, i) => (
           <li key={s}>
-            <i style={{ background: chart.lower_is_better && i === 1 ? "#2F9E6E" : COLORS[i] }} />
+            <i style={{ background: chart.lower_is_better ? (i === 0 ? "var(--hold-red)" : "var(--pass-green)") : COLORS[i] }} />
             {s}
           </li>
         ))}
@@ -45,7 +46,7 @@ function Chart({ chart }) {
               const id = `${row.label}-${i}`;
               const base = series[0];
               const color = chart.lower_is_better
-                ? i === 0 ? "#C2413B" : "#2F9E6E"
+                ? i === 0 ? "var(--hold-red)" : "var(--pass-green)"
                 : COLORS[i];
               return (
                 <div

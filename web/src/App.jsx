@@ -58,6 +58,46 @@ function Banner() {
   );
 }
 
+// Light / dark: follows the system until the visitor picks one; the pick is remembered.
+const THEME_KEY = "fabops-theme";
+const systemDark = () => window.matchMedia?.("(prefers-color-scheme: dark)").matches;
+function readTheme() {
+  try {
+    const v = localStorage.getItem(THEME_KEY);
+    return v === "light" || v === "dark" ? v : null;
+  } catch {
+    return null;
+  }
+}
+
+function ThemeToggle() {
+  const t = useT();
+  const [chosen, setChosen] = useState(readTheme);
+  const [sys, setSys] = useState(systemDark);
+  useEffect(() => {
+    const mq = window.matchMedia?.("(prefers-color-scheme: dark)");
+    const on = () => setSys(mq.matches);
+    mq?.addEventListener?.("change", on);
+    return () => mq?.removeEventListener?.("change", on);
+  }, []);
+  const dark = chosen ? chosen === "dark" : sys;
+  function flip() {
+    const next = dark ? "light" : "dark";
+    setChosen(next);
+    document.documentElement.dataset.theme = next;
+    try {
+      localStorage.setItem(THEME_KEY, next);
+    } catch {
+      /* private mode: the choice lasts for this page only */
+    }
+  }
+  return (
+    <button type="button" className="quiet theme-switch" title={t("theme.label")} aria-pressed={dark} onClick={flip}>
+      <span aria-hidden="true">{dark ? "☀" : "☾"}</span> {dark ? t("theme.toLight") : t("theme.toDark")}
+    </button>
+  );
+}
+
 function Badge({ u, active, onPick }) {
   const t = useT();
   return (
@@ -379,6 +419,7 @@ function Console({ lang, setLang }) {
             </div>
           </div>
           <nav className="tour-nav" aria-label={t("tour.nav")}>
+            <ThemeToggle />
             <button
               type="button"
               className="quiet lang-switch"
