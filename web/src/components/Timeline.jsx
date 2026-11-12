@@ -1,6 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useT } from "../i18n.js";
 
+// The agent's run as one thread: each read-only tool call, then its conclusion, then the only
+// thing it may do with it, a proposal that waits for a person. Arguments never carry an
+// identity (the server injects it from the token); results are already permission-filtered.
 
 // One-line summary of a (truncated, permission-filtered) tool result.
 function summary(c, t) {
@@ -16,82 +19,77 @@ function summary(c, t) {
   return t("tl.got");
 }
 
-export default function Timeline({ calls = [], proposal, runKey }) {
+// Long agent answers: the conclusion first, caveats folded (display only; text unchanged).
+const NOTE_START = /(?<=[。！？])\s*(?=注意|另外|此外|提醒|補充|但|不過)/;
+export function splitAgentAnswer(text) {
+  const at = text.search(NOTE_START);
+  if (at > 0) return [text.slice(0, at).trim(), text.slice(at).trim()];
+  const sents = text.split(/(?<=[。！？])/);
+  if (sents.length <= 2) return [text, ""];
+  return [sents.slice(0, 2).join("").trim(), sents.slice(2).join("").trim()];
+}
+
+export default function Timeline({ run, playing, proposalState, proposalNote }) {
   const t = useT();
-  const total = calls.length + (proposal ? 1 : 0);
-  const [shown, setShown] = useState(0);
-  const [auto, setAuto] = useState(false);
   const [open, setOpen] = useState(null);
-
-  useEffect(() => {
-    setShown(total ? 1 : 0);
-    setAuto(false);
-    setOpen(null);
-  }, [runKey, total]);
-
-  useEffect(() => {
-    if (!auto) return undefined;
-    if (shown >= total) {
-      setAuto(false);
-      return undefined;
-    }
-    const timer = setTimeout(() => setShown((s) => s + 1), 1100);
-    return () => clearTimeout(timer);
-  }, [auto, shown, total]);
-
-  if (!total) return <p className="fine">{t("tl.none")}</p>;
-
+  const calls = run.calls || [];
+  const [head, notes] = splitAgentAnswer(run.answer || "");
+  const p = run.proposal;
   return (
-    <div className="timeline">
-      <div className="timeline-controls">
-        <span className="fine">{t("tl.pos", { n: shown, total })}</span>
-        <button type="button" onClick={() => setShown((s) => Math.min(total, s + 1))} disabled={shown >= total}>
-          {t("tl.next")}
-        </button>
-        <button type="button" onClick={() => setAuto(!auto)} disabled={shown >= total}>
-          {auto ? t("tl.pause") : t("tl.play")}
-        </button>
-        <button type="button" className="quiet" onClick={() => setShown(total)} disabled={shown >= total}>
-          {t("tl.all")}
-        </button>
-      </div>
-      <ol>
-        {calls.slice(0, shown).map((c, i) => (
-          <li key={c.step} className={`step ${c.ok ? "" : "step-error"} ${i === shown - 1 ? "step-current" : ""}`}>
-            <button
-              type="button"
-              className="step-head"
-              aria-expanded={open === i}
-              onClick={() => setOpen(open === i ? null : i)}
-            >
-              <span className="step-n">{c.step}</span>
-              <span className="step-tool">{t(`tool.${c.tool}`)}</span>
-              <span className="code step-args">{Object.values(c.args || {}).filter((v) => typeof v === "string").join(" · ")}</span>
-            </button>
-            <div className="step-sum">{summary(c, t)}</div>
-            {open === i && (
-              <div className="step-detail">
-                <div className="fine">{t("tl.args", { tool: c.tool })}</div>
-                <pre>{JSON.stringify(c.args, null, 1)}</pre>
-                <div className="fine">{t("tl.result")}</div>
-                <pre>{c.ok ? c.preview : c.error}</pre>
-              </div>
-            )}
-          </li>
-        ))}
-        {proposal && shown > calls.length && (
-          <li className="step step-proposal step-current">
-            <div className="step-head static">
-              <span className="step-n">→</span>
-              <span className="step-tool">{t("tl.propose")}</span>
+    <ol className={`trace ${playing ? "trace-playing" : ""}`}>
+      {calls.map((c, i) => (
+        <li key={c.step} className={`node ${c.ok ? "" : "node-error"}`} style={{ "--n": i }}>
+          <button
+            type="button"
+            className="node-head"
+            aria-expanded={open === i}
+            onClick={() => setOpen(open === i ? null : i)}
+          >
+            <span className="node-n">{c.step}</span>
+            <span className="node-tool">{t(`tool.${c.tool}`)}</span>
+            <span className="code node-args">
+              {Object.values(c.args || {})
+                .filter((v) => typeof v === "string")
+                .join(" · ")}
+            </span>
+          </button>
+          <div className="node-sum">{summary(c, t)}</div>
+          {open === i && (
+            <div className="node-detail">
+              <div className="fine">{t("tl.args", { tool: c.tool })}</div>
+              <pre>{JSON.stringify(c.args, null, 1)}</pre>
+              <div className="fine">{t("tl.result")}</div>
+              <pre>{c.ok ? c.preview : c.error}</pre>
             </div>
-            <div className="step-sum">
-              {t(`action.${proposal.action}`)} <span className="code">{proposal.target_id}</span>
-            </div>
-            <div className="fine">{proposal.reason}</div>
-          </li>
+          )}
+        </li>
+      ))}
+      <li className="node node-answer" style={{ "--n": calls.length }}>
+        <div className="node-head static">
+          <span className="node-n">=</span>
+          <span className="node-tool">{t("answer.conclusion")}</span>
+        </div>
+        <p className="answer-text">{head}</p>
+        {notes && (
+          <details className="answer-notes">
+            <summary>{t("answer.notes")}</summary>
+            <p>{notes}</p>
+          </details>
         )}
-      </ol>
-    </div>
+      </li>
+      {p && (
+        <li className="node node-proposal" style={{ "--n": calls.length + 1 }}>
+          <div className="node-head static">
+            <span className="node-n">→</span>
+            <span className="node-tool">{t("tl.propose")}</span>
+          </div>
+          <p className="proposal-line">
+            <b>{t(`action.${p.action}`)}</b> <span className="code">{p.target_id}</span>
+            <span className={`state state-${proposalState}`}>{t(`status.${proposalState}`)}</span>
+          </p>
+          {proposalNote && <p className="fine">{proposalNote}</p>}
+        </li>
+      )}
+    </ol>
   );
 }
