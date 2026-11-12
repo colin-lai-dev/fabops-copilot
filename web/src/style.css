@@ -60,11 +60,11 @@
     --bad-wash: #35191a;
     --violet: #a9abfa;
     --violet-wash: #23254a;
-    --die: #66788f;
-    --die-sop: #8a9db8;
-    --dot: #3a4350;
-    --wafer: #171b21;
-    --wafer-edge: #39414d;
+    --die: #8496ae;
+    --die-sop: #b3c1d6;
+    --dot: #46505e;
+    --wafer: #1c2129;
+    --wafer-edge: #46505e;
     --console: #e8ebf0;
     --on-console: #0b0d10;
     --scrim: rgba(0, 0, 0, 0.6);
@@ -93,11 +93,11 @@
   --bad-wash: #35191a;
   --violet: #a9abfa;
   --violet-wash: #23254a;
-  --die: #66788f;
-  --die-sop: #8a9db8;
-  --dot: #3a4350;
-  --wafer: #171b21;
-  --wafer-edge: #39414d;
+  --die: #8496ae;
+  --die-sop: #b3c1d6;
+  --dot: #46505e;
+  --wafer: #1c2129;
+  --wafer-edge: #46505e;
   --console: #e8ebf0;
   --on-console: #0b0d10;
   --scrim: rgba(0, 0, 0, 0.6);
@@ -396,8 +396,9 @@ button:active:not(:disabled):not(.link):not(.primary) {
   min-height: 78px; /* two lines: steps of different length do not move the stage */
 }
 .caption p {
-  max-width: 68ch;
+  max-width: 880px;
   color: var(--ink-2);
+  text-wrap: pretty;
 }
 .caption-next {
   flex: none;
@@ -731,6 +732,10 @@ button:active:not(:disabled):not(.link):not(.primary) {
 .cmp-answer {
   color: var(--ink);
 }
+.cmp-bad .cmp-answer,
+.cmp-warn .cmp-answer {
+  color: var(--ink-3);
+}
 .cmp-answer.clamped {
   display: -webkit-box;
   -webkit-line-clamp: 8;
@@ -831,9 +836,12 @@ button:active:not(:disabled):not(.link):not(.primary) {
   margin-top: 6px;
   font-style: italic;
 }
+.ghost {
+  visibility: hidden;
+}
 .answer-text {
   margin: 12px 0 16px;
-  max-width: 64ch;
+  max-width: 720px;
   font-size: 17px;
   line-height: 1.75;
 }
@@ -890,7 +898,7 @@ button:active:not(:disabled):not(.link):not(.primary) {
   list-style: none;
   margin: 16px 0 14px;
   padding: 0;
-  max-width: 64ch;
+  max-width: 720px;
 }
 .node {
   position: relative;
@@ -1530,7 +1538,11 @@ mark.malicious {
   }
   .caption {
     flex-direction: column;
-    min-height: 132px;
+    min-height: 172px; /* text + the next-step link, whether or not a step is selected */
+    padding: 12px 0;
+  }
+  .caption p {
+    min-height: 4.8em; /* three lines reserved on phones */
   }
   .qbar {
     grid-template-columns: minmax(0, 1fr);

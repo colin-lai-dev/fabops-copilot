@@ -1,19 +1,14 @@
-// Layout shift of the page's anchors (identity row, step rail, step card top, ask card top,
-// wafer panel top) around common interactions (handoff 021). Prints px deltas per interaction.
+// Layout shift of the page's anchors (step tabs, question bar, the lot, detail top, wafer top)
+// around common interactions, in px. Content that itself gets longer may push what is below it;
+// the anchors above must not move.
 //   node scripts/measure-shift.mjs <url> <width>
 import { chromium } from "playwright";
 
 const [, , url, w = "1280"] = process.argv;
 const width = Number(w);
-const ANCHORS = {
-  badges: ".badges",
-  rail: ".rail ol",
-  step: ".step-card",
-  ask: ".panel.ask",
-  wafer: ".evidence .ev-block:has(.wafer)",
-};
+const ANCHORS = { steps: ".steps", qbar: ".qbar", lot: ".lot", detail: ".detail", wafer: ".wafer-stage" };
 const browser = await chromium.launch();
-const page = await browser.newPage({ viewport: { width, height: width < 600 ? 812 : 860 } });
+const page = await browser.newPage({ viewport: { width, height: width < 600 ? 812 : 800 } });
 const tops = () =>
   page.evaluate((A) => {
     const o = {};
@@ -25,42 +20,44 @@ const tops = () =>
   }, ANCHORS);
 const delta = (a, b) =>
   Object.fromEntries(Object.keys(ANCHORS).map((k) => [k, a[k] === null || b[k] === null ? "n/a" : b[k] - a[k]]));
-const click = (sel) => page.evaluate((s) => document.querySelector(s).click(), sel); // no auto-scroll
-const settle = () => page.waitForTimeout(700);
+const click = (sel, n = 0) => page.evaluate(([s, i]) => document.querySelectorAll(s)[i].click(), [sel, n]);
 const out = [];
-async function measure(label, action) {
+async function measure(label, action, wait = 500) {
   const a = await tops();
   await action();
-  await settle();
+  await page.waitForTimeout(wait);
   out.push([label, delta(a, await tops())]);
 }
 
 await page.goto(url + "#step=sop");
-await page.waitForSelector(".panel.ask");
-await page.waitForTimeout(1500);
-await measure("click a badge (leave the tour)", () => click(".badge:not(.badge-on)"));
-await measure("click step 1 (back into the tour)", () => click(".rail-item"));
-await measure("click step 2", () => page.evaluate(() => document.querySelectorAll(".rail-item")[1].click()));
-await measure("ask (answer appears)", async () => {
-  await click("button.send");
-  await page.waitForSelector(".answer-text");
-});
-await measure("open six identities", async () => {
-  await click("button.six-open");
-  await page.waitForSelector(".six-col");
-});
-await measure("close six identities", () => click(".six-close"));
-await page.goto("about:blank");
-await page.goto(url + "#step=sop");
-await page.waitForSelector("button.send");
-await click("button.send");
-await page.waitForSelector(".chip-cite");
-await settle();
+await page.waitForSelector(".detail");
+await page.waitForTimeout(2600);
+await measure("pick another identity", () => click(".slot", 0));
+await measure("pick a third identity", () => click(".slot", 5));
+await measure("step 2 (same question)", () => click(".step-tab", 1));
+await measure("step 4 (another question)", () => click(".step-tab", 3), 2600);
+await measure("step 5 (approval)", () => click(".step-tab", 4));
+await measure("approve as the requester", () => click(".proposal-card button.approve"));
+await measure("act as the administrator", () => click(".slot", 5));
+await measure("step 6 (injection)", () => click(".step-tab", 5), 2600);
+await measure("step 1 again", () => click(".step-tab", 0), 2600);
+await measure("another question from the picker", async () => {
+  await click(".pick-button");
+  await page.waitForSelector(".pick-opt");
+  await click(".pick-opt", 2);
+}, 2600);
+await measure("compare on", () => click(".compare-toggle"));
+await measure("compare off", () => click(".compare-toggle"));
+await click(".step-tab", 0);
+await page.waitForTimeout(2600);
 await measure("open citation drawer", async () => {
-  await click(".answer .chip-cite");
+  await click(".detail button.chip-cite");
   await page.waitForSelector(".drawer");
 });
 await measure("close citation drawer", () => page.keyboard.press("Escape"));
-await measure("toggle agent-steps panel", () => click(".evidence details:nth-of-type(2) > summary"));
+await measure("language to English", () => click(".lang-seg button", 1));
+await measure("language back", () => click(".lang-seg button", 0));
+await measure("theme", () => click(".theme-switch"));
 await browser.close();
-console.log(JSON.stringify({ width, shifts: out }, null, 1));
+const worst = Math.max(0, ...out.flatMap(([, d]) => Object.values(d).filter((v) => typeof v === "number").map(Math.abs)));
+console.log(JSON.stringify({ width, worst, moved: out.filter(([, d]) => Object.values(d).some((v) => typeof v === "number" && v !== 0)) }));

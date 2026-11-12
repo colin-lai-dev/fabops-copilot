@@ -46,7 +46,7 @@ function CompareCell({ slot }) {
   if (!run) return <p className="cmp-none">{t("v.noneLong")}</p>;
   const long = (run.answer || "").length > 150;
   return (
-    <div className="cmp">
+    <div className={`cmp cmp-${v.tone}`}>
       {run.proposal && (
         <p className="cmp-proposal">
           {t(`action.${run.proposal.action}`)} <span className="code">{run.proposal.target_id}</span>
@@ -62,7 +62,7 @@ function CompareCell({ slot }) {
       {run.citations?.length > 0 && (
         <p className="cmp-cites">
           {run.citations.map((c) => (
-            <span key={c} className="chip code">
+            <span key={c} className="chip chip-cite code">
               {c}
             </span>
           ))}

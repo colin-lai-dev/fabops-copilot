@@ -599,7 +599,10 @@ function Console({ lang, setLang }) {
                   ) : (
                     <>
                       {v?.why && <p className="why">{t(v.why)}</p>}
-                      {t.lang === "en" && <p className="fine zh-note">{t("answer.zhNote")}</p>}
+                      {/* always laid out (hidden in Chinese) so switching language moves nothing */}
+                      <p className={`fine zh-note ${t.lang === "en" ? "" : "ghost"}`} aria-hidden={t.lang !== "en"}>
+                        {translate("en", "answer.zhNote")}
+                      </p>
                       {run.mode === "rag" ? (
                         <p className="answer-text">{run.answer}</p>
                       ) : (

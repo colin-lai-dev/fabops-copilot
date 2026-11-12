@@ -29,7 +29,7 @@ function Chart({ chart }) {
       <ul className="chart-legend">
         {series.map((s, i) => (
           <li key={s}>
-            <i style={{ background: chart.lower_is_better ? (i === 0 ? "var(--hold-red)" : "var(--pass-green)") : COLORS[i] }} />
+            <i style={{ background: chart.lower_is_better ? (i === 0 ? "var(--bad)" : "var(--good)") : COLORS[i] }} />
             {s}
           </li>
         ))}
@@ -46,7 +46,7 @@ function Chart({ chart }) {
               const id = `${row.label}-${i}`;
               const base = series[0];
               const color = chart.lower_is_better
-                ? i === 0 ? "var(--hold-red)" : "var(--pass-green)"
+                ? i === 0 ? "var(--bad)" : "var(--good)"
                 : COLORS[i];
               return (
                 <div
