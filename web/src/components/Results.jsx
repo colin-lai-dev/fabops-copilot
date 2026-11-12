@@ -29,7 +29,7 @@ function Chart({ chart }) {
       <ul className="chart-legend">
         {series.map((s, i) => (
           <li key={s}>
-            <i style={{ background: chart.lower_is_better ? (i === 0 ? "var(--hold-red)" : "var(--pass-green)") : COLORS[i] }} />
+            <i style={{ background: chart.lower_is_better ? (i === 0 ? "var(--bad)" : "var(--good)") : COLORS[i] }} />
             {s}
           </li>
         ))}
@@ -46,7 +46,7 @@ function Chart({ chart }) {
               const id = `${row.label}-${i}`;
               const base = series[0];
               const color = chart.lower_is_better
-                ? i === 0 ? "var(--hold-red)" : "var(--pass-green)"
+                ? i === 0 ? "var(--bad)" : "var(--good)"
                 : COLORS[i];
               return (
                 <div
@@ -79,11 +79,51 @@ function Chart({ chart }) {
   );
 }
 
+// The three numbers that carry the three claims, read from results.json (never typed here).
+function Headline({ results }) {
+  const t = useT();
+  const chart = (id) => results.charts.find((c) => c.id === id);
+  const leak = chart("leak");
+  const rag = chart("rag")?.rows.find((r) => r.label_en === "Answer accuracy");
+  const three = chart("three-way")?.rows[0];
+  if (!leak || !rag || !three) return null;
+  const sum = (i) => leak.rows.reduce((a, r) => a + r.values[i], 0);
+  const n = leak.rows.reduce((a, r) => a + r.n, 0);
+  return (
+    <dl className="headline">
+      <div>
+        <dt>{t("res.h.leak")}</dt>
+        <dd>
+          <b>{sum(1)}</b>
+          <span>/{n}</span>
+        </dd>
+        <dd className="sub">{t("res.h.leakSub", { c: sum(0), n })}</dd>
+      </div>
+      <div>
+        <dt>{t("res.h.rag")}</dt>
+        <dd>
+          <b>{rag.values[1].toFixed(3)}</b>
+        </dd>
+        <dd className="sub">{t("res.h.ragSub", { b: rag.values[0].toFixed(3), n: rag.n })}</dd>
+      </div>
+      <div>
+        <dt>{t("res.h.agent")}</dt>
+        <dd>
+          <b>{three.values[2]}</b>
+          <span>/{three.n}</span>
+        </dd>
+        <dd className="sub">{t("res.h.agentSub", { f: three.values[1], r: three.values[0], n: three.n })}</dd>
+      </div>
+    </dl>
+  );
+}
+
 export default function Results({ results }) {
   const t = useT();
   if (!results) return <p className="fine">{t("res.loading")}</p>;
   return (
     <section className="results" aria-label={t("res.label")}>
+      <Headline results={results} />
       <p className="fine">{t.pick(results, "source")}</p>
       <div className="charts">
         {results.charts.map((c) => (

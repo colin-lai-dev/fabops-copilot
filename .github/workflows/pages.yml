@@ -1,15 +1,16 @@
-# Static replay demo (handoff 011 C): build web/ in replay mode and deploy it to GitHub Pages.
+# Static replay demo: build web/ in replay mode and deploy it to GitHub Pages.
 # The site calls no backend; it shows answers recorded from the real system on synthetic data.
 #
-# Design lab (handoff 022): the released site is always built from main. If a `design-lab`
-# branch exists, it is built as well, under /fabops-copilot/lab/, and deployed alongside.
-# The github-pages environment only lets main deploy, so a push to design-lab does not deploy
-# by itself: it re-runs this workflow on main (`relay`), which then builds main + design-lab.
+# Three things are deployed together:
+#   /        the current site, built from main
+#   /v8/     the previous version, built unchanged from the tag site-v8-final (noindex, with one
+#            line at the top linking to the current site), kept so both designs can be compared
+#   /lab/    a redirect to / (the design lab was adopted as site-v9)
 name: pages
 
 on:
   push:
-    branches: [main, design-lab]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -18,22 +19,11 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages-${{ github.ref }}
+  group: pages
   cancel-in-progress: true
 
 jobs:
-  relay:
-    if: github.ref == 'refs/heads/design-lab'
-    runs-on: ubuntu-latest
-    permissions:
-      actions: write
-    steps:
-      - run: gh workflow run pages.yml --repo "$GITHUB_REPOSITORY" --ref main
-        env:
-          GH_TOKEN: ${{ github.token }}
-
   build:
-    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -48,29 +38,32 @@ jobs:
           cache: npm
           cache-dependency-path: web/package-lock.json
       - run: npm ci
-      # the released site's version is its site-vN tag (not the site-v8-final anchor)
-      - run: VITE_SITE_VERSION="$(git describe --tags --match 'site-v*' --exclude '*-final' --abbrev=0)" npm run build:replay
+      - run: npm run build:replay
 
-      # --- design lab: built from the design-lab branch into dist/lab/, if the branch exists
-      - id: lab
-        working-directory: .
-        run: |
-          if git ls-remote --exit-code --heads origin design-lab > /dev/null; then
-            echo "exists=true" >> "$GITHUB_OUTPUT"
-          fi
-      - if: steps.lab.outputs.exists == 'true'
-        uses: actions/checkout@v7
+      # --- the previous version (v8), from its tag; its source is not modified
+      - uses: actions/checkout@v7
         with:
-          ref: design-lab
-          path: lab-src
-          fetch-depth: 0
-      - if: steps.lab.outputs.exists == 'true'
-        working-directory: lab-src/web
+          ref: site-v8-final
+          path: v8-src
+      - working-directory: v8-src/web
         run: |
           npm ci
-          VITE_LAB=1 VITE_BASE=/fabops-copilot/lab/ VITE_SITE_VERSION="lab-$(git rev-parse --short HEAD)" npm run build:replay
-          mkdir -p "$GITHUB_WORKSPACE/web/dist/lab"
-          cp -r dist/. "$GITHUB_WORKSPACE/web/dist/lab/"
+          VITE_SITE_VERSION=site-v8 npx vite build --mode replay --base /fabops-copilot/v8/
+          node "$GITHUB_WORKSPACE/web/scripts/mark-old-version.mjs" dist/index.html
+          mkdir -p "$GITHUB_WORKSPACE/web/dist/v8"
+          cp -r dist/. "$GITHUB_WORKSPACE/web/dist/v8/"
+
+      # --- old /lab/ links land on the current site
+      - run: |
+          mkdir -p dist/lab
+          cat > dist/lab/index.html <<'HTML'
+          <!doctype html>
+          <meta charset="utf-8" />
+          <meta name="robots" content="noindex" />
+          <meta http-equiv="refresh" content="0; url=../" />
+          <title>FabOps Copilot</title>
+          <a href="../">FabOps Copilot</a>
+          HTML
 
       - uses: actions/configure-pages@v6
       - uses: actions/upload-pages-artifact@v5

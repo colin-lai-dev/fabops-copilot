@@ -6,7 +6,7 @@ import { execSync } from "node:child_process";
 function siteVersion() {
   if (process.env.VITE_SITE_VERSION) return process.env.VITE_SITE_VERSION;
   try {
-    return execSync('git describe --tags --match "site-v*" --abbrev=0', { stdio: ["ignore", "pipe", "ignore"] })
+    return execSync('git describe --tags --match "site-v*" --exclude "*-final" --abbrev=0', { stdio: ["ignore", "pipe", "ignore"] })
       .toString()
       .trim();
   } catch {

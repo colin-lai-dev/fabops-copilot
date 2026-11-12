@@ -35,7 +35,44 @@ async function sixWay(question) {
   return { question, columns };
 }
 
+// Design lab: per-identity sessions for the six-wafer lot (the page's own session is separate).
+const tokens = {};
+async function as(userId, method, path, body) {
+  if (!tokens[userId]) tokens[userId] = (await call("POST", "/api/session", { user_id: userId })).token;
+  const res = await fetch(path, {
+    method,
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${tokens[userId]}` },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
+  return data;
+}
+
 export const live = {
+  questions: async () => [],
+  // what each identity may see (six GET /api/docs, no LLM calls); runs are filled in as asked
+  lot: async () => {
+    const users = await call("GET", "/api/users");
+    return Promise.all(
+      users.map(async (user) => {
+        const docs = await as(user.user_id, "GET", "/api/docs");
+        return {
+          user,
+          sceneId: null,
+          run: null,
+          cutOff: false,
+          docs,
+          visible: docs.map((d, i) => (d.visible ? i : -1)).filter((i) => i >= 0),
+          total: docs.length,
+          retrieved: [],
+          cited: [],
+          targetVisible: null,
+        };
+      }),
+    );
+  },
+  askAs: (userId, question, mode) => as(userId, "POST", "/api/ask", { question, mode }),
   sixWay,
   replay: false,
   users: () => call("GET", "/api/users"),

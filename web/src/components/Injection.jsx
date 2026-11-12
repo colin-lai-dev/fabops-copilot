@@ -22,7 +22,7 @@ function Marked({ body }) {
 
 export default function Injection({ scene, run, cite }) {
   const t = useT();
-  const [compare, setCompare] = useState(false);
+  const [compare, setCompare] = useState(true); // the control is the point: open by default
   if (!scene?.injected) return null;
   const c = scene.control;
   return (
