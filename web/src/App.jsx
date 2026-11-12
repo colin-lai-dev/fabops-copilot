@@ -164,9 +164,71 @@ function Console({ lang, setLang }) {
     api.results().then(setResults).catch(() => {});
   }, []);
 
+  // Deep links (handoff 015 F): the URL hash names a tour step, a recorded scene (optionally
+  // seen as another identity, e.g. the approver), or a six-identity group, plus the language:
+  //   #step=approval   #scene=triage-approval&as=admin_all&lang=en   #six=comp
+  const hashReady = useRef(false);
+  async function applyHash() {
+    const h = new URLSearchParams(window.location.hash.slice(1));
+    if (h.get("lang") === "en" || h.get("lang") === "zh") setLang(h.get("lang"));
+    const as = users.find((u) => u.user_id === h.get("as"))?.user_id;
+    const stepAt = TOUR.findIndex((s) => s.key === h.get("step"));
+    const target = scenes.find((s) => s.id === h.get("scene"));
+    const group = h.get("six");
+    if (stepAt >= 0) return goTo(stepAt);
+    if (target) {
+      setTour(null);
+      setSix(null);
+      setShowResults(false);
+      await login(target.user);
+      setPick(target.id);
+      await ask(target.id, null);
+      if (as && as !== target.user) await login(as); // e.g. the approver of this proposal
+      return undefined;
+    }
+    if (group && REPLAY) {
+      setTour(null);
+      setShowResults(false);
+      await login(as || users[0].user_id);
+      return openSix(group);
+    }
+    if (as) {
+      setTour(null);
+      setShowResults(false);
+      await login(as);
+      setPick(scenes.find((s) => s.user === as)?.id || "");
+      return undefined;
+    }
+    return goTo(tour ?? 0);
+  }
+
   useEffect(() => {
-    if (users.length && tour !== null) goTo(tour);
-  }, [users.length]);
+    if (!users.length || (REPLAY && !scenes.length) || hashReady.current) return;
+    applyHash().finally(() => {
+      hashReady.current = true;
+    });
+  }, [users.length, scenes.length]);
+
+  useEffect(() => {
+    const onHash = () => applyHash();
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  });
+
+  // Keep the hash in step with what is on screen (replaceState: no history spam, no hashchange).
+  useEffect(() => {
+    if (!hashReady.current) return;
+    const h = new URLSearchParams();
+    if (tour !== null) h.set("step", TOUR[tour].key);
+    else if (six && REPLAY) h.set("six", six);
+    else if (runScene) h.set("scene", runScene);
+    if (me && tour === null) h.set("as", me.user_id);
+    if (lang === "en") h.set("lang", "en");
+    const next = h.toString() ? `#${h.toString()}` : " ";
+    if (next.trim() !== window.location.hash) {
+      window.history.replaceState(null, "", next === " " ? window.location.pathname + window.location.search : next);
+    }
+  }, [tour, six, runScene, me, lang]);
 
   async function login(userId) {
     setOpenDoc(null);
@@ -275,7 +337,8 @@ function Console({ lang, setLang }) {
             <button
               type="button"
               className="quiet lang-switch"
-              aria-label={t("lang.label")}
+              title={t("lang.label")}
+              lang={lang === "en" ? "zh-Hant-TW" : "en"}
               onClick={() => setLang(lang === "en" ? "zh" : "en")}
             >
               {t("lang.switch")}
