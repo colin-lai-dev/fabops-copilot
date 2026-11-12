@@ -7,6 +7,7 @@ let data = null;
 let me = null;
 let askedTriage = false;
 let lastDecision = null; // index into the triage scene's decision steps
+let lastScene = null; // the scene whose answer is on screen
 
 async function load() {
   if (!data) data = await (await fetch(`${import.meta.env.BASE_URL}replay/scenes.json`)).json();
@@ -32,10 +33,18 @@ export const replay = {
     );
   },
   scenes: async () => (await load()).scenes,
+  // A cited document as the asker saw it at recording time (fetched with their token from the
+  // permission-checked API). Anything else, including every locked document, is "not found".
+  doc: async (docId) => {
+    if (!lastScene) return null;
+    if (lastScene.user !== me?.user_id) throw new Error("not-recorded"); // asked by someone else
+    return lastScene.cited_docs?.[docId] ?? null;
+  },
   ask: async ({ sceneId }) => {
     const s = (await load()).scenes.find((x) => x.id === sceneId);
     if (!s || s.user !== me?.user_id) throw new Error("這個問題不是由目前身分錄製的");
     if (s.approval_steps?.length) askedTriage = true;
+    lastScene = s;
     return s.response;
   },
   pending: async () => {

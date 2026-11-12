@@ -26,6 +26,7 @@ export const live = {
     return s.user;
   },
   docs: () => call("GET", "/api/docs"),
+  doc: (docId) => call("GET", `/api/docs/${encodeURIComponent(docId)}`).catch(() => null),
   scenes: async () => [],
   ask: ({ question, mode }) => call("POST", "/api/ask", { question, mode }),
   pending: () => call("GET", "/api/proposals"),

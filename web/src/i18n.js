@@ -149,6 +149,7 @@ const STR = {
     "doc.marked": "標亮處：與回答內容相符的句子（自動比對字詞）",
     "doc.locked": "無權限：這份文件不顯示任何屬性或內文。",
     "doc.loading": "載入中…",
+    "doc.notRecorded": "這段回答是由另一個身分錄製的；回放版只保存提問者本人看得到的文件內容。",
     "doc.meta": "{type} · {fab} · {dept} · {clr}",
   },
   en: {
@@ -288,6 +289,7 @@ const STR = {
     "doc.marked": "Highlighted: sentences that match the answer (automatic word overlap)",
     "doc.locked": "No access: no attributes or text are shown for this document.",
     "doc.loading": "Loading…",
+    "doc.notRecorded": "This answer was recorded by another identity; the replay keeps document text only as the asker saw it.",
     "doc.meta": "{type} · {fab} · {dept} · {clr}",
   },
 };

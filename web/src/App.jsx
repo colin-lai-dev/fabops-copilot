@@ -8,6 +8,7 @@ import Timeline from "./components/Timeline.jsx";
 import Approvals from "./components/Approvals.jsx";
 import Injection from "./components/Injection.jsx";
 import Results from "./components/Results.jsx";
+import DocDrawer from "./components/DocDrawer.jsx";
 
 // VITE_DEMO_MODE=replay builds the static demo site: no backend, recorded answers only.
 const REPLAY = import.meta.env.VITE_DEMO_MODE === "replay";
@@ -92,7 +93,13 @@ function Answer({ run, onCite }) {
         <span className="fine">{t("answer.cites")}</span>
         {run.citations?.length ? (
           run.citations.map((c) => (
-            <button key={c} type="button" className="chip chip-cite code" onClick={() => onCite(c)}>
+            <button
+              key={c}
+              type="button"
+              className="chip chip-cite code"
+              title={t("answer.openDoc")}
+              onClick={() => onCite(c)}
+            >
               {c}
             </button>
           ))
@@ -139,6 +146,7 @@ function Console({ lang, setLang }) {
   const [run, setRun] = useState(null);
   const [runScene, setRunScene] = useState(null);
   const [focusId, setFocusId] = useState(null);
+  const [openDoc, setOpenDoc] = useState(null); // cited document shown in the drawer
   const [results, setResults] = useState(null);
   const [showResults, setShowResults] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -158,6 +166,7 @@ function Console({ lang, setLang }) {
   }, [users.length]);
 
   async function login(userId) {
+    setOpenDoc(null);
     const u = await api.login(userId);
     setMe(u);
     setDocs(await api.docs());
@@ -387,7 +396,13 @@ function Console({ lang, setLang }) {
                   </section>
                 )}
                 {error && <p className="msg-bad">{error}</p>}
-                <Answer run={run} onCite={setFocusId} />
+                <Answer
+                  run={run}
+                  onCite={(c) => {
+                    setFocusId(c);
+                    setOpenDoc(c);
+                  }}
+                />
                 {run && runScene === scene?.id && (
                   <Injection
                     scene={scene}
@@ -434,6 +449,9 @@ function Console({ lang, setLang }) {
           <a href="https://github.com/colin-lai-dev/fabops-copilot">github.com/colin-lai-dev/fabops-copilot</a>
         </footer>
       </div>
+      {openDoc && run && (
+        <DocDrawer docId={openDoc} load={api.doc} answer={run.answer} onClose={() => setOpenDoc(null)} />
+      )}
       {subs && caption && (
         <div className="subtitles" data-testid="subtitles">
           <div>{caption.zh}</div>
