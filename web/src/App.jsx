@@ -48,11 +48,12 @@ function Banner() {
           <b>{t("banner.title")}</b>
           {t.lang === "en" ? ": " : "："}
           {t("banner.body")}
-          {t.lang === "zh" && (
-            <span className="banner-en">
-              {translate("en", "banner.title")}: {translate("en", "banner.body")}
-            </span>
-          )}
+          {/* the other language as a second line in both modes: switching never changes the height */}
+          <span className="banner-en" lang={t.lang === "en" ? "zh-Hant-TW" : "en"}>
+            {t.lang === "en"
+              ? `${translate("zh", "banner.title")}：${translate("zh", "banner.body")}`
+              : `${translate("en", "banner.title")}: ${translate("en", "banner.body")}`}
+          </span>
         </>
       )}
     </div>
@@ -93,8 +94,26 @@ function ThemeToggle() {
     }
   }
   return (
-    <button type="button" className="quiet theme-switch" title={t("theme.label")} aria-pressed={dark} onClick={flip}>
-      <span aria-hidden="true">{dark ? "☀" : "☾"}</span> {dark ? t("theme.toLight") : t("theme.toDark")}
+    <button
+      type="button"
+      className="tool-btn theme-switch"
+      title={dark ? t("theme.toLight") : t("theme.toDark")}
+      aria-label={t("theme.dark")}
+      aria-pressed={dark}
+      onClick={flip}
+    >
+      {dark ? (
+        <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true">
+          <circle cx="10" cy="10" r="3.6" fill="currentColor" />
+          <g stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
+            <path d="M10 1.8v2.2M10 16v2.2M1.8 10H4M16 10h2.2M4.2 4.2l1.6 1.6M14.2 14.2l1.6 1.6M4.2 15.8l1.6-1.6M14.2 5.8l1.6-1.6" />
+          </g>
+        </svg>
+      ) : (
+        <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true">
+          <path d="M15.6 12.6A6.6 6.6 0 0 1 7.4 4.4a6.6 6.6 0 1 0 8.2 8.2z" fill="currentColor" />
+        </svg>
+      )}
     </button>
   );
 }
@@ -156,6 +175,22 @@ function ApprovalGuide({ run, me, users, attempts, onSwitch }) {
         {!done && me?.user_id !== p.requester && go(p.requester)}
       </div>
     </div>
+  );
+}
+
+// Text in the current language, with the other language laid in the same grid cell but
+// invisible: the box always takes the taller of the two, so switching language does not
+// reflow the page (handoff 019).
+function Bi({ zh, en }) {
+  const t = useT();
+  const [cur, other] = t.lang === "en" ? [en, zh] : [zh, en];
+  return (
+    <span className="bi">
+      <span>{cur}</span>
+      <span className="bi-ghost" aria-hidden="true" lang={t.lang === "en" ? "zh-Hant-TW" : "en"}>
+        {other}
+      </span>
+    </span>
   );
 }
 
@@ -497,14 +532,24 @@ function Console({ lang, setLang }) {
   const nextStep = tour !== null && tour < TOUR.length - 1 ? TOUR[tour + 1] : null;
   const stepCard = step && (
     <section className="panel step-card">
-      <div className="panel-sub">{t("step.n", { n: tour + 1, title: t.pick(step, "title") })}</div>
-      <p>{t.pick(step, "explain")}</p>
+      <div className="panel-sub">
+        <Bi
+          zh={translate("zh", "step.n", { n: tour + 1, title: step.title })}
+          en={translate("en", "step.n", { n: tour + 1, title: step.title_en })}
+        />
+      </div>
+      <p>
+        <Bi zh={step.explain} en={step.explain_en} />
+      </p>
       {approvalFirst && run?.proposal && (
         <ApprovalGuide run={run} me={me} users={users} attempts={attempts} onSwitch={switchUser} />
       )}
       {nextStep && (
         <button type="button" className="step-next" onClick={() => goTo(tour + 1)}>
-          {t("step.next", { title: t.pick(nextStep, "title") })} →
+          <Bi
+            zh={`${translate("zh", "step.next", { title: nextStep.title })} →`}
+            en={`${translate("en", "step.next", { title: nextStep.title_en })} →`}
+          />
         </button>
       )}
     </section>
@@ -549,15 +594,24 @@ function Console({ lang, setLang }) {
           </div>
           <div className="top-tools">
             <ThemeToggle />
-            <button
-              type="button"
-              className="quiet lang-switch"
-              title={t("lang.label")}
-              lang={lang === "en" ? "zh-Hant-TW" : "en"}
-              onClick={() => setLang(lang === "en" ? "zh" : "en")}
-            >
-              {t("lang.switch")}
-            </button>
+            <div className="lang-seg" role="group" aria-label={t("lang.label")}>
+              {[
+                ["zh", "中", "zh-Hant-TW", "中文"],
+                ["en", "EN", "en", "English"],
+              ].map(([code, label, tag, full]) => (
+                <button
+                  key={code}
+                  type="button"
+                  lang={tag}
+                  title={full}
+                  aria-label={full}
+                  aria-pressed={lang === code}
+                  onClick={() => setLang(code)}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
           </div>
         </header>
 
@@ -584,7 +638,7 @@ function Console({ lang, setLang }) {
                     onClick={() => goTo(i)}
                   >
                     <span className="rail-n">{i + 1}</span>
-                    {t.pick(s, "title")}
+                    <Bi zh={s.title} en={s.title_en} />
                   </button>
                 </li>
               ))}

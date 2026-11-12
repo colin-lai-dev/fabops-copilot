@@ -61,6 +61,7 @@ const STR = {
     "theme.toDark": "暗色",
     "theme.toLight": "亮色",
     "theme.label": "切換亮色／暗色主題",
+    "theme.dark": "暗色主題",
     // wafer map
     "wafer.aria": "權限晶圓圖：{total} 份文件中可見 {visible} 份，本次檢索 {retrieved} 份",
     "wafer.sop": "SOP",
@@ -234,6 +235,7 @@ const STR = {
     "theme.toDark": "Dark",
     "theme.toLight": "Light",
     "theme.label": "Switch between light and dark theme",
+    "theme.dark": "Dark theme",
     "wafer.aria": "Permission wafer map: {visible} of {total} documents visible, {retrieved} retrieved",
     "wafer.sop": "SOP",
     "wafer.incident": "Incident report",

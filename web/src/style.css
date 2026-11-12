@@ -1090,9 +1090,6 @@ mark.malicious {
 }
 
 /* ------------------------------------------------------------ v2: language, notes */
-.lang-switch {
-  min-width: 64px;
-}
 .zh-note {
   margin: 2px 0 6px;
   font-style: italic;
@@ -1365,10 +1362,6 @@ mark.malicious {
   stroke-width: 1;
   stroke-dasharray: 2 2;
 }
-.theme-switch {
-  min-width: 72px;
-  white-space: nowrap;
-}
 
 /* ------------------------------------------------------------ v4: rail-only navigation */
 .top-tools {
@@ -1608,4 +1601,80 @@ mark.malicious {
 /* recordings with subtitles: the drawer stops above the subtitle bar instead of covering it */
 .app-subs .drawer-wrap {
   bottom: var(--subs-h);
+}
+
+/* ------------------------------------------------------------ v6: header tools, stable language */
+.top-tools {
+  gap: 8px;
+}
+.tool-btn,
+.lang-seg {
+  height: 40px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+.tool-btn {
+  width: 40px;
+  padding: 0;
+  display: inline-grid;
+  place-items: center;
+  color: var(--slate-2);
+}
+.tool-btn:hover:not(:disabled) {
+  color: var(--ink);
+  border-color: var(--slate-3);
+}
+.lang-seg {
+  display: inline-flex;
+  padding: 3px;
+  gap: 2px;
+}
+.lang-seg button {
+  min-width: 40px;
+  height: 32px;
+  padding: 0 10px;
+  border: none;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--slate-2);
+  font-family: var(--mono);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+}
+.lang-seg button[aria-pressed="true"] {
+  background: var(--console);
+  color: var(--on-console);
+}
+.lang-seg button:hover:not(:disabled):not([aria-pressed="true"]) {
+  color: var(--ink);
+  border: none;
+}
+.bi {
+  display: inline-grid;
+}
+.bi > span {
+  grid-area: 1 / 1;
+}
+.bi-ghost {
+  visibility: hidden;
+}
+.step-card .bi,
+.rail-item .bi {
+  display: grid;
+}
+/* touch targets >= 40 px: both controls 44 px high, language buttons 40 px inside */
+.tool-btn,
+.lang-seg {
+  height: 44px;
+}
+.tool-btn {
+  width: 44px;
+}
+.lang-seg {
+  padding: 1px;
+}
+.lang-seg button {
+  height: 40px;
+  min-width: 44px;
 }
