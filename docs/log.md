@@ -6,6 +6,8 @@
 
 ## 2026-11-12
 
+- **交接指示 016：site-v3**（Claude Code）：README GIF 以線上 v2 重錄（27.5 s，含六身分並排與引用側欄）；自由探索選單改以模式分組（不再出現「[只用 RAG]」前綴）；
+  引用側欄在 1280×800／375×812 捲到底時實測蓋滿可視範圍，不需修。規劃者代決兩項（512 上限不改、admin 寬範圍召回照實呈現）已寫入 README 已知限制與 `experiments.md`。tag `site-v3`。
 - **交接指示 015：demo 網站 v2 上線**（Claude Code）：補錄三個身分的情境、六身分並排、晶圓圖「過濾→檢索→引用」動畫、點引用開文件側欄（新 API `GET /api/docs/{doc_id}` 依權限過濾）、
   中英切換、深連結（`#step=`／`#scene=…&as=…`／`#six=`／`#lang=en`）、agent 回答先列結論與待核准動作。Haiku 錄製 US$0.025。
   注入情境重錄被 512 token 截斷 → 沿用 site-v1 錄製；admin 寬範圍檢索弱點照實呈現（兩項記入 `open-questions.md`）。交班摘要從 PLAN 標為不做。
