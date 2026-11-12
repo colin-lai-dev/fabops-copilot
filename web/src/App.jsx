@@ -11,6 +11,7 @@ import Results from "./components/Results.jsx";
 import DocDrawer from "./components/DocDrawer.jsx";
 import SixWay from "./components/SixWay.jsx";
 import Clearance from "./components/Clearance.jsx";
+import Logo from "./components/Logo.jsx";
 import ScenePicker from "./components/ScenePicker.jsx";
 
 // VITE_DEMO_MODE=replay builds the static demo site: no backend, recorded answers only.
@@ -195,6 +196,33 @@ function Bi({ zh, en }) {
   );
 }
 
+// Quiet footer: where to look next, what the data is, which build and recording this is, author.
+const REPO = "https://github.com/colin-lai-dev/fabops-copilot";
+function Footer({ meta }) {
+  const t = useT();
+  const parts = [
+    __SITE_VERSION__, // e.g. site-v6, from the git tag at build time
+    meta.recorded_at && `${t("foot.recorded")} ${meta.recorded_at.slice(0, 10)}`,
+    meta.model,
+  ].filter(Boolean);
+  return (
+    <footer className="foot">
+      <nav className="foot-links" aria-label={t("foot.label")}>
+        <a href={REPO}>{t("foot.source")}</a>
+        <a href={`${REPO}#eval-results`}>{t("foot.evals")}</a>
+        <a href={`${REPO}/releases/tag/demo-v1`}>{t("foot.video")}</a>
+      </nav>
+      <p>{t("foot.synthetic")}</p>
+      <p className="foot-meta">
+        <span>{parts.join(" · ")}</span>
+        <span>
+          {t("foot.by")} <a href="https://github.com/colin-lai-dev">Colin Lai</a>
+        </span>
+      </p>
+    </footer>
+  );
+}
+
 function useNarrow(query = "(max-width: 760px)") {
   const [narrow, setNarrow] = useState(() => window.matchMedia?.(query).matches ?? false);
   useEffect(() => {
@@ -350,6 +378,7 @@ function Console({ lang, setLang }) {
   const [six, setSix] = useState(null); // six-identity view: group id (replay) or "live"
   const [sixData, setSixData] = useState(null);
   const [results, setResults] = useState(null);
+  const [meta, setMeta] = useState({}); // recording date and model (replay)
   const [showResults, setShowResults] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -361,6 +390,7 @@ function Console({ lang, setLang }) {
     api.users().then(setUsers).catch((e) => setError(e.message));
     api.scenes().then(setScenes);
     api.results().then(setResults).catch(() => {});
+    Promise.resolve(api.meta?.()).then((m) => m && setMeta(m)).catch(() => {});
   }, []);
 
   // Deep links (handoff 015 F): the URL hash names a tour step, a recorded scene (optionally
@@ -588,10 +618,10 @@ function Console({ lang, setLang }) {
         {REPLAY && <Banner />}
         <header className="top">
           <div className="brand">
-            <span className="brand-mark" aria-hidden="true" />
+            <Logo size={38} />
             <div>
               <h1>FabOps Copilot</h1>
-              <p className="fine">{t("brand.sub")}</p>
+              <p className="brand-sub">{t("brand.sub")}</p>
             </div>
           </div>
           <div className="top-tools">
@@ -764,10 +794,7 @@ function Console({ lang, setLang }) {
             </>
           )}
         </div>
-        <footer className="foot fine">
-          {t("foot")}{" "}
-          <a href="https://github.com/colin-lai-dev/fabops-copilot">github.com/colin-lai-dev/fabops-copilot</a>
-        </footer>
+        <Footer meta={meta} />
       </div>
       {openDoc && run && (
         <DocDrawer docId={openDoc} load={api.doc} answer={run.answer} onClose={() => setOpenDoc(null)} />

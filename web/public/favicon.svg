@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- FabOps Copilot mark (same drawing as web/src/components/Logo.jsx); follows the system theme -->
+  <style>
+    .w { fill: #e9edf2; stroke: #1f2a3a; }
+    .d { fill: #56657c; }
+    .l { fill: #e8b23a; stroke: #7a4f00; stroke-width: 0.6; }
+    @media (prefers-color-scheme: dark) {
+      .w { fill: #1a222d; stroke: #e6ebf2; }
+      .d { fill: #7a8ca6; }
+      .l { stroke: #f1c35a; }
+    }
+  </style>
+  <path class="w" d="M13.6 29.29 A13.5 13.5 0 1 1 18.4 29.29 A2.4 2.4 0 0 0 13.6 29.29 Z" stroke-width="2" stroke-linejoin="round"/>
+  <g>
+    <rect class="d" x="11.1" y="5.5" width="4.2" height="4.2" rx="0.8"/>
+    <rect class="l" x="16.7" y="5.5" width="4.2" height="4.2" rx="0.8"/>
+    <rect class="d" x="5.5" y="11.1" width="4.2" height="4.2" rx="0.8"/>
+    <rect class="l" x="11.1" y="11.1" width="4.2" height="4.2" rx="0.8"/>
+    <rect class="d" x="16.7" y="11.1" width="4.2" height="4.2" rx="0.8"/>
+    <rect class="d" x="22.3" y="11.1" width="4.2" height="4.2" rx="0.8"/>
+    <rect class="d" x="5.5" y="16.7" width="4.2" height="4.2" rx="0.8"/>
+    <rect class="d" x="11.1" y="16.7" width="4.2" height="4.2" rx="0.8"/>
+    <rect class="d" x="16.7" y="16.7" width="4.2" height="4.2" rx="0.8"/>
+    <rect class="l" x="22.3" y="16.7" width="4.2" height="4.2" rx="0.8"/>
+    <rect class="d" x="11.1" y="22.3" width="4.2" height="4.2" rx="0.8"/>
+    <rect class="d" x="16.7" y="22.3" width="4.2" height="4.2" rx="0.8"/>
+  </g>
+</svg>
