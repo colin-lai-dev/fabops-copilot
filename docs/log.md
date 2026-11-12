@@ -4,6 +4,14 @@
 細節本身留在對應文件：架構決策 → `docs/decisions/`，實驗 → `docs/experiments.md`，
 待決事項 → `docs/open-questions.md`，階段驗收 → `docs/gates/`，程式變更 → git log。
 
+## 2026-11-13
+
+- **交接指示 023：site-v9 上線**（Claude Code）：Colin 決定採用設計實驗版。`design-lab` 已併入 main（經 `site-v9` 分支，`7d1cbdd`），分支保留不刪。
+  機密等級改回彩色色塊（灰→天藍→靛藍→梅紫，與狀態色在一般色覺與兩種色弱模擬下 ΔE ≥ 22，`web/scripts/palette_check.py`）；
+  選單晃動原因是 `scrollIntoView` 連整頁一起捲，已修；核准鈕進 1280×800 第一屏；README、demo-script、錄影腳本、GIF 更新。
+- **網站版本**：正式站 = main（`site-v9`）；舊版 v8 由 tag `site-v8-final` 原樣建到 `/v8/`（noindex、頁首一行連回新版，footer 有入口）；`/lab/` 導回正式站。
+  回到任一版仍是 revert 或把 `web/` 還原成某個 tag 的內容再 commit，不改寫歷史。自檢腳本改為 `review-lab.mjs`、`measure-shift.mjs`、`contrast.py`、`palette_check.py`。
+
 ## 2026-11-12
 
 - **交接指示 022：設計實驗（design-lab，未合併 main）**（Claude Code）：tag `site-v8-final`；pages.yml 改為 main 建正式站、`design-lab` 建到 `/lab/`（design-lab push 以 relay 觸發，未改 repo 設定）。
