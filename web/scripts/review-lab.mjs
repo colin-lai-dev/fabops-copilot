@@ -29,7 +29,7 @@ async function open(hash) {
   await page.goto("about:blank");
   await page.goto(url + hash);
   await page.waitForSelector(".step-tab");
-  await page.waitForTimeout(2500); // data + the 2.1 s sequence
+  await page.waitForTimeout(2900); // data + the 2.5 s sequence
 }
 async function check(label, user) {
   const sw = await page.evaluate(() => document.documentElement.scrollWidth);
@@ -48,7 +48,7 @@ await open("");
 const steps = await page.locator(".step-tab").count();
 for (let i = 0; i < steps; i++) {
   await click(".step-tab", i);
-  await page.waitForTimeout(i === 3 ? 2600 : 900);
+  await page.waitForTimeout(i === 3 ? 2900 : 900);
   await shot(`step-${i + 1}`);
   await check(`step ${i + 1}`, null);
 }

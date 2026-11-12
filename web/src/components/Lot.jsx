@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useT } from "../i18n.js";
 import { verdict } from "../verdict.js";
 import Clearance from "./Clearance.jsx";
@@ -26,7 +26,7 @@ function MiniWafer({ slot, cells, size, phase }) {
     };
   }, [slot, cells]);
   return (
-    <svg className="mini" viewBox={`0 0 ${size} ${size}`} aria-hidden="true" focusable="false">
+    <svg className="mini" viewBox={`-4 -4 ${size + 8} ${size + 8}`} aria-hidden="true" focusable="false">
       <Disc size={size} />
       <path d={paths.open} className="m-open" />
       {/* before the filter every die looks the same; after it, locked dies are only dots */}
@@ -76,8 +76,19 @@ export default function Lot({ lot, uid, onPick, phase, playing, playKey, compare
   const t = useT();
   const total = lot[0]?.total || 192;
   const { size, cells } = useMemo(() => layout(total), [total]);
+  // Phones: the lot scrolls sideways; keep the current identity's wafer in view (this moves the
+  // strip only, never the page).
+  const strip = useRef(null);
+  useEffect(() => {
+    const el = strip.current;
+    const col = el?.querySelector(".col-on");
+    if (!el || !col || el.scrollWidth <= el.clientWidth) return;
+    const left = Math.max(0, col.offsetLeft - (el.clientWidth - col.offsetWidth) / 2);
+    el.scrollTo({ left, behavior: "auto" });
+  }, [uid, lot.length]);
   return (
     <section
+      ref={strip}
       className={`lot ${playing ? "playing" : ""} ${compare ? "lot-compare" : ""}`}
       aria-label={t("lot.label")}
     >

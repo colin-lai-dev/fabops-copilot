@@ -31,7 +31,7 @@
   --on-console: #ffffff;
   --scrim: rgba(19, 25, 34, 0.32);
   --shadow: rgba(19, 25, 34, 0.14);
-  --series-0: #8791a1;
+  --series-0: #778294;
   --series-1: #4a4cc4;
   --series-2: #1c7550;
   --font: "Barlow", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei UI", "Microsoft JhengHei", system-ui, sans-serif;
@@ -392,8 +392,8 @@ button:active:not(:disabled):not(.link):not(.primary) {
   align-items: flex-start;
   justify-content: space-between;
   gap: 8px 32px;
-  padding: 14px 0 16px;
-  min-height: 78px; /* two lines: steps of different length do not move the stage */
+  padding: 12px 0 10px;
+  min-height: 70px; /* two lines: steps of different length do not move the stage */
 }
 .caption p {
   max-width: 880px;
@@ -407,17 +407,17 @@ button:active:not(:disabled):not(.link):not(.primary) {
 }
 
 /* ---------------------------------------------------------------- question */
+.stage {
+  min-height: 100vh; /* the footer starts below the fold: nothing jumps while data loads */
+}
 .qbar {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto;
+  min-height: 80px;
   align-items: center;
   gap: 4px 14px;
   padding: 10px 0;
   border-top: 1px solid var(--line);
-}
-.qbar-label {
-  font-size: 13px;
-  color: var(--ink-3);
 }
 .qbar-tools {
   display: flex;
@@ -518,6 +518,7 @@ button:active:not(:disabled):not(.link):not(.primary) {
 /* ---------------------------------------------------------------- the lot */
 .lot {
   position: relative;
+  min-height: 270px;
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
   background: var(--surface);
@@ -672,6 +673,8 @@ button:active:not(:disabled):not(.link):not(.primary) {
 }
 .m-ret {
   fill: var(--amber);
+  stroke: var(--amber-ink);
+  stroke-width: 1.5;
 }
 .m-cit {
   fill: var(--amber);
@@ -688,7 +691,7 @@ button:active:not(:disabled):not(.link):not(.primary) {
 .playing .m-fade,
 .playing .slot-verdict {
   transition: opacity 0.32s ease;
-  transition-delay: calc(var(--i) * 70ms);
+  transition-delay: calc(var(--i) * 250ms);
 }
 .sweep {
   position: absolute;
@@ -698,7 +701,7 @@ button:active:not(:disabled):not(.link):not(.primary) {
   width: 18%;
   pointer-events: none;
   background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--amber) 26%, transparent), transparent);
-  animation: sweep 1.5s 0.2s ease-in-out both;
+  animation: sweep 1.75s 0.05s linear both;
 }
 @keyframes sweep {
   to {
@@ -1046,14 +1049,17 @@ button.node-head .node-tool {
 }
 .die-retrieved {
   fill: var(--amber);
+  stroke: var(--amber-ink); /* amber alone is under 3:1 on the light wafer */
+  stroke-width: 1;
 }
 .die-cited {
   fill: var(--amber);
   stroke: var(--ink);
-  stroke-width: 2.5;
+  stroke-width: 2;
+  paint-order: stroke;
 }
 .die-focus {
-  stroke-width: 4;
+  stroke-width: 3.5;
 }
 .wafer-animating .die {
   transition:
@@ -1546,9 +1552,6 @@ mark.malicious {
   }
   .qbar {
     grid-template-columns: minmax(0, 1fr);
-  }
-  .qbar-label {
-    display: none;
   }
   .pick-button {
     padding-left: 0;

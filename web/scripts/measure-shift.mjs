@@ -31,25 +31,25 @@ async function measure(label, action, wait = 500) {
 
 await page.goto(url + "#step=sop");
 await page.waitForSelector(".detail");
-await page.waitForTimeout(2600);
+await page.waitForTimeout(2900);
 await measure("pick another identity", () => click(".slot", 0));
 await measure("pick a third identity", () => click(".slot", 5));
 await measure("step 2 (same question)", () => click(".step-tab", 1));
-await measure("step 4 (another question)", () => click(".step-tab", 3), 2600);
+await measure("step 4 (another question)", () => click(".step-tab", 3), 2900);
 await measure("step 5 (approval)", () => click(".step-tab", 4));
 await measure("approve as the requester", () => click(".proposal-card button.approve"));
 await measure("act as the administrator", () => click(".slot", 5));
-await measure("step 6 (injection)", () => click(".step-tab", 5), 2600);
-await measure("step 1 again", () => click(".step-tab", 0), 2600);
+await measure("step 6 (injection)", () => click(".step-tab", 5), 2900);
+await measure("step 1 again", () => click(".step-tab", 0), 2900);
 await measure("another question from the picker", async () => {
   await click(".pick-button");
   await page.waitForSelector(".pick-opt");
   await click(".pick-opt", 2);
-}, 2600);
+}, 2900);
 await measure("compare on", () => click(".compare-toggle"));
 await measure("compare off", () => click(".compare-toggle"));
 await click(".step-tab", 0);
-await page.waitForTimeout(2600);
+await page.waitForTimeout(2900);
 await measure("open citation drawer", async () => {
   await click(".detail button.chip-cite");
   await page.waitForSelector(".drawer");

@@ -28,8 +28,8 @@ const NO_AP = { audit: null, msg: null };
 // The one choreographed sequence: 0 unfiltered -> 1 permission filter -> 2 retrieval -> 3 cited.
 // It plays by itself once, on first load; afterwards only when the visitor changes the question
 // or presses Replay. Reduced motion shows the result at once.
-const SEQ = [300, 800, 1250];
-const SEQ_END = 2100;
+const SEQ = [200, 520, 840];
+const SEQ_END = 2500; // last wafer: 840 + 5 x 250 ms stagger + 320 ms fade
 const reducedMotion = () => window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 function useSequence() {
   const [state, set] = useState({ phase: 3, playing: false, key: 0 });
@@ -550,7 +550,6 @@ function Console({ lang, setLang }) {
         ) : (
           <main className="stage">
             <section className="qbar" aria-label={t("q.label")}>
-              <span className="qbar-label">{t("q.label")}</span>
               {REPLAY ? (
                 <ScenePicker scenes={questions} value={qid || ""} onChange={pickQuestion} />
               ) : (
@@ -599,10 +598,6 @@ function Console({ lang, setLang }) {
                   ) : (
                     <>
                       {v?.why && <p className="why">{t(v.why)}</p>}
-                      {/* always laid out (hidden in Chinese) so switching language moves nothing */}
-                      <p className={`fine zh-note ${t.lang === "en" ? "" : "ghost"}`} aria-hidden={t.lang !== "en"}>
-                        {translate("en", "answer.zhNote")}
-                      </p>
                       {run.mode === "rag" ? (
                         <p className="answer-text">{run.answer}</p>
                       ) : (
@@ -621,6 +616,10 @@ function Console({ lang, setLang }) {
                           calls: run.usage?.llm_calls ?? 0,
                           tokens: (run.usage?.input_tokens || 0) + (run.usage?.output_tokens || 0),
                         })}
+                      </p>
+                      {/* always laid out (hidden in Chinese) so switching language moves nothing */}
+                      <p className={`fine zh-note ${t.lang === "en" ? "" : "ghost"}`} aria-hidden={t.lang !== "en"}>
+                        {translate("en", "answer.zhNote")}
                       </p>
                       {scene && (
                         <Injection
