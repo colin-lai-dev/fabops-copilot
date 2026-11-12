@@ -11,6 +11,7 @@ import Results from "./components/Results.jsx";
 import DocDrawer from "./components/DocDrawer.jsx";
 import SixWay from "./components/SixWay.jsx";
 import Clearance from "./components/Clearance.jsx";
+import ScenePicker from "./components/ScenePicker.jsx";
 
 // VITE_DEMO_MODE=replay builds the static demo site: no backend, recorded answers only.
 const REPLAY = import.meta.env.VITE_DEMO_MODE === "replay";
@@ -527,26 +528,7 @@ function Console({ lang, setLang }) {
                       step?.sceneId ? (
                         <p className="question">{scene?.question}</p>
                       ) : (
-                        <select
-                          className="scene-select"
-                          value={pick}
-                          onChange={(e) => setPick(e.target.value)}
-                          aria-label={t("ask.recorded")}
-                        >
-                          {mine.length === 0 && <option value="">{t("ask.none")}</option>}
-                          {MODES.filter((m) => mine.some((s) => s.mode === m)).map((m) => (
-                            // the mode is the group label, never glued to the question text
-                            <optgroup key={m} label={t(`mode.${m}`)}>
-                              {mine
-                                .filter((s) => s.mode === m)
-                                .map((s) => (
-                                  <option key={s.id} value={s.id}>
-                                    {s.question}
-                                  </option>
-                                ))}
-                            </optgroup>
-                          ))}
-                        </select>
+                        <ScenePicker scenes={mine} value={pick} onChange={setPick} />
                       )
                     ) : (
                       <textarea
