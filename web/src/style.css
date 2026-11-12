@@ -1856,3 +1856,25 @@ mark.malicious {
 .ev-block.ev-empty > summary {
   opacity: 0.8;
 }
+
+/* ------------------------------------------------------------ v8: steady layout */
+.step-card {
+  min-height: 148px; /* the common step height: short steps do not pull the page up */
+}
+.free-card {
+  border-left-color: var(--lvl-band);
+}
+.free-who {
+  margin: 4px 0 2px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.free-who .clr {
+  margin-top: 0;
+}
+@media (max-width: 760px) {
+  .step-card {
+    min-height: 196px;
+  }
+}
