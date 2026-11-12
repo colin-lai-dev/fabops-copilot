@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useT } from "../i18n.js";
 
 
-export default function Approvals({ api, me, refreshKey }) {
+export default function Approvals({ api, me, refreshKey, onDecided }) {
   const t = useT();
   const why = (r) => t(`why.${r}`);
   const [blind, setBlind] = useState([]);
@@ -18,10 +18,14 @@ export default function Approvals({ api, me, refreshKey }) {
     setMsg(null);
     load();
   }, [me?.user_id, refreshKey]);
+  // An audit log belongs to the identity that fetched it: never carry it over to another one
+  // (the API answers 404 to someone who cannot see the target).
+  useEffect(() => setAudit(null), [me?.user_id]);
 
   async function decide(p, approved) {
     try {
       const run = await api.decide(p.proposal_id, approved);
+      onDecided?.(run);
       setMsg({ ok: true, text: t(approved ? "ap.approved" : "ap.rejected", { s: run.status }) });
     } catch (e) {
       setMsg({ ok: false, text: t("ap.denied", { why: why(e.message) }) });

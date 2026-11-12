@@ -57,9 +57,9 @@ export const TOUR = [
     mode: "agent",
     question: "FX2-POLISHER-03-CHC 剛發生 CMP-SLR-0822（研磨液流量不足），請先確認腔體狀態，再依 SOP 處理。",
     explain:
-      "廠務經理要 agent 處理 alarm。按「下一步」逐步看它呼叫哪些唯讀工具：查機台、搜 SOP、查派貨……每一步的參數與回傳都可以點開。最後它只能提出一個建議，等人工核准。",
+      "廠務經理要 agent 處理 alarm。按「下一步」逐步看它呼叫哪些唯讀工具：這次先查機台狀態、再搜 SOP，每一步的參數與回傳都可以點開。最後它只能提出一個建議（暫停腔體派貨），等人工核准。",
     explain_en:
-      "A fab manager asks the agent to handle an alarm. Press Next to watch which read-only tools it calls: equipment status, SOP search, dispatch log. Every step's arguments and results can be opened. In the end it can only propose an action and wait for approval.",
+      "A fab manager asks the agent to handle an alarm. Press Next to watch which read-only tools it calls: this time equipment status, then an SOP search. Every step's arguments and results can be opened. In the end it can only propose an action (inhibit the chamber) and wait for approval.",
     caption_en: "The agent calls read-only tools step by step, then can only propose an action.",
   },
   {

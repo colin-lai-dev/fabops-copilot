@@ -78,6 +78,47 @@ function Badge({ u, active, onPick }) {
   );
 }
 
+// Agent / fixed-workflow answers are long: show the conclusion and the action waiting for
+// approval first, and fold the caveats and details (display only; the text is unchanged).
+const NOTE_START = /(?<=[。！？])\s*(?=注意|另外|此外|提醒|補充|但|不過)/;
+
+export function splitAgentAnswer(text) {
+  const at = text.search(NOTE_START);
+  if (at > 0) return [text.slice(0, at).trim(), text.slice(at).trim()];
+  const sents = text.split(/(?<=[。！？])/);
+  if (sents.length <= 2) return [text, ""];
+  return [sents.slice(0, 2).join("").trim(), sents.slice(2).join("").trim()];
+}
+
+function AgentAnswer({ run }) {
+  const t = useT();
+  const [head, notes] = splitAgentAnswer(run.answer || "");
+  const p = run.proposal;
+  return (
+    <div className="agent-answer">
+      <div className="panel-sub">{t("answer.conclusion")}</div>
+      <p className="answer-text">{head}</p>
+      {p && (
+        <div className="pending-action">
+          <div className="panel-sub">{t("answer.pending")}</div>
+          <div>
+            <b>{t(`action.${p.action}`)}</b> <span className="code">{p.target_id}</span>
+            <span className={`state state-${p.status === "pending" ? "awaiting_approval" : p.status}`}>
+              {p.status === "pending" ? t("status.awaiting_approval") : t(`status.${p.status}`)}
+            </span>
+          </div>
+        </div>
+      )}
+      {notes && (
+        <details className="answer-notes">
+          <summary>{t("answer.notes")}</summary>
+          <p className="answer-text">{notes}</p>
+        </details>
+      )}
+    </div>
+  );
+}
+
 function Answer({ run, onCite }) {
   const t = useT();
   if (!run) return null;
@@ -89,7 +130,11 @@ function Answer({ run, onCite }) {
         {run.refused && <span className="state state-refused">{t("answer.refused")}</span>}
       </div>
       {t.lang === "en" && <p className="fine zh-note">{t("answer.zhNote")}</p>}
-      <p className="answer-text">{run.answer}</p>
+      {run.mode === "rag" ? (
+        <p className="answer-text">{run.answer}</p>
+      ) : (
+        <AgentAnswer run={run} />
+      )}
       <div className="cites">
         <span className="fine">{t("answer.cites")}</span>
         {run.citations?.length ? (
@@ -538,7 +583,16 @@ function Console({ lang, setLang }) {
                 </details>
                 <details open className="ev-block" ref={approvalsRef}>
                   <summary>{t("ev.approvals")}</summary>
-                  {me && <Approvals api={api} me={me} refreshKey={refreshKey} />}
+                  {me && (
+                    <Approvals
+                      api={api}
+                      me={me}
+                      refreshKey={refreshKey}
+                      onDecided={(d) =>
+                        setRun((r) => (r ? { ...r, status: d.status, proposal: d.proposal ?? r.proposal } : r))
+                      }
+                    />
+                  )}
                 </details>
               </aside>
             </>

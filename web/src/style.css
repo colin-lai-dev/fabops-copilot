@@ -1120,3 +1120,26 @@ mark.malicious {
 .six-grid {
   max-width: 100%;
 }
+
+/* ------------------------------------------------------------ v2: agent answer layout */
+.agent-answer .answer-text {
+  margin-top: 2px;
+}
+.pending-action {
+  border: 1px solid var(--nitride-violet);
+  background: var(--violet-wash);
+  border-radius: 6px;
+  padding: 8px 10px;
+  margin: 8px 0;
+}
+.pending-action .state {
+  margin-left: 8px;
+}
+.answer-notes {
+  margin: 6px 0;
+}
+.answer-notes summary {
+  cursor: pointer;
+  color: var(--slate-2);
+  font-size: 13px;
+}
