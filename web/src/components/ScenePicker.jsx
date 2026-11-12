@@ -3,21 +3,10 @@ import { useT } from "../i18n.js";
 
 // Recorded-question picker for the replay (replaces a native <select>, handoff 017 #2).
 // A button opens an ARIA listbox grouped by mode; each option shows the full question (up to two
-// lines) and small tags: six-identity view available, or the action proposal it produces.
+// lines). No extra tags (handoff 019: noise).
 // Keyboard: Enter / Space / arrows open; arrows, Home, End move; Enter selects; Esc / Tab close.
 
 const MODES = ["rag", "fixed", "agent"];
-
-function Tags({ s }) {
-  const t = useT();
-  return (
-    <span className="pick-tags">
-      {s.groups?.length > 0 && <span className="pick-tag">{t("pick.six")}</span>}
-      {s.six_unavailable && <span className="pick-tag pick-tag-muted">{t("pick.noSix")}</span>}
-      {s.response?.proposal && <span className="pick-tag pick-tag-violet">{t("pick.proposal")}</span>}
-    </span>
-  );
-}
 
 export default function ScenePicker({ scenes, value, onChange }) {
   const t = useT();
@@ -95,7 +84,6 @@ export default function ScenePicker({ scenes, value, onChange }) {
           {selected && (
             <span className="pick-meta">
               <span className="pick-mode">{t(`mode.${selected.mode}`)}</span>
-              <Tags s={selected} />
             </span>
           )}
         </span>
@@ -132,7 +120,6 @@ export default function ScenePicker({ scenes, value, onChange }) {
                     onClick={() => choose(s)}
                   >
                     <span className="pick-q">{s.question}</span>
-                    <Tags s={s} />
                   </div>
                 );
               })}

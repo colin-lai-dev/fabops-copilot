@@ -335,8 +335,13 @@ function Console({ lang, setLang }) {
     if (h.get("lang") === "en" || h.get("lang") === "zh") setLang(h.get("lang"));
     const as = users.find((u) => u.user_id === h.get("as"))?.user_id;
     const stepAt = TOUR.findIndex((s) => s.key === h.get("step"));
-    const target = scenes.find((s) => s.id === h.get("scene"));
-    const group = h.get("six");
+    let group = h.get("six");
+    // a group with no six-identity view (the injection question) opens its single scene instead
+    const info = group && REPLAY ? await api.sixWay(group) : null;
+    const target =
+      scenes.find((s) => s.id === h.get("scene")) ||
+      (info?.unavailable ? scenes.find((s) => s.six_unavailable && s.question === info.question) : null);
+    if (info?.unavailable) group = null;
     if (stepAt >= 0) {
       await goTo(stepAt);
       if (as && TOUR[stepAt].key === "approval" && as !== TOUR[stepAt].user) await login(as);
@@ -624,11 +629,7 @@ function Console({ lang, setLang }) {
                       />
                     )}
                     <div className="row">
-                      {REPLAY ? (
-                        <span className="fine">
-                          {t("ask.mode", { mode: scene?.mode ? t(`mode.${scene.mode}`) : "—" })}
-                        </span>
-                      ) : (
+                      {REPLAY ? null : (
                         <select value={mode} onChange={(e) => setMode(e.target.value)} aria-label={t("ask.modeSel")}>
                           {MODES.map((v) => (
                             <option key={v} value={v}>
@@ -636,9 +637,6 @@ function Console({ lang, setLang }) {
                             </option>
                           ))}
                         </select>
-                      )}
-                      {REPLAY && scene?.six_unavailable && (
-                        <p className="fine six-unavailable">{t("six.unavailable")}</p>
                       )}
                       {(REPLAY ? scene?.groups?.length > 0 : question.trim()) && (
                         <button

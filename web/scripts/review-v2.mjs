@@ -95,9 +95,10 @@ for (const s of data.scenes) {
 for (const g of data.groups) {
   await open(`#six=${g.id}`);
   const cols = await page.locator(".six-col").count();
-  const expect = g.unavailable ? 0 : 6; // an unavailable group says why instead of showing columns
+  const expect = g.unavailable ? 0 : 6; // an unavailable group opens its single scene instead
   if (cols !== expect) problems.push(`six ${g.id}: ${cols} columns, expected ${expect}`);
-  if (g.unavailable && !(await page.locator(".six-unavailable").count())) problems.push(`six ${g.id}: no reason shown`);
+  if (g.unavailable && !(await page.evaluate(() => location.hash)).includes("scene="))
+    problems.push(`six ${g.id}: did not open the single scene`);
   await shot(`six-${g.id}`);
   await check(`six ${g.id}`, null);
 }
