@@ -493,7 +493,7 @@ function Console({ lang, setLang }) {
                   type="button"
                   lang={tag}
                   title={full}
-                  aria-label={full}
+                  aria-label={`${label} ${full}`}
                   aria-pressed={lang === code}
                   onClick={() => setLang(code)}
                 >
