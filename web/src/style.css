@@ -426,6 +426,24 @@ button:active:not(:disabled):not(.link):not(.primary) {
   color: var(--ink-2);
   text-wrap: pretty;
 }
+/* outside the guided steps: who is looking, in the same reserved height */
+.caption-me {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 10px;
+  line-height: 1.5;
+}
+.caption-me-label {
+  font-size: 13px;
+  color: var(--ink-3);
+}
+.caption-me b {
+  color: var(--ink);
+}
+.caption-me .fine {
+  flex-basis: 100%;
+}
 .caption-next {
   flex: none;
   white-space: nowrap;
@@ -1306,18 +1324,27 @@ button.quiet {
     background: transparent;
   }
 }
+/* the result line of a decision, with a reserved slot for the off-screen hint (handoff 025) */
+.ap-result {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 12px;
+}
 .audit-hint {
-  position: fixed;
-  right: 16px;
-  bottom: 16px;
-  z-index: 30;
+  flex: none;
   border-radius: 999px;
-  padding: 6px 14px;
+  padding: 3px 12px;
   background: var(--console);
   border-color: var(--console);
   color: var(--on-console);
-  box-shadow: 0 4px 14px var(--shadow);
   font-size: 13px;
+  transition: opacity 0.15s;
+}
+.audit-hint-off {
+  visibility: hidden;
+  opacity: 0;
 }
 
 /* ---------------------------------------------------------------- injection */

@@ -4,12 +4,14 @@ import { useT } from "../i18n.js";
 // Pending proposals the current identity can see, with approve / reject. The page never jumps
 // on a decision (handoff 017 #6): the result shows where the buttons were, the audit rows the
 // decision added are briefly highlighted, and if the audit log is off screen a small hint offers
-// to scroll there; the visitor decides.
+// to scroll there; the visitor decides. The hint sits in the page flow, on the result line, in a
+// slot that is always reserved once there is a result: it never covers text and showing or hiding
+// it moves nothing (handoff 025). It is hidden while any of the audit log is on screen.
 
 const inView = (el) => {
   if (!el) return true;
   const r = el.getBoundingClientRect();
-  return r.top < window.innerHeight && r.bottom > 0;
+  return r.top < window.innerHeight - 24 && r.bottom > 24;
 };
 
 // `view` ({ audit, msg }) lives in the parent: the block can be re-mounted when it moves between
@@ -41,9 +43,40 @@ export default function Approvals({ api, me, refreshKey, onDecided, onAttempt, v
     if (!hintAt) return undefined;
     if (inView(auditRef.current)) return undefined;
     setHint(true);
-    const timer = setTimeout(() => setHint(false), 8000);
-    return () => clearTimeout(timer);
+    const hide = () => setHint(false);
+    const onScroll = () => inView(auditRef.current) && hide();
+    const timer = setTimeout(hide, 8000);
+    window.addEventListener("scroll", onScroll, { passive: true, capture: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("scroll", onScroll, { capture: true });
+      window.removeEventListener("resize", onScroll);
+    };
   }, [hintAt]);
+
+  const result = (
+    <div className="ap-result">
+      <p className={msg?.ok ? "msg-ok" : "msg-bad"} role="status">
+        {msg?.text}
+      </p>
+      {audit && (
+        <button
+          type="button"
+          className={`audit-hint ${hint ? "" : "audit-hint-off"}`}
+          aria-hidden={hint ? undefined : "true"}
+          tabIndex={hint ? 0 : -1}
+          onClick={() => {
+            setHint(false);
+            const smooth = !window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+            auditRef.current?.scrollIntoView({ block: "nearest", behavior: smooth ? "smooth" : "auto" });
+          }}
+        >
+          {t("ap.hint")} ↓
+        </button>
+      )}
+    </div>
+  );
 
   async function decide(p, approved) {
     let ok = false;
@@ -91,19 +124,11 @@ export default function Approvals({ api, me, refreshKey, onDecided, onAttempt, v
               {t("ap.reject")}
             </button>
           </div>
-          {msg?.id === p.proposal_id && (
-            <p className={msg.ok ? "msg-ok" : "msg-bad"} role="status">
-              {msg.text}
-            </p>
-          )}
+          {msg?.id === p.proposal_id && result}
         </div>
       ))}
       {decided && (
-        <div className="proposal-card proposal-done">
-          <p className={msg.ok ? "msg-ok" : "msg-bad"} role="status">
-            {msg.text}
-          </p>
-        </div>
+        <div className="proposal-card proposal-done">{result}</div>
       )}
       {guide}
       <p className="fine ap-rules">{t("ap.rules")}</p>
@@ -126,19 +151,6 @@ export default function Approvals({ api, me, refreshKey, onDecided, onAttempt, v
             ))}
           </ol>
         </div>
-      )}
-      {hint && (
-        <button
-          type="button"
-          className="audit-hint"
-          onClick={() => {
-            setHint(false);
-            const smooth = !window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-            auditRef.current?.scrollIntoView({ block: "nearest", behavior: smooth ? "smooth" : "auto" });
-          }}
-        >
-          {t("ap.hint")} ↓
-        </button>
       )}
     </div>
   );
