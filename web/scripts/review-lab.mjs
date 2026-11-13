@@ -31,6 +31,39 @@ async function open(hash) {
   await page.waitForSelector(".step-tab");
   await page.waitForTimeout(2900); // data + the 2.5 s sequence
 }
+// Each card of the lot: name, id and verdict have a size and lie wholly inside the card and the
+// lot (not clipped); the name is not truncated, does not touch the wafer, and is what the browser
+// hits at its centre (nothing covers it). Each card is scrolled into view first (phones scroll
+// the lot sideways).
+async function lotCheck(label) {
+  const n = await page.locator(".slot").count();
+  for (let i = 0; i < n; i++) {
+    await page.locator(".slot").nth(i).evaluate((s) => s.scrollIntoView({ block: "center", inline: "nearest" }));
+    const r = await page.locator(".slot").nth(i).evaluate((s) => {
+      const out = [];
+      const box = (e) => e.getBoundingClientRect();
+      const inside = (a, b) => a.left >= b.left - 0.5 && a.right <= b.right + 0.5 && a.top >= b.top - 0.5 && a.bottom <= b.bottom + 0.5;
+      const card = box(s);
+      const lot = box(s.closest(".lot"));
+      for (const sel of [".slot-name", ".slot-id", ".slot-verdict"]) {
+        const e = s.querySelector(sel);
+        const b = e && box(e);
+        if (!b || b.width < 1 || b.height < 1) out.push(`${sel} has no size`);
+        else if (!inside(b, card) || b.top < lot.top - 0.5 || b.bottom > lot.bottom + 0.5) out.push(`${sel} clipped`);
+      }
+      const name = s.querySelector(".slot-name");
+      const nb = box(name);
+      const m = box(s.querySelector(".mini"));
+      if (nb.left < m.right && nb.right > m.left && nb.top < m.bottom && nb.bottom > m.top) out.push("name over the wafer");
+      if (name.scrollWidth > name.clientWidth + 1) out.push("name truncated");
+      const hit = document.elementFromPoint(nb.left + nb.width / 2, nb.top + nb.height / 2);
+      if (!hit || !(hit === name || name.contains(hit))) out.push(`name covered by ${hit ? hit.className || hit.tagName : "nothing"}`);
+      return out;
+    });
+    if (r.length) problems.push(`${label}: wafer ${i + 1}: ${r.join("; ")}`);
+  }
+  await page.evaluate(() => window.scrollTo(0, 0));
+}
 async function check(label, user) {
   const sw = await page.evaluate(() => document.documentElement.scrollWidth);
   if (sw > width + 1) problems.push(`${label}: horizontal overflow ${sw}px`);
@@ -112,21 +145,8 @@ await shot("approval-c-approved");
 if ((await page.locator(".audit li").count()) < 5) problems.push("approval: audit log gone after a full-page screenshot");
 if (!(await page.locator(".node-proposal .state-executed").count())) problems.push("approval: proposal not shown as executed");
 
-// every wafer in the lot: the name never overlaps the wafer, the verdict stays inside the card (handoff 028)
-{
-  const bad = await page.$$eval(".slot", (ss) =>
-    ss
-      .map((s, i) => {
-        const m = s.querySelector(".mini").getBoundingClientRect();
-        const n = s.querySelector(".slot-name").getBoundingClientRect();
-        const v = s.querySelector(".slot-verdict").getBoundingClientRect();
-        const hit = n.left < m.right && n.right > m.left && n.top < m.bottom && n.bottom > m.top;
-        return hit || v.bottom > s.getBoundingClientRect().bottom ? i + 1 : 0;
-      })
-      .filter(Boolean),
-  );
-  if (bad.length) problems.push(`lot: name over wafer or verdict outside the card on wafer ${bad.join(", ")}`);
-}
+// every wafer in the lot (handoff 029, replacing 028's overlap-only check)
+await lotCheck("approval");
 
 // the clearance legend: its four chips on one row, inside the column (handoff 027)
 {
@@ -184,6 +204,7 @@ for (const h of ["#scene=comp-lead", "#six=comp", "#step=sop&lang=en", "#step=ap
   await open(h);
   await shot(`link-${h.slice(1).replace(/[=&]/g, "-")}`);
   await check(`link ${h}`, null);
+  await lotCheck(`link ${h}`); // English names, and the comparison layout (#six=)
 }
 await open("#scene=comp-lead");
 if ((await page.locator(".slot[aria-pressed=true] .slot-id").innerText()) !== "lead_fx1_multi") problems.push("#scene= did not select its asker");
