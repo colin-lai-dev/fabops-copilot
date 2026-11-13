@@ -421,18 +421,35 @@ button:active:not(:disabled):not(.link):not(.primary) {
   padding: 12px 0 10px;
   min-height: 70px; /* two lines: steps of different length do not move the stage */
 }
-.caption p {
+.caption-stack {
+  display: grid;
   max-width: 880px;
+  min-width: 0;
+}
+.caption-stack > p {
+  grid-area: 1 / 1;
+}
+.caption-off {
+  visibility: hidden;
+}
+.caption p {
   color: var(--ink-2);
   text-wrap: pretty;
+}
+.caption-next.caption-restart {
+  display: none; /* desktop keeps the 027 layout: no button on the last step */
 }
 /* outside the guided steps: who is looking, in the same reserved height */
 .caption-me {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  align-content: flex-start; /* the stack cell may be taller than the line: keep it at the top */
   gap: 0 10px;
   line-height: 1.5;
+}
+.caption-me-br {
+  display: none; /* phones: a line break before the clearance chip */
 }
 .caption-me-label {
   font-size: 13px;
@@ -1727,11 +1744,25 @@ mark.malicious {
   }
   .caption {
     flex-direction: column;
-    min-height: 172px; /* text + the next-step link, whether or not a step is selected */
     padding: 12px 0;
   }
-  .caption p {
-    min-height: 4.8em; /* three lines reserved on phones */
+  .caption-stack {
+    width: 100%;
+  }
+  .caption-next.caption-restart {
+    display: inline-flex; /* on phones a button is always there, so the row keeps its height */
+  }
+  /* identity in three lines of the text's own height: label; name and id; clearance and count */
+  .caption-me {
+    line-height: 24px;
+  }
+  .caption-me-label,
+  .caption-me-br {
+    display: block;
+    flex-basis: 100%;
+  }
+  .caption-me-br {
+    height: 0;
   }
   .qbar {
     grid-template-columns: minmax(0, 1fr);

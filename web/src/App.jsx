@@ -113,14 +113,16 @@ function ThemeToggle() {
 // the box takes the taller of the two, so switching language does not reflow the page.
 // Outside the guided steps (a deep link or a freely picked question) the caption keeps its
 // reserved height, so the stage never moves; it shows who is looking instead of an empty band.
-function IdentityLine({ me, slot }) {
+function IdentityLine({ me, slot, off }) {
   const t = useT();
-  if (!me) return <p />;
+  const cls = off ? "caption-off" : "";
+  if (!me) return <p className={cls} />;
   return (
-    <p className="caption-me">
+    <p className={`caption-me ${cls}`} aria-hidden={off ? "true" : undefined}>
       <span className="caption-me-label">{t("lot.you")}</span>
       <b>{t.user(me)}</b>
       <span className="code">{me.user_id}</span>
+      <span className="caption-me-br" aria-hidden="true" />
       <Clearance level={me.clearance} />
       {slot && <span>{t("lot.sees", { n: slot.visible.length, total: slot.total })}</span>}
     </p>
@@ -558,7 +560,8 @@ function Console({ lang, setLang }) {
         </header>
 
         <p className="strip" role="note">
-          {REPLAY && <span>{t("strip.recorded")}</span>}
+          {/* both languages reserved: on narrow phones the English line wraps once more */}
+          {REPLAY && <Bi zh={translate("zh", "strip.recorded")} en={translate("en", "strip.recorded")} />}
         </p>
 
         <nav className="steps" aria-label={t("rail.label")}>
@@ -580,12 +583,35 @@ function Console({ lang, setLang }) {
         </nav>
 
         <div className="caption">
-          {step ? (
-            <p>
-              <Bi zh={step.explain} en={step.explain_en} />
-            </p>
-          ) : (
-            <IdentityLine me={me} slot={lot.find((s) => s.user.user_id === uid)} />
+          {/* Every step's text (both languages) and the identity line share one grid cell, only
+              the current one visible: the cell is exactly as tall as the longest of them at this
+              width, so switching never moves the stage and short texts leave little space. */}
+          <div className="caption-stack">
+            {TOUR.map((s, i) => (
+              <p key={s.key} className={tour === i ? "" : "caption-off"} aria-hidden={tour === i ? undefined : "true"}>
+                <Bi zh={s.explain} en={s.explain_en} />
+              </p>
+            ))}
+            <IdentityLine
+              me={me}
+              slot={lot.find((s) => s.user.user_id === uid)}
+              off={step !== null}
+            />
+          </div>
+          {!nextStep && (
+            // phones only: the button row keeps its height on the last step and outside the tour
+            <button
+              type="button"
+              className="caption-next caption-restart"
+              aria-label={t("step.restartFull", { title: t.pick(TOUR[0], "title") })}
+              onClick={() => goTo(0)}
+            >
+              <span className="caption-next-label">{t("step.restart")}</span>
+              <span className="step-n" aria-hidden="true">
+                1
+              </span>
+              <span className="caption-next-title">{t.pick(TOUR[0], "title")}</span>
+            </button>
           )}
           {nextStep && (
             <button
