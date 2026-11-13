@@ -186,7 +186,8 @@ await lotCheck("approval en");
         const r = g.getBoundingClientRect();
         const l = g.closest(".pick-list").getBoundingClientRect();
         const y = Math.max(r.top, l.top) + 4;
-        if (r.bottom <= l.top + 1 || r.top >= l.bottom - 1 || y < 0 || y > innerHeight) return [];
+        // the test point must be inside both the list's visible part and the viewport
+        if (r.bottom <= l.top + 1 || y >= Math.min(l.bottom, innerHeight) - 1 || y < 0) return [];
         return [0.05, 0.3, 0.6, 0.95]
           .map((fx) => document.elementFromPoint(r.left + r.width * fx, y))
           .filter((e) => !(e && (e === g || g.contains(e))))
