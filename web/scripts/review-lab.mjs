@@ -62,6 +62,17 @@ async function lotCheck(label) {
     });
     if (r.length) problems.push(`${label}: wafer ${i + 1}: ${r.join("; ")}`);
   }
+  // one row of cards: name, id, clearance row and verdict each at the same height (handoff 030)
+  const tops = await page.$$eval(".slot", (ss) =>
+    Object.fromEntries(
+      [".slot-name", ".slot-id", ".slot-meta", ".slot-verdict"].map((sel) => [
+        sel,
+        ss.map((s) => s.querySelector(sel).getBoundingClientRect().top - s.getBoundingClientRect().top),
+      ]),
+    ),
+  );
+  for (const [sel, t] of Object.entries(tops))
+    if (Math.max(...t) - Math.min(...t) > 1) problems.push(`${label}: ${sel} not aligned across the row (${t.map(Math.round).join(", ")})`);
   await page.evaluate(() => window.scrollTo(0, 0));
 }
 async function check(label, user) {
@@ -145,8 +156,10 @@ await shot("approval-c-approved");
 if ((await page.locator(".audit li").count()) < 5) problems.push("approval: audit log gone after a full-page screenshot");
 if (!(await page.locator(".node-proposal .state-executed").count())) problems.push("approval: proposal not shown as executed");
 
-// every wafer in the lot (handoff 029, replacing 028's overlap-only check)
+// every wafer in the lot (handoff 029, replacing 028's overlap-only check), both languages
 await lotCheck("approval");
+await open("#step=approval&lang=en");
+await lotCheck("approval en");
 
 // the clearance legend: its four chips on one row, inside the column (handoff 027)
 {

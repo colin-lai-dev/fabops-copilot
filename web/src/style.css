@@ -632,6 +632,7 @@ button:active:not(:disabled):not(.link):not(.primary) {
   /* content decides the height (min 277 px); nothing in the card may shrink: with a fixed height
      a wrapped clearance row squeezed the name (overflow: hidden, so min-height 0) to 0 px */
   min-height: 277px;
+  container: lotcard / inline-size;
   padding: 12px 16px 12px;
   border: none;
   border-radius: 0;
@@ -658,20 +659,13 @@ button:active:not(:disabled):not(.link):not(.primary) {
   margin: 6px 0 8px;
   display: block;
 }
-/* never truncated: wraps when it must; the other language is reserved invisibly in the same cell */
+/* one line in both languages at every width (the English names are short enough at 320 px);
+   never truncated: review-lab.mjs fails if a name wraps or is cut */
 .slot-name {
-  display: grid;
-  width: 100%;
   font-size: 14.5px;
   font-weight: 600;
   line-height: 1.4;
-  overflow-wrap: anywhere;
-}
-.slot-name > span {
-  grid-area: 1 / 1;
-}
-.slot-name-ghost {
-  visibility: hidden;
+  white-space: nowrap;
 }
 .slot-id {
   font-size: 11.5px;
@@ -679,10 +673,19 @@ button:active:not(:disabled):not(.link):not(.primary) {
 }
 .slot-meta {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 0 10px;
   align-items: center;
   margin-top: 3px;
+}
+/* The clearance chip and the count need 150 px on one line. Cards in a row are equally wide, so
+   when a card is narrower than that every card puts the count on its own line together, and the
+   rows of all six cards stay aligned (instead of only the cards with a long chip wrapping). */
+@container lotcard (max-width: 152px) {
+  .slot-meta {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 .slot-vis {
   font: 500 14px/1.4 var(--cond);
