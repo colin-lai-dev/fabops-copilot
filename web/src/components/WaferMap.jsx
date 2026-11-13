@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useId, useMemo, useState } from "react";
 import { useT } from "../i18n.js";
 import Clearance, { CLEARANCE } from "./Clearance.jsx";
 
@@ -49,6 +49,7 @@ export function Disc({ size }) {
 
 export default function WaferMap({ docs, retrieved = [], cited = [], focusId, onFocus, phase = 3, animating = false }) {
   const t = useT();
+  const legendId = useId();
   const { size, cells } = useMemo(() => layout(docs.length || 192), [docs.length]);
   const [hover, setHover] = useState(null);
   const retrievedSet = new Set(retrieved);
@@ -124,14 +125,18 @@ export default function WaferMap({ docs, retrieved = [], cited = [], focusId, on
             {t("wafer.citedL")}
           </li>
         </ul>
-        <ul className="clr-legend" aria-label={t("clr.legend")}>
-          <li className="fine">{t("clr.legend")}</li>
-          {[0, 1, 2, 3].map((l) => (
-            <li key={l}>
-              <Clearance level={l} />
-            </li>
-          ))}
-        </ul>
+        <div className="clr-legend">
+          <p className="fine" id={legendId}>
+            {t("clr.legend")}
+          </p>
+          <ul aria-labelledby={legendId}>
+            {[0, 1, 2, 3].map((l) => (
+              <li key={l}>
+                <Clearance level={l} />
+              </li>
+            ))}
+          </ul>
+        </div>
         <div className="wafer-info" aria-live="polite">
           {shown ? (
             shown.visible ? (

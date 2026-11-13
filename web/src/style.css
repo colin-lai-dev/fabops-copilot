@@ -873,13 +873,17 @@ button:active:not(:disabled):not(.link):not(.primary) {
   --clr-bg: var(--clr-3-bg);
   --clr-ink: var(--clr-3-ink);
 }
+/* title on its own line, the four chips on one line below it, never wrapping */
 .clr-legend {
-  list-style: none;
   margin: 8px 0 0;
+}
+.clr-legend ul {
+  list-style: none;
+  margin: 4px 0 0;
   padding: 0;
   display: flex;
-  flex-wrap: wrap;
-  gap: 4px 8px;
+  flex-wrap: nowrap;
+  gap: 6px;
   align-items: center;
 }
 .clr-legend .clr-pips {
