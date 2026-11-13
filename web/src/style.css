@@ -1659,26 +1659,30 @@ mark.malicious {
   gap: 2px 18px;
 }
 .foot-links {
-  gap: 0 20px;
-  margin-bottom: 2px;
+  gap: 0 8px;
+  margin: 0 0 2px -8px; /* the links' own padding keeps the text where it was */
 }
 .foot-meta {
   font-size: 12px;
   color: var(--ink-3);
 }
-/* quiet links: text colour, no underline until hover or keyboard focus */
+/* quiet links: text colour, never underlined; on hover the text and icon take the accent colour
+   on a faint rounded background, like the header buttons (handoff 031) */
 .foot-link {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   min-height: 32px;
+  padding: 0 8px;
+  border-radius: 6px;
   color: var(--ink-2);
   font-weight: 500;
   text-decoration: none;
-  text-underline-offset: 3px;
 }
 .foot-meta .foot-link {
   min-height: 0;
+  padding: 1px 6px;
+  margin: 0 -6px;
   color: var(--ink-2);
 }
 .foot-icon {
@@ -1692,23 +1696,22 @@ mark.malicious {
   stroke-linejoin: round;
   color: var(--ink-3);
 }
-.foot-link:focus-visible {
-  color: var(--ink);
-  text-decoration: underline;
-}
+/* keyboard focus keeps only the site-wide outline (:focus-visible) */
 @media (hover: hover) {
-  .foot-link:hover {
-    color: var(--ink);
-    text-decoration: underline;
-  }
+  .foot-link:hover,
   .foot-link:hover .foot-icon {
     color: var(--violet);
+  }
+  .foot-link:hover {
+    background-color: var(--sunken);
   }
 }
 @media (prefers-reduced-motion: no-preference) {
   .foot-link,
   .foot-icon {
-    transition: color var(--t-fast) ease;
+    transition:
+      color var(--t-fast) ease,
+      background-color var(--t-fast) ease;
   }
 }
 @media (max-width: 600px) {
