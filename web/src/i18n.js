@@ -352,6 +352,9 @@ const USER_EN = {
   admin_all: "System administrator",
 };
 
+// an identity's display name in a given language (for layouts that reserve both)
+export const userName = (lang, u) => (lang === "en" && u && USER_EN[u.user_id]) || u?.display_name || "";
+
 export const LangContext = createContext("zh");
 
 export function translate(lang, key, vars) {

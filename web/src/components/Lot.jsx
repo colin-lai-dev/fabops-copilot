@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useT } from "../i18n.js";
+import { useT, userName } from "../i18n.js";
 import { verdict } from "../verdict.js";
 import Clearance from "./Clearance.jsx";
 import { CELL, Disc, layout } from "./WaferMap.jsx";
@@ -109,7 +109,13 @@ export default function Lot({ lot, uid, onPick, phase, playing, playKey, compare
                 {String(i + 1).padStart(2, "0")}
               </span>
               <MiniWafer slot={slot} cells={cells} size={size} phase={phase} />
-              <span className="slot-name">{t.user(u)}</span>
+              {/* both languages share one cell: the name may wrap, and a language switch moves nothing */}
+              <span className="slot-name">
+                <span>{userName(t.lang, u)}</span>
+                <span className="slot-name-ghost" aria-hidden="true">
+                  {userName(t.lang === "en" ? "zh" : "en", u)}
+                </span>
+              </span>
               <span className="slot-id code">{u.user_id}</span>
               <span className="slot-meta">
                 <Clearance level={u.clearance} />
