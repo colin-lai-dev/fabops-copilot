@@ -349,11 +349,8 @@ const USER_EN = {
   eng_fx2_litho: "FX2 litho engineer",
   lead_fx1_multi: "FX1 process lead",
   mgr_fx2_all: "FX2 fab manager",
-  admin_all: "System administrator",
+  admin_all: "System admin", // short enough for one line on a 320 px phone (handoff 030)
 };
-
-// an identity's display name in a given language (for layouts that reserve both)
-export const userName = (lang, u) => (lang === "en" && u && USER_EN[u.user_id]) || u?.display_name || "";
 
 export const LangContext = createContext("zh");
 
