@@ -1699,10 +1699,11 @@ mark.malicious {
   font-weight: 500;
   text-decoration: none;
 }
+/* no negative margin: the hover background must stay inside the link's own box, clear of the
+   "By" text before it (handoff 032); the padding is always there, so hovering moves nothing */
 .foot-meta .foot-link {
   min-height: 0;
   padding: 1px 6px;
-  margin: 0 -6px;
   color: var(--ink-2);
 }
 .foot-icon {
