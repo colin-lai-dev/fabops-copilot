@@ -12,8 +12,8 @@ In 30 seconds, this demo has to show an interviewer three things:
 
 ## 2. Two ways of directing the work
 
-- **v1–v8: one specific request at a time.** Each round I listed concrete changes, for example making clearance levels filled chips (`79d66c9`), removing self-explaining notes (`98c236a`, `b70da04`), and fixing the layout jump when switching language (`e3caca4`). The implementation was done by an AI model [model name A, to be filled in by the author].
-- **v9: one open design brief.** I wrote only the goals, the red lines and the quality floor (full text in the appendix). An AI model [model name B, to be filled in by the author] reviewed the old version itself, proposed three directions, picked one and built it.
+- **v1–v8: one specific request at a time.** Each round I listed concrete changes, for example making clearance levels filled chips (`79d66c9`), removing self-explaining notes (`98c236a`, `b70da04`), and fixing the layout jump when switching language (`e3caca4`). The implementation was done by Claude Opus 5.5.
+- **v9: one open design brief.** I wrote only the goals, the red lines and the quality floor (full text in the appendix). Claude Fable 5.2 reviewed the old version itself, proposed three directions, picked one and built it.
 
 The division of work was the same both times: I decided the direction and the trade-offs; one AI model did the implementation; a separate AI session acted as a planning and review assistant, reading each implementation report, checking the screenshots and drafting the next request, and I decided what went out.
 
