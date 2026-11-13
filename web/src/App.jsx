@@ -240,7 +240,7 @@ function Footer({ meta }) {
         <FootLink href={`${REPO}#eval-results`} icon="chart" external>
           {t("foot.evals")}
         </FootLink>
-        <FootLink href={`${REPO}/releases/tag/demo-v1`} icon="video" external>
+        <FootLink href={`${REPO}/releases/tag/demo-v2`} icon="video" external>
           {t("foot.video")}
         </FootLink>
         {REPLAY && (
