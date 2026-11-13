@@ -10,7 +10,7 @@ keeps the question and switches identity. Seven steps walk through cited passage
 thread of read-only tool calls ending in a proposal, a real approval flow with an audit log, an injection
 next to its no-filter control, and the results. Light / dark, Chinese / English, deep links such as
 `#step=approval`. The previous design is kept at [/v8/](https://colin-lai-dev.github.io/fabops-copilot/v8/).
-3-minute video: [release `demo-v1`](https://github.com/colin-lai-dev/fabops-copilot/releases/tag/demo-v1).
+3-minute video: [release `demo-v2`](https://github.com/colin-lai-dev/fabops-copilot/releases/tag/demo-v2) (mp4 and webm; the earlier `demo-v1` is kept).
 How the design went from v8 to v9: [case study](docs/case-study-design-lab.md) (the previous version, v8, can still be used at [/v8/](https://colin-lai-dev.github.io/fabops-copilot/v8/)).
 
 ![30-second demo: one question and six wafers light up differently for six identities, a cited SOP passage opens in a drawer, the operator sees 1 of 192 documents, six answers side by side under their wafers, the agent's run as one thread ending in a proposal, the proposal refused for its requester, not listed for an FX1 lead and approved by the administrator with the audit log, the injection next to its control, and the headline results](docs/assets/demo.gif)

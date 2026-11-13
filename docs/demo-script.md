@@ -5,7 +5,9 @@
 > 問 SOP、權限擋下、六身分並排、Agent 逐步查詢、人工核准、擋下注入、結果。
 > 影片與 GIF 由 `web/scripts/record-demo.mjs` 自動錄製（`npm run build:replay`、`npx vite preview --mode replay` 後
 > `node scripts/record-demo.mjs video|gif <網址> <輸出>`）；它走的就是這 7 步。舊版設計保留在 `/v8/`。
-> 下方分鏡表是接真實後端現場操作時的腳本（問題與預期輸出不變）；release `demo-v1` 的影片是舊版畫面。
+> 下方分鏡表是接真實後端現場操作時的腳本（問題與預期輸出不變）。目前的影片是 release
+> [`demo-v2`](https://github.com/colin-lai-dev/fabops-copilot/releases/tag/demo-v2)（2026-11-13 自 site-v9.8 錄製，mp4 與 webm）；
+> 舊版畫面的 `demo-v1` 保留在 release 頁。
 
 依企劃 v3 的分鏡。全部為合成資料（虛構 Fab-X）。影片怎麼錄由 Colin 決定；以下每段的問題都已在 2026-11-11 用 Haiku 5.5 實際跑過，
 「預期看到」是當時的實際輸出（模型回答的措辭每次可能略有不同）。
