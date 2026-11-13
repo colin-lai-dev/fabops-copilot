@@ -112,6 +112,18 @@ await shot("approval-c-approved");
 if ((await page.locator(".audit li").count()) < 5) problems.push("approval: audit log gone after a full-page screenshot");
 if (!(await page.locator(".node-proposal .state-executed").count())) problems.push("approval: proposal not shown as executed");
 
+// the clearance legend: its four chips on one row, inside the column (handoff 027)
+{
+  const rows = await page.$$eval(".clr-legend ul", (us) =>
+    us.map((u) => ({ rows: new Set([...u.children].map((c) => Math.round(c.getBoundingClientRect().top))).size, over: u.scrollWidth > u.clientWidth + 1 })),
+  );
+  if (!rows.length) problems.push("legend: missing");
+  if (rows.some((r) => r.rows !== 1 || r.over)) problems.push(`legend: chips not on one row ${JSON.stringify(rows)}`);
+  if (await page.locator(".step-on").count() && !(await page.locator(".step-on").innerText()).includes("7")) {
+    if (!(await page.locator(".caption-next .step-n").count())) problems.push("next-scene button missing");
+  }
+}
+
 // outside the guided steps the caption shows the current identity, not an empty band
 await open("#q=comp&as=admin_all");
 if (await page.locator(".step-on").count()) problems.push("free question: a guided step is selected");

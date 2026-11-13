@@ -441,10 +441,36 @@ button:active:not(:disabled):not(.link):not(.primary) {
 .caption-me b {
   color: var(--ink);
 }
+/* a secondary button that echoes the step tabs' numbered circles; same hover/active as every button */
 .caption-next {
   flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 34px;
+  padding: 0 14px 0 12px;
   white-space: nowrap;
   font-size: 14px;
+  color: var(--ink-2);
+  text-align: left;
+}
+.caption-next-label {
+  color: var(--ink-3);
+  font-size: 13px;
+}
+.caption-next-title {
+  color: var(--ink);
+  font-weight: 600;
+}
+.caption-next .step-n {
+  border-color: var(--ink-3);
+}
+@media (hover: hover) {
+  .caption-next:hover:not(:disabled) .step-n {
+    background: var(--amber);
+    border-color: var(--amber);
+    color: #131922;
+  }
 }
 
 /* ---------------------------------------------------------------- question */
@@ -847,13 +873,17 @@ button:active:not(:disabled):not(.link):not(.primary) {
   --clr-bg: var(--clr-3-bg);
   --clr-ink: var(--clr-3-ink);
 }
+/* title on its own line, the four chips on one line below it, never wrapping */
 .clr-legend {
-  list-style: none;
   margin: 8px 0 0;
+}
+.clr-legend ul {
+  list-style: none;
+  margin: 4px 0 0;
   padding: 0;
   display: flex;
-  flex-wrap: wrap;
-  gap: 4px 8px;
+  flex-wrap: nowrap;
+  gap: 6px;
   align-items: center;
 }
 .clr-legend .clr-pips {
@@ -1582,11 +1612,69 @@ mark.malicious {
 .foot-meta {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 2px 18px;
+}
+.foot-links {
+  gap: 0 20px;
+  margin-bottom: 2px;
 }
 .foot-meta {
   font-size: 12px;
   color: var(--ink-3);
+}
+/* quiet links: text colour, no underline until hover or keyboard focus */
+.foot-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  color: var(--ink-2);
+  font-weight: 500;
+  text-decoration: none;
+  text-underline-offset: 3px;
+}
+.foot-meta .foot-link {
+  min-height: 0;
+  color: var(--ink-2);
+}
+.foot-icon {
+  width: 1.15em;
+  height: 1.15em;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  color: var(--ink-3);
+}
+.foot-link:focus-visible {
+  color: var(--ink);
+  text-decoration: underline;
+}
+@media (hover: hover) {
+  .foot-link:hover {
+    color: var(--ink);
+    text-decoration: underline;
+  }
+  .foot-link:hover .foot-icon {
+    color: var(--violet);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .foot-link,
+  .foot-icon {
+    transition: color var(--t-fast) ease;
+  }
+}
+@media (max-width: 600px) {
+  .foot-link {
+    min-height: 40px; /* touch target */
+  }
+  .foot-meta .foot-link {
+    min-height: 40px;
+  }
 }
 .app-subs {
   height: 100vh;
