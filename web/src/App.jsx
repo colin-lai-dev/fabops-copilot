@@ -588,11 +588,17 @@ function Console({ lang, setLang }) {
             <IdentityLine me={me} slot={lot.find((s) => s.user.user_id === uid)} />
           )}
           {nextStep && (
-            <button type="button" className="link caption-next" onClick={() => goTo(tour + 1)}>
-              <Bi
-                zh={`${translate("zh", "step.next", { title: nextStep.title })} →`}
-                en={`${translate("en", "step.next", { title: nextStep.title_en })} →`}
-              />
+            <button
+              type="button"
+              className="caption-next"
+              aria-label={t("step.nextFull", { n: tour + 2, title: t.pick(nextStep, "title") })}
+              onClick={() => goTo(tour + 1)}
+            >
+              <span className="caption-next-label">{t("step.next")}</span>
+              <span className="step-n" aria-hidden="true">
+                {tour + 2}
+              </span>
+              <span className="caption-next-title">{t.pick(nextStep, "title")}</span>
             </button>
           )}
         </div>

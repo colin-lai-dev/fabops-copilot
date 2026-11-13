@@ -441,10 +441,36 @@ button:active:not(:disabled):not(.link):not(.primary) {
 .caption-me b {
   color: var(--ink);
 }
+/* a secondary button that echoes the step tabs' numbered circles; same hover/active as every button */
 .caption-next {
   flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 34px;
+  padding: 0 14px 0 12px;
   white-space: nowrap;
   font-size: 14px;
+  color: var(--ink-2);
+  text-align: left;
+}
+.caption-next-label {
+  color: var(--ink-3);
+  font-size: 13px;
+}
+.caption-next-title {
+  color: var(--ink);
+  font-weight: 600;
+}
+.caption-next .step-n {
+  border-color: var(--ink-3);
+}
+@media (hover: hover) {
+  .caption-next:hover:not(:disabled) .step-n {
+    background: var(--amber);
+    border-color: var(--amber);
+    color: #131922;
+  }
 }
 
 /* ---------------------------------------------------------------- question */
