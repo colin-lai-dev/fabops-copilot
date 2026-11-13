@@ -567,8 +567,11 @@ button:active:not(:disabled):not(.link):not(.primary) {
   box-shadow: 0 12px 32px var(--shadow);
   padding: 4px 0;
 }
+/* z-index: the options are position: relative, so without it they (later in the DOM) painted over
+   the sticky label as they scrolled under it (handoff 031) */
 .pick-group {
   position: sticky;
+  z-index: 1;
   top: -4px;
   background: var(--surface);
   color: var(--ink-3);
