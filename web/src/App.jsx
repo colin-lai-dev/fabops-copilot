@@ -200,6 +200,28 @@ function Cites({ run, onCite }) {
   );
 }
 
+// Line icons for the footer links: 16 px, drawn with currentColor so both themes follow the text.
+const FOOT_ICONS = {
+  code: "M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16",
+  chart: "M4 20h16M7 16v-5M12 16V7M17 16v-8",
+  video: "M3 6h18v12H3zM10 9.5v5l4.5-2.5z",
+  history: "M3 12a9 9 0 1 0 3-6.7M3 4v4h4M12 8v4l3 2",
+};
+function FootLink({ href, icon, external, children }) {
+  const t = useT();
+  return (
+    <a className="foot-link" href={href} {...(external ? { target: "_blank", rel: "noopener" } : {})}>
+      {icon && (
+        <svg className="foot-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d={FOOT_ICONS[icon]} />
+        </svg>
+      )}
+      <span>{children}</span>
+      {external && <span className="sr-only">{t("foot.newTab")}</span>}
+    </a>
+  );
+}
+
 function Footer({ meta }) {
   const t = useT();
   const parts = [
@@ -210,16 +232,29 @@ function Footer({ meta }) {
   return (
     <footer className="foot">
       <nav className="foot-links" aria-label={t("foot.label")}>
-        <a href={REPO}>{t("foot.source")}</a>
-        <a href={`${REPO}#eval-results`}>{t("foot.evals")}</a>
-        <a href={`${REPO}/releases/tag/demo-v1`}>{t("foot.video")}</a>
-        {REPLAY && <a href={`${import.meta.env.BASE_URL}v8/`}>{t("foot.v8")}</a>}
+        <FootLink href={REPO} icon="code" external>
+          {t("foot.source")}
+        </FootLink>
+        <FootLink href={`${REPO}#eval-results`} icon="chart" external>
+          {t("foot.evals")}
+        </FootLink>
+        <FootLink href={`${REPO}/releases/tag/demo-v1`} icon="video" external>
+          {t("foot.video")}
+        </FootLink>
+        {REPLAY && (
+          <FootLink href={`${import.meta.env.BASE_URL}v8/`} icon="history">
+            {t("foot.v8")}
+          </FootLink>
+        )}
       </nav>
       <p>{t("foot.synthetic")}</p>
       <p className="foot-meta">
         <span>{parts.join(" · ")}</span>
         <span>
-          {t("foot.by")} <a href="https://github.com/colin-lai-dev">Colin Lai</a>
+          {t("foot.by")}{" "}
+          <FootLink href="https://github.com/colin-lai-dev" external>
+            Colin Lai
+          </FootLink>
         </span>
       </p>
     </footer>
