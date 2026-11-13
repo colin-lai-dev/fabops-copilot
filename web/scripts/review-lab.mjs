@@ -252,6 +252,48 @@ await lotCheck("approval en");
   await page.keyboard.press("Escape");
 }
 
+// footer links (handoff 032): hovered, a link's box (its hover background) touches no visible text
+// outside it, and hovering moves no footer text
+{
+  await open("#step=sop");
+  await page.locator(".foot").scrollIntoViewIfNeeded();
+  const textRects = () =>
+    page.$eval(".foot", (foot) => {
+      const out = [];
+      const w = document.createTreeWalker(foot, NodeFilter.SHOW_TEXT);
+      for (let t = w.nextNode(); t; t = w.nextNode()) {
+        if (!t.textContent.trim() || t.parentElement.closest(".sr-only")) continue;
+        const rg = document.createRange();
+        rg.selectNodeContents(t);
+        for (const q of rg.getClientRects()) out.push(`${t.textContent.trim()}@${Math.round(q.left)},${Math.round(q.top)}`);
+      }
+      return out.join("|");
+    });
+  const before = await textRects();
+  const n = await page.locator(".foot a").count();
+  for (let i = 0; i < n; i++) {
+    const link = page.locator(".foot a").nth(i);
+    await link.hover();
+    await page.waitForTimeout(200);
+    const hits = await link.evaluate((a) => {
+      const ar = a.getBoundingClientRect();
+      const w = document.createTreeWalker(a.closest(".foot"), NodeFilter.SHOW_TEXT);
+      const out = [];
+      for (let t = w.nextNode(); t; t = w.nextNode()) {
+        if (a.contains(t) || !t.textContent.trim() || t.parentElement.closest(".sr-only")) continue;
+        const rg = document.createRange();
+        rg.selectNodeContents(t);
+        for (const q of rg.getClientRects())
+          if (q.left < ar.right && q.right > ar.left && q.top < ar.bottom && q.bottom > ar.top) out.push(t.textContent.trim());
+      }
+      return out;
+    });
+    if (hits.length) problems.push(`footer: hovering link ${i + 1} covers "${hits.join('", "')}"`);
+    if ((await textRects()) !== before) problems.push(`footer: hovering link ${i + 1} moved footer text`);
+  }
+  await page.mouse.move(0, 0);
+}
+
 // outside the guided steps the caption shows the current identity, not an empty band
 await open("#q=comp&as=admin_all");
 if (await page.locator(".step-on").count()) problems.push("free question: a guided step is selected");
