@@ -6,6 +6,7 @@
 
 ## 2026-11-13
 
+- site-v9.8 上線（handoff 032）：footer 作者連結的負 margin 讓 hover 背景蓋住「作者」4 px，已移除；自檢加 footer hover 不蓋字、不位移的斷言。
 - site-v9.7 上線（handoff 031）：選單分組標題被選項蓋住（sticky 缺 z-index）與鍵盤捲動已修；footer hover 改強調色加淡背景、無底線；控制元件 `user-select: none`、內容區可選取（題目文字例外保留可選取）。自檢加三組斷言。
 - site-v9.6 上線（handoff 030）：六片卡片逐列對齊。英文「System administrator」縮為「System admin」（唯一在 320 寬放不下的）；移除雙語名字預留；等級列以 container query 讓六張卡片同時換行。自檢加同排對齊斷言（中英）。
 - site-v9.5 上線（handoff 029）：修正 v9.4 的回歸——固定卡片高度下 flex 把身分名稱壓成 0 px；卡片改 min-height、子元素不壓縮，名字可換行且預留雙語。自檢斷言補強為尺寸、未裁切、未截斷、未被覆蓋（elementFromPoint）。028 結果步驟空白由規劃者決定接受現狀。
