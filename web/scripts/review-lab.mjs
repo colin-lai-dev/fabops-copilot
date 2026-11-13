@@ -219,6 +219,38 @@ await lotCheck("approval en");
   await page.keyboard.press("Escape");
 }
 
+// text selection (handoff 031): controls are not selectable, content is
+{
+  const us = (sel) =>
+    page.$$eval(sel, (es) => es.map((e) => getComputedStyle(e).userSelect || getComputedStyle(e).webkitUserSelect));
+  const controls = [".step-tab", ".slot", ".die", ".pick-button", ".theme-switch", ".lang-seg button", ".replay", ".compare-toggle", ".clr-legend ul", ".wafer-legend"];
+  const content = [".answer-text", ".pick-button .pick-q", ".foot p", ".caption-stack p:not(.caption-off)"];
+  await open("#step=agent");
+  for (const sel of [...controls, ".caption-next", ".node button, .timeline button", "summary"]) {
+    const v = await us(sel);
+    if (!v.length && !sel.includes(",") && sel !== "summary") problems.push(`select: no ${sel} on screen`);
+    if (v.some((x) => x !== "none")) problems.push(`select: ${sel} is selectable (${[...new Set(v)].join("/")})`);
+  }
+  for (const sel of content) {
+    const v = await us(sel);
+    if (!v.length) problems.push(`select: no ${sel} on screen`);
+    if (v.some((x) => x === "none")) problems.push(`select: ${sel} cannot be selected`);
+  }
+  await page.locator(".pick-button").click();
+  await page.waitForSelector(".pick-opt");
+  if ((await us(".pick-opt")).some((x) => x !== "none")) problems.push("select: picker options are selectable");
+  await page.keyboard.press("Escape");
+  await open("#step=approval&as=admin_all");
+  await click(".proposal-card button.approve");
+  await page.waitForSelector(".audit");
+  if ((await us(".audit li")).some((x) => x === "none")) problems.push("select: audit log cannot be selected");
+  if ((await us(".approvals button")).some((x) => x !== "none")) problems.push("select: approval buttons are selectable");
+  await click(".detail button.chip-cite");
+  const d = await page.waitForSelector(".drawer-body", { timeout: 3000 }).catch(() => null);
+  if (d && (await us(".drawer-body")).some((x) => x === "none")) problems.push("select: drawer text cannot be selected");
+  await page.keyboard.press("Escape");
+}
+
 // outside the guided steps the caption shows the current identity, not an empty band
 await open("#q=comp&as=admin_all");
 if (await page.locator(".step-on").count()) problems.push("free question: a guided step is selected");
