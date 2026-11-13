@@ -123,7 +123,6 @@ function IdentityLine({ me, slot }) {
       <span className="code">{me.user_id}</span>
       <Clearance level={me.clearance} />
       {slot && <span>{t("lot.sees", { n: slot.visible.length, total: slot.total })}</span>}
-      <span className="fine">{t("lot.tourHint")}</span>
     </p>
   );
 }
