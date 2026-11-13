@@ -173,6 +173,84 @@ await lotCheck("approval en");
   }
 }
 
+// the question picker (handoff 031): scrolled to its middle, every visible group label is what the
+// browser hits across its width (no option text shows through); moving with the keys never leaves
+// the active option under a stuck label
+{
+  await page.locator(".pick-button").click();
+  await page.waitForSelector(".pick-opt");
+  await page.locator(".pick-list").evaluate((l) => l.scrollIntoView({ block: "nearest" }));
+  const covered = async () =>
+    page.$$eval(".pick-group", (gs) =>
+      gs.flatMap((g) => {
+        const r = g.getBoundingClientRect();
+        const l = g.closest(".pick-list").getBoundingClientRect();
+        const y = Math.max(r.top, l.top) + 4;
+        if (r.bottom <= l.top + 1 || r.top >= l.bottom - 1 || y < 0 || y > innerHeight) return [];
+        return [0.05, 0.3, 0.6, 0.95]
+          .map((fx) => document.elementFromPoint(r.left + r.width * fx, y))
+          .filter((e) => !(e && (e === g || g.contains(e))))
+          .map((e) => `${g.textContent}: ${e ? e.className || e.tagName : "nothing"}`);
+      }),
+    );
+  for (const f of [0.35, 0.5, 0.75]) {
+    await page.$eval(".pick-list", (l, x) => (l.scrollTop = (l.scrollHeight - l.clientHeight) * x), f);
+    await page.waitForTimeout(100);
+    const bad = await covered();
+    if (bad.length) problems.push(`picker at ${f}: label covered by ${[...new Set(bad)].join(", ")}`);
+  }
+  const hidden = [];
+  const n = await page.locator(".pick-opt").count();
+  for (const key of [...Array(n).fill("ArrowDown"), ...Array(n).fill("ArrowUp")]) {
+    await page.keyboard.press(key);
+    const r = await page.evaluate(() => {
+      const a = document.querySelector(".pick-active");
+      const l = document.querySelector(".pick-list").getBoundingClientRect();
+      const ar = a.getBoundingClientRect();
+      const stuck = [...document.querySelectorAll(".pick-group")]
+        .map((g) => g.getBoundingClientRect())
+        .filter((g) => g.top <= l.top + 1 && g.bottom > l.top);
+      const under = stuck.some((g) => ar.top < g.bottom - 1);
+      return under || ar.bottom > l.bottom + 1 ? a.textContent.slice(0, 20) : null;
+    });
+    if (r) hidden.push(r);
+  }
+  if (hidden.length) problems.push(`picker keys: active option hidden (${hidden.length}×, e.g. ${hidden[0]})`);
+  await page.keyboard.press("Escape");
+}
+
+// text selection (handoff 031): controls are not selectable, content is
+{
+  const us = (sel) =>
+    page.$$eval(sel, (es) => es.map((e) => getComputedStyle(e).userSelect || getComputedStyle(e).webkitUserSelect));
+  const controls = [".step-tab", ".slot", ".die", ".pick-button", ".theme-switch", ".lang-seg button", ".replay", ".compare-toggle", ".clr-legend ul", ".wafer-legend"];
+  const content = [".answer-text", ".pick-button .pick-q", ".foot p", ".caption-stack p:not(.caption-off)"];
+  await open("#step=agent");
+  for (const sel of [...controls, ".caption-next", ".node button, .timeline button", "summary"]) {
+    const v = await us(sel);
+    if (!v.length && !sel.includes(",") && sel !== "summary") problems.push(`select: no ${sel} on screen`);
+    if (v.some((x) => x !== "none")) problems.push(`select: ${sel} is selectable (${[...new Set(v)].join("/")})`);
+  }
+  for (const sel of content) {
+    const v = await us(sel);
+    if (!v.length) problems.push(`select: no ${sel} on screen`);
+    if (v.some((x) => x === "none")) problems.push(`select: ${sel} cannot be selected`);
+  }
+  await page.locator(".pick-button").click();
+  await page.waitForSelector(".pick-opt");
+  if ((await us(".pick-opt")).some((x) => x !== "none")) problems.push("select: picker options are selectable");
+  await page.keyboard.press("Escape");
+  await open("#step=approval&as=admin_all");
+  await click(".proposal-card button.approve");
+  await page.waitForSelector(".audit");
+  if ((await us(".audit li")).some((x) => x === "none")) problems.push("select: audit log cannot be selected");
+  if ((await us(".approvals button")).some((x) => x !== "none")) problems.push("select: approval buttons are selectable");
+  await click(".detail button.chip-cite");
+  const d = await page.waitForSelector(".drawer-body", { timeout: 3000 }).catch(() => null);
+  if (d && (await us(".drawer-body")).some((x) => x === "none")) problems.push("select: drawer text cannot be selected");
+  await page.keyboard.press("Escape");
+}
+
 // outside the guided steps the caption shows the current identity, not an empty band
 await open("#q=comp&as=admin_all");
 if (await page.locator(".step-on").count()) problems.push("free question: a guided step is selected");

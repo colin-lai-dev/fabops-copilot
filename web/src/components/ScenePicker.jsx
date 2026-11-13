@@ -34,15 +34,17 @@ export default function ScenePicker({ scenes, value, onChange }) {
   // Keep the active option visible by scrolling the list only. (scrollIntoView also scrolled the
   // page, and reacting to hover moved the list under the pointer: both made the screen shake.)
   const byKeys = useRef(true);
+  const [keyTick, setKeyTick] = useState(0); // every arrow key re-checks visibility, even at either end
   useEffect(() => {
     const el = list.current;
     const opt = open && document.getElementById(optId(flat[active] || {}));
     if (!el || !opt || !byKeys.current) return;
-    const top = opt.offsetTop - 32; // room for the sticky group label
+    const label = opt.closest("[role=group]")?.querySelector(".pick-group");
+    const top = opt.offsetTop - (label?.offsetHeight ?? 32); // keep it clear of the sticky group label
     const bottom = opt.offsetTop + opt.offsetHeight;
     if (top < el.scrollTop) el.scrollTop = Math.max(0, top);
     else if (bottom > el.scrollTop + el.clientHeight) el.scrollTop = bottom - el.clientHeight;
-  }, [active, open]);
+  }, [active, open, keyTick]);
 
   function choose(s) {
     onChange(s.id);
@@ -64,6 +66,7 @@ export default function ScenePicker({ scenes, value, onChange }) {
       e.preventDefault();
       byKeys.current = true;
       setActive(moves[e.key]);
+      setKeyTick((k) => k + 1);
     } else if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
       if (flat[active]) choose(flat[active]);

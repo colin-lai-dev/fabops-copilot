@@ -219,6 +219,26 @@ textarea {
   width: 100%;
   resize: vertical;
 }
+/* Controls are not text to select: quick repeated clicks or a drag across them must not highlight
+   their labels (handoff 031). Content stays selectable: the question, answers, notes, SOP text in
+   the drawer, tool arguments and results, the audit log, result numbers, the footer. */
+button,
+summary,
+[role="option"],
+.slot,
+.die,
+.wafer-legend,
+.clr-legend ul,
+.chart-legend {
+  -webkit-user-select: none;
+  user-select: none;
+}
+/* the picker trigger is a control, but the question it shows is the only place the question text
+   appears, so that text can still be selected and copied */
+.pick-button .pick-q {
+  -webkit-user-select: text;
+  user-select: text;
+}
 /* Focus: no ring on mouse or touch, a clear ring for keyboard users (main.jsx tracks the input). */
 :focus {
   outline: none;
@@ -567,8 +587,11 @@ button:active:not(:disabled):not(.link):not(.primary) {
   box-shadow: 0 12px 32px var(--shadow);
   padding: 4px 0;
 }
+/* z-index: the options are position: relative, so without it they (later in the DOM) painted over
+   the sticky label as they scrolled under it (handoff 031) */
 .pick-group {
   position: sticky;
+  z-index: 1;
   top: -4px;
   background: var(--surface);
   color: var(--ink-3);
@@ -1656,26 +1679,30 @@ mark.malicious {
   gap: 2px 18px;
 }
 .foot-links {
-  gap: 0 20px;
-  margin-bottom: 2px;
+  gap: 0 8px;
+  margin: 0 0 2px -8px; /* the links' own padding keeps the text where it was */
 }
 .foot-meta {
   font-size: 12px;
   color: var(--ink-3);
 }
-/* quiet links: text colour, no underline until hover or keyboard focus */
+/* quiet links: text colour, never underlined; on hover the text and icon take the accent colour
+   on a faint rounded background, like the header buttons (handoff 031) */
 .foot-link {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   min-height: 32px;
+  padding: 0 8px;
+  border-radius: 6px;
   color: var(--ink-2);
   font-weight: 500;
   text-decoration: none;
-  text-underline-offset: 3px;
 }
 .foot-meta .foot-link {
   min-height: 0;
+  padding: 1px 6px;
+  margin: 0 -6px;
   color: var(--ink-2);
 }
 .foot-icon {
@@ -1689,23 +1716,22 @@ mark.malicious {
   stroke-linejoin: round;
   color: var(--ink-3);
 }
-.foot-link:focus-visible {
-  color: var(--ink);
-  text-decoration: underline;
-}
+/* keyboard focus keeps only the site-wide outline (:focus-visible) */
 @media (hover: hover) {
-  .foot-link:hover {
-    color: var(--ink);
-    text-decoration: underline;
-  }
+  .foot-link:hover,
   .foot-link:hover .foot-icon {
     color: var(--violet);
+  }
+  .foot-link:hover {
+    background-color: var(--sunken);
   }
 }
 @media (prefers-reduced-motion: no-preference) {
   .foot-link,
   .foot-icon {
-    transition: color var(--t-fast) ease;
+    transition:
+      color var(--t-fast) ease,
+      background-color var(--t-fast) ease;
   }
 }
 @media (max-width: 600px) {
