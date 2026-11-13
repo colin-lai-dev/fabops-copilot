@@ -6,6 +6,8 @@
 
 ## 2026-11-13
 
+- **定版**（handoff 033）：網站內容定版於 site-v9.8；site-v9.9 只把 footer 影片連結換成 demo-v2。demo 影片重錄（自 site-v9.8、約 2:48、中英字幕）並公開為 release
+  [`demo-v2`](https://github.com/colin-lai-dev/fabops-copilot/releases/tag/demo-v2)（mp4 8.0 MB、webm 18.0 MB）；demo-v1 保留，`/v8/` 仍連 demo-v1。README、demo-script 連結已更新。GIF 未重錄。
 - site-v9.8 上線（handoff 032）：footer 作者連結的負 margin 讓 hover 背景蓋住「作者」4 px，已移除；自檢加 footer hover 不蓋字、不位移的斷言。
 - site-v9.7 上線（handoff 031）：選單分組標題被選項蓋住（sticky 缺 z-index）與鍵盤捲動已修；footer hover 改強調色加淡背景、無底線；控制元件 `user-select: none`、內容區可選取（題目文字例外保留可選取）。自檢加三組斷言。
 - site-v9.6 上線（handoff 030）：六片卡片逐列對齊。英文「System administrator」縮為「System admin」（唯一在 320 寬放不下的）；移除雙語名字預留；等級列以 container query 讓六張卡片同時換行。自檢加同排對齊斷言（中英）。
