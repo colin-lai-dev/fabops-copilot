@@ -441,9 +441,6 @@ button:active:not(:disabled):not(.link):not(.primary) {
 .caption-me b {
   color: var(--ink);
 }
-.caption-me .fine {
-  flex-basis: 100%;
-}
 .caption-next {
   flex: none;
   white-space: nowrap;
