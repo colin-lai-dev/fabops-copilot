@@ -1,6 +1,6 @@
 // Drive the replay site through its seven steps and record it.
 //
-//   node scripts/record-demo.mjs video <url> <outDir>   # ~2.5 min, 1920x1080 webm, subtitles on
+//   node scripts/record-demo.mjs video <url> <outDir>   # ~3 min, 1920x1080 webm, subtitles on
 //   node scripts/record-demo.mjs gif   <url> <outFile>  # ~30 s GIF for the README (960x540)
 //
 // <url> is the replay build, e.g. http://localhost:4173/fabops-copilot/ (vite preview --mode replay).
@@ -94,7 +94,7 @@ if (kind === "video") {
   const { browser, context, page } = await open(size, { recordVideo: { dir: out, size } });
   // larger text for a 1080p video: zoom the scrolling content, not the 100vh frame
   await page.addStyleTag({ content: ".app-scroll > * { zoom: 1.25; } .subtitles { font-size: 23px; } .subtitles .en { font-size: 17px; }" });
-  await story(page, (ms) => sleep(ms * 2.4)); // the video lingers; the GIF does not
+  await story(page, (ms) => sleep(ms * 3.3)); // the video lingers so a first-time viewer can read the subtitles; the GIF does not
   const video = page.video();
   await context.close();
   await browser.close();
