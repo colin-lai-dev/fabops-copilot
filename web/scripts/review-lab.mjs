@@ -112,6 +112,22 @@ await shot("approval-c-approved");
 if ((await page.locator(".audit li").count()) < 5) problems.push("approval: audit log gone after a full-page screenshot");
 if (!(await page.locator(".node-proposal .state-executed").count())) problems.push("approval: proposal not shown as executed");
 
+// every wafer in the lot: the name never overlaps the wafer, the verdict stays inside the card (handoff 028)
+{
+  const bad = await page.$$eval(".slot", (ss) =>
+    ss
+      .map((s, i) => {
+        const m = s.querySelector(".mini").getBoundingClientRect();
+        const n = s.querySelector(".slot-name").getBoundingClientRect();
+        const v = s.querySelector(".slot-verdict").getBoundingClientRect();
+        const hit = n.left < m.right && n.right > m.left && n.top < m.bottom && n.bottom > m.top;
+        return hit || v.bottom > s.getBoundingClientRect().bottom ? i + 1 : 0;
+      })
+      .filter(Boolean),
+  );
+  if (bad.length) problems.push(`lot: name over wafer or verdict outside the card on wafer ${bad.join(", ")}`);
+}
+
 // the clearance legend: its four chips on one row, inside the column (handoff 027)
 {
   const rows = await page.$$eval(".clr-legend ul", (us) =>

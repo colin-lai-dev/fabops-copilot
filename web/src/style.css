@@ -586,7 +586,7 @@ button:active:not(:disabled):not(.link):not(.primary) {
 /* ---------------------------------------------------------------- the lot */
 .lot {
   position: relative;
-  min-height: 270px;
+  min-height: 279px;
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
   background: var(--surface);
@@ -603,13 +603,16 @@ button:active:not(:disabled):not(.link):not(.primary) {
 .col + .col {
   border-left: 1px solid var(--line-2);
 }
+/* a flex column, not a grid: in a grid the wafer's percentage width plus aspect-ratio is cyclic
+   when rows are sized, so its row came out shorter than the wafer and the name overlapped it */
 .slot {
-  display: grid;
-  justify-items: start;
-  align-content: start;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
   gap: 1px;
   width: 100%;
-  height: 268px;
+  height: 277px; /* wafer 132 + its 6/8 px margins, name, id, meta (may wrap), verdict */
   padding: 12px 16px 12px;
   border: none;
   border-radius: 0;
@@ -623,6 +626,7 @@ button:active:not(:disabled):not(.link):not(.primary) {
   color: var(--ink-3);
 }
 .mini {
+  flex: none;
   width: min(100%, 132px);
   aspect-ratio: 1;
   margin: 6px 0 8px;
