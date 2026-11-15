@@ -4,6 +4,11 @@
 細節本身留在對應文件：架構決策 → `docs/decisions/`，實驗 → `docs/experiments.md`，
 待決事項 → `docs/open-questions.md`，階段驗收 → `docs/gates/`，程式變更 → git log。
 
+## 2026-11-15
+
+- site-v9.10 上線（handoff 034）：新增設計決策索引 `docs/decisions/README.md`（中）與 `README.en.md`（英）——ADR-0001～0010 一份一列（選了什麼 vs 沒選什麼、關鍵依據附 n 與來源），
+  另列 5 項量測後不採用的做法；README 與網站 footer（「設計決策」，英文模式連英文版）加入口。自檢加 footer 連結不重疊、手機觸控高 ≥ 40 px、依語言連結正確的斷言。
+
 ## 2026-11-13
 
 - **定版**（handoff 033）：網站內容定版於 site-v9.8；site-v9.9 只把 footer 影片連結換成 demo-v2。demo 影片重錄（自 site-v9.8、約 2:48、中英字幕）並公開為 release
