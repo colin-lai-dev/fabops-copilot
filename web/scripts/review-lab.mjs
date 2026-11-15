@@ -294,6 +294,40 @@ await lotCheck("approval en");
   await page.mouse.move(0, 0);
 }
 
+// footer link boxes (handoff 034): no two overlap, each is >= 40 px tall on phones (touch target),
+// and the design-decisions link opens the index for the current language in a new tab
+for (const [hash, file] of [["#step=sop", "README.md"], ["#step=sop&lang=en", "README.en.md"]]) {
+  await open(hash);
+  await page.locator(".foot").scrollIntoViewIfNeeded();
+  const links = await page.$$eval(".foot a", (as) =>
+    as.map((a) => {
+      const r = a.getBoundingClientRect();
+      return {
+        href: a.getAttribute("href"),
+        target: a.target,
+        rel: a.rel,
+        sr: !!a.querySelector(".sr-only"),
+        box: [r.left, r.top, r.right, r.bottom],
+        text: a.textContent.trim(),
+      };
+    }),
+  );
+  const dec = links.filter((l) => l.href && l.href.includes("/docs/decisions/"));
+  if (dec.length !== 1) problems.push(`footer ${hash}: ${dec.length} design-decision links`);
+  else {
+    const d = dec[0];
+    if (!d.href.endsWith(`/blob/main/docs/decisions/${file}`)) problems.push(`footer ${hash}: decisions link is ${d.href}`);
+    if (d.target !== "_blank" || !d.rel.includes("noopener") || !d.sr) problems.push(`footer ${hash}: decisions link is not a new-tab link`);
+  }
+  for (const [i, l] of links.entries()) {
+    if (width < 600 && l.box[3] - l.box[1] < 40) problems.push(`footer: "${l.text}" is ${Math.round(l.box[3] - l.box[1])} px tall`);
+    for (const m of links.slice(i + 1))
+      if (l.box[0] < m.box[2] - 0.5 && l.box[2] > m.box[0] + 0.5 && l.box[1] < m.box[3] - 0.5 && l.box[3] > m.box[1] + 0.5)
+        problems.push(`footer: "${l.text}" overlaps "${m.text}"`);
+  }
+  if (width === 1280 || width === 375) await page.locator(".foot").screenshot({ path: path.join(out, `${scheme}-${width}-footer${file.includes("en") ? "-en" : ""}.png`) });
+}
+
 // outside the guided steps the caption shows the current identity, not an empty band
 await open("#q=comp&as=admin_all");
 if (await page.locator(".step-on").count()) problems.push("free question: a guided step is selected");

@@ -208,6 +208,7 @@ const FOOT_ICONS = {
   chart: "M4 20h16M7 16v-5M12 16V7M17 16v-8",
   video: "M3 6h18v12H3zM10 9.5v5l4.5-2.5z",
   history: "M3 12a9 9 0 1 0 3-6.7M3 4v4h4M12 8v4l3 2",
+  fork: "M16 3h5v5M8 3H3v5M12 22v-8.3a4 4 0 0 0-1.17-2.83L3 3M15 9l6-6",
 };
 function FootLink({ href, icon, external, children }) {
   const t = useT();
@@ -239,6 +240,13 @@ function Footer({ meta }) {
         </FootLink>
         <FootLink href={`${REPO}#eval-results`} icon="chart" external>
           {t("foot.evals")}
+        </FootLink>
+        <FootLink
+          href={`${REPO}/blob/main/docs/decisions/${t.lang === "en" ? "README.en.md" : "README.md"}`}
+          icon="fork"
+          external
+        >
+          {t("foot.decisions")}
         </FootLink>
         <FootLink href={`${REPO}/releases/tag/demo-v2`} icon="video" external>
           {t("foot.video")}
