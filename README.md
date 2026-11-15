@@ -229,6 +229,8 @@ and a no-LLM eval (generators reproduce the committed sets; MES tool leak cases 
 ## Design decisions
 
 Each decision is an ADR in [docs/decisions/](docs/decisions/) (written in Traditional Chinese).
+For a one-page summary of every trade-off (chosen vs not chosen, with the evidence and n), plus the
+approaches measured and dropped, see the [decision index](docs/decisions/README.en.md) ([中文](docs/decisions/README.md)).
 
 - [ADR-0001](docs/decisions/0001-identity-injection.md) — Identity reaches agent tools via a short-lived JWT verified at the MCP boundary, never as a tool argument.
 - [ADR-0002](docs/decisions/0002-permission-model.md) — Permission model: clearance level + fab + department, one pure-function source of truth.
