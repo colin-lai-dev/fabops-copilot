@@ -4,6 +4,11 @@
 細節本身留在對應文件：架構決策 → `docs/decisions/`，實驗 → `docs/experiments.md`，
 待決事項 → `docs/open-questions.md`，階段驗收 → `docs/gates/`，程式變更 → git log。
 
+## 2026-11-18
+
+- 交接自動執行（handoff 035）：CLAUDE.md 加入交接狀態協定（完成記號 `<!-- handoff-ready -->`、執行中／已完成／需要 Colin／失敗）與無人值守規則；
+  手動啟動的監看程式放在 `private/automation/`（不進 git，說明見其 README）。smoke test 990（已完成）與 991（git push → 需要 Colin）皆通過。
+
 ## 2026-11-15
 
 - site-v9.10 上線（handoff 034）：新增設計決策索引 `docs/decisions/README.md`（中）與 `README.en.md`（英）——ADR-0001～0010 一份一列（選了什麼 vs 沒選什麼、關鍵依據附 n 與來源），
