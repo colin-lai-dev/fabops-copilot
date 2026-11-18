@@ -8,6 +8,8 @@
 
 - 交接自動執行（handoff 035）：CLAUDE.md 加入交接狀態協定（完成記號 `<!-- handoff-ready -->`、執行中／已完成／需要 Colin／失敗）與無人值守規則；
   手動啟動的監看程式放在 `private/automation/`（不進 git，說明見其 README）。smoke test 990（已完成）與 991（git push → 需要 Colin）皆通過。
+- 監看程式改為即時觸發（handoff 036）：FileSystemWatcher＋3 秒 debounce，30 秒輪詢備援，只在狀態變化時記錄；偵測到 Remote Control 時暫停。
+  CLAUDE.md 寫入自動／手動兩種模式與「草稿（等 Colin 確認）」狀態。992 實測改名後約 1 秒觸發；「啟動」資料夾變更待 Colin 執行 `install-startup.ps1`。
 
 ## 2026-11-15
 
